@@ -57,7 +57,13 @@
     color: #fff;
     box-shadow: 0 5px 0 rgba(0,0,0,0.18);
     transition: transform .08s, box-shadow .08s, opacity .2s;
+    position: relative;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
   }
+  /* おせる はんい を まわり に すこし ひろげる（おした とき したに うごいても はずれない） */
+  button::before { content: ""; position: absolute; inset: -6px; }
   button:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,0.18); }
 
   .choice {
@@ -71,7 +77,10 @@
   .c-minus { background: var(--minus); }
   .c-times { background: var(--times); }
   .c-divide { background: var(--divide); color: #5c3d00; }
-  .c-level { background: #9775fa; }
+  .c-level { background: #9775fa; padding: 10px 6px; }
+  .c-level2 { background: #e64980; }
+  .c-level .stars { display: block; font-size: 18px; line-height: 1.4; }
+  .c-level small { display: block; font-size: 18px; }
 
   .big-btn {
     width: 100%;
@@ -101,7 +110,7 @@
   .card {
     background: var(--card);
     border-radius: 24px;
-    padding: 10px 12px;
+    padding: 10px 12px 6px;
     box-shadow: 0 4px 14px rgba(0,0,0,0.08);
     text-align: center;
   }
@@ -115,44 +124,49 @@
     margin-top: 6px;
     font-size: 36px;
     font-weight: bold;
-    min-height: 56px;
+    min-height: 54px;
     border: 4px dashed #ffc078;
     border-radius: 16px;
-    padding: 4px;
+    padding: 0 4px;
     color: #333;
   }
   .answer-box.empty { color: #ccc; }
   .result {
-    min-height: 58px;
+    min-height: 52px;
     font-size: 24px;
     font-weight: bold;
-    margin-top: 6px;
+    margin-top: 2px;
   }
   .result.ok { color: var(--ok); }
   .result.ng { color: var(--ng); }
-  .result small { display: block; font-size: 20px; color: var(--text); }
+  .result small { display: block; font-size: 24px; line-height: 1.2; color: var(--text); }
+  .result small b { font-size: 40px; color: var(--ng); margin-left: 4px; }
 
   .keypad {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
-    margin-top: 12px;
+    margin-top: 10px;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
   }
   .keypad button {
-    font-size: 28px;
+    font-size: 32px;
     line-height: 1;
     padding: 0;
-    height: 52px;
+    height: 56px;
     background: #fff;
     color: #333;
     box-shadow: 0 5px 0 #e0c9a6;
     border: 3px solid #ffd8a8;
   }
   .keypad .k-del { background: #ffe3e3; border-color: #ffc9c9; font-size: 18px; line-height: 1.2; }
+  .keypad button.pressed { transform: translateY(4px); box-shadow: 0 1px 0 #e0c9a6; background: #fff3bf; }
   .action {
     width: 100%;
     font-size: 26px;
-    padding: 14px;
+    padding: 12px;
     margin-top: 12px;
     background: var(--ok);
   }
@@ -203,26 +217,28 @@
 
   /* パソコン など ひろい がめん：1がめん に おさまる ように すこし コンパクト に */
   @media (min-width: 600px) {
-    .wrap { max-width: 640px; padding: 12px 16px; }
+    .wrap { max-width: 640px; padding: 8px 16px; }
     h1 { font-size: 28px; margin: 8px 0 16px; }
     h2 { font-size: 20px; margin: 18px 0 10px; }
     .grid { gap: 14px; }
 
     /* はじめ がめん：けいさん の しゅるい を 4つ ならべる */
     #opChoices { grid-template-columns: repeat(4, 1fr); }
+    #levelChoices { grid-template-columns: repeat(4, 1fr); }
     .choice { font-size: 20px; padding: 14px 6px; }
     .choice .mark { font-size: 36px; }
     .big-btn { font-size: 26px; padding: 14px; margin-top: 26px; }
 
     /* もんだい がめん */
-    .progress { margin: 8px 0 12px; }
-    .card { padding: 12px 14px; }
+    .progress { margin: 6px 0 8px; }
+    .card { padding: 8px 14px; }
     .question { font-size: 42px; }
     .answer-box { font-size: 34px; min-height: 52px; }
     .result { min-height: 54px; font-size: 22px; margin-top: 4px; }
-    .result small { font-size: 18px; }
-    .keypad { gap: 8px; margin-top: 14px; }
-    .keypad button { height: 42px; font-size: 26px; }
+    .result small { display: inline-block; margin-left: 16px; font-size: 22px; }
+    .result small b { font-size: 36px; }
+    .keypad { gap: 8px; margin-top: 12px; }
+    .keypad button { height: 48px; font-size: 30px; }
     .keypad .k-del { font-size: 16px; }
     .action { font-size: 24px; padding: 10px; margin-top: 14px; }
 
@@ -252,14 +268,67 @@
     .card { padding: 16px 18px; }
     .answer-box { margin-top: 10px; }
     .result { margin-top: 8px; }
+    .result { font-size: 26px; }
+    .result small { font-size: 26px; }
+    .result small b { font-size: 46px; }
     .keypad { gap: 10px; margin-top: 16px; }
-    .keypad button { height: 44px; }
+    .keypad button { height: 54px; }
     .action { padding: 12px; margin-top: 16px; }
 
     #finish .card { padding: 20px 24px; }
     .review { margin-top: 16px; }
     .review li { padding: 9px 4px; }
     .finish-btns .big-btn { margin-top: 22px; }
+  }
+
+  /* たて が もっと ひろい パソコン では、さらに ゆったり */
+  @media (min-width: 600px) and (min-height: 800px) {
+    .wrap { padding: 24px 16px; }
+    h1 { font-size: 30px; margin: 16px 0 28px; }
+    h2 { margin: 28px 0 14px; }
+    .grid { gap: 18px; }
+    .choice { padding: 22px 6px; }
+    .choice .mark { font-size: 40px; }
+    .big-btn { padding: 18px; margin-top: 36px; }
+
+    .progress { margin: 14px 0 18px; }
+    .card { padding: 22px 20px; }
+    .question { font-size: 46px; }
+    .answer-box { margin-top: 14px; min-height: 60px; }
+    .result { min-height: 60px; margin-top: 10px; }
+    .keypad { gap: 12px; margin-top: 20px; }
+    .keypad button { height: 62px; font-size: 32px; }
+    .action { padding: 14px; margin-top: 20px; }
+
+    #finish .card { padding: 24px 28px; }
+    .praise { margin: 6px 0 8px; }
+    .score { font-size: 60px; }
+    .review { margin-top: 20px; }
+    .review li { padding: 12px 4px; }
+    .finish-btns .big-btn { margin-top: 28px; }
+  }
+
+  @media (min-width: 600px) and (min-height: 900px) {
+    .wrap { padding: 32px 16px; }
+    h1 { margin: 20px 0 36px; }
+    h2 { margin: 36px 0 16px; }
+    .grid { gap: 20px; }
+    .choice { padding: 28px 6px; }
+    .big-btn { padding: 20px; margin-top: 44px; }
+
+    .progress { margin: 16px 0 24px; }
+    .card { padding: 28px 22px; }
+    .answer-box { margin-top: 18px; }
+    .result { margin-top: 14px; }
+    .keypad { gap: 14px; margin-top: 26px; }
+    .keypad button { height: 68px; font-size: 34px; }
+    .action { padding: 16px; margin-top: 26px; }
+
+    #finish .card { padding: 30px 32px; }
+    .praise { margin: 8px 0 12px; }
+    .review { margin-top: 24px; }
+    .review li { padding: 14px 4px; }
+    .finish-btns .big-btn { margin-top: 34px; }
   }
 </style>
 </head>
@@ -280,8 +349,10 @@
 
     <h2>② むずかしさ は？</h2>
     <div class="grid grid-2" id="levelChoices">
-      <button class="choice c-level selected" data-level="1"><span class="mark">⭐</span>1けた</button>
-      <button class="choice c-level" data-level="2"><span class="mark">⭐⭐</span>2けた</button>
+      <button class="choice c-level selected" data-level="1e"><span class="stars">⭐</span>1けた<small>やさしい</small></button>
+      <button class="choice c-level" data-level="1h"><span class="stars">⭐⭐</span>1けた<small>むずかしい</small></button>
+      <button class="choice c-level c-level2" data-level="2e"><span class="stars">⭐⭐⭐</span>2けた<small>やさしい</small></button>
+      <button class="choice c-level c-level2" data-level="2h"><span class="stars">⭐⭐⭐⭐</span>2けた<small>むずかしい</small></button>
     </div>
 
     <button class="big-btn" id="startBtn">スタート！</button>
@@ -335,10 +406,11 @@
 (() => {
   const TOTAL = 10;
   const MAX_DIGITS = 4;
-  const AUTO_NEXT_MS = 2000;
+  const AUTO_NEXT_OK_MS = 1500; // せいかい の とき
+  const AUTO_NEXT_NG_MS = 3000; // まちがい の とき（こたえ を みる じかん）
 
   let op = "+";
-  let level = 1;
+  let level = "1e";
   let problems = [];
   let index = 0;
   let input = "";
@@ -361,36 +433,73 @@
     });
   }
   setupChoices("opChoices", (d) => { op = d.op; });
-  setupChoices("levelChoices", (d) => { level = Number(d.level); });
+  setupChoices("levelChoices", (d) => { level = d.level; });
 
   // ---- もんだい を つくる ----
   const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
+  // じょうけん に あう もんだい が でる まで つくりなおす
+  function pick(make, ok) {
+    for (;;) { const v = make(); if (ok(v)) return v; }
+  }
+  const ones = (n) => n % 10;
+  const tens = (n) => Math.floor(n / 10);
+
+  // むずかしさ
+  //   1e: 1けた やさしい   1h: 1けた むずかしい
+  //   2e: 2けた やさしい   2h: 2けた むずかしい
   function makeProblem() {
     let a, b, ans;
-    const one = level === 1;
     switch (op) {
       case "+":
-        a = one ? rand(1, 9) : rand(10, 99);
-        b = one ? rand(1, 9) : rand(10, 99);
+        [a, b] = pick(
+          () => level[0] === "1" ? [rand(1, 9), rand(1, 9)] : [rand(10, 99), rand(10, 99)],
+          ([x, y]) => {
+            const carry = ones(x) + ones(y) >= 10 || (level[0] === "1" && x + y >= 10);
+            if (level === "1e") return x + y <= 9;            // くりあがり なし
+            if (level === "1h") return x + y >= 10;           // くりあがり あり
+            if (level === "2e") return !carry && x + y <= 99; // くりあがり なし
+            return carry;                                     // くりあがり あり
+          });
         ans = a + b;
         break;
       case "-":
         // こたえ が マイナス に ならない ように する
-        a = one ? rand(2, 18) : rand(20, 99);
-        b = one ? rand(1, Math.min(9, a - 1)) : rand(10, a - 1);
+        [a, b] = pick(
+          () => level === "1e" ? [rand(2, 9), rand(1, 8)]
+              : level === "1h" ? [rand(11, 18), rand(2, 9)]
+              : [rand(20, 99), rand(10, 98)],
+          ([x, y]) => {
+            if (x <= y) return false;
+            if (level === "1e") return true;                  // 9 までの ひきざん
+            if (level === "1h") return ones(x) < y;           // くりさがり あり
+            if (level === "2e") return ones(x) >= ones(y);    // くりさがり なし
+            return ones(x) < ones(y);                         // くりさがり あり
+          });
         ans = a - b;
         break;
       case "×":
-        // 2けた は 「2けた × 1けた」
-        a = one ? rand(1, 9) : rand(11, 99);
-        b = one ? rand(1, 9) : rand(2, 9);
+        [a, b] = pick(
+          () => level[0] === "1" ? [rand(1, 9), rand(1, 9)] : [rand(11, 99), rand(2, 9)],
+          ([x, y]) => {
+            if (level === "1e") return x <= 5;                // 1〜5 の だん
+            if (level === "1h") return x >= 6;                // 6〜9 の だん
+            const easy = tens(x) * y < 10 && ones(x) * y < 10;
+            return level === "2e" ? easy : !easy;             // くりあがり なし / あり
+          });
         ans = a * b;
         break;
       case "÷":
         // かならず わりきれる もんだい
-        b = one ? rand(1, 9) : rand(2, 9);
-        ans = one ? rand(1, 9) : rand(10, 30);
+        [b, ans] = pick(
+          () => level[0] === "1" ? [rand(1, 9), rand(1, 9)] : [rand(2, 9), rand(10, 49)],
+          ([y, q]) => {
+            if (level === "1e") return y <= 5;                // 1〜5 の だん の ぎゃく
+            if (level === "1h") return y >= 6;                // 6〜9 の だん の ぎゃく
+            if (y * q > 99) return false;                     // わられる かず は 2けた
+            const easy = tens(q) * y < 10 && ones(q) * y < 10;
+            return level === "2e" ? easy : !easy;             // 84÷4 の ような かんたん な もの / 72÷4 の ような もの
+          });
         a = b * ans;
         break;
     }
@@ -504,12 +613,12 @@
       r.className = "result ng pop";
     }
     $("bar").style.width = `${((index + 1) / TOTAL) * 100}%`;
-    // 2びょう たったら じどう で つぎ へ すすむ
+    // せいかい は 1.5びょう、まちがい は 3びょう で じどう で つぎ へ すすむ
     const btn = $("checkBtn");
     btn.textContent = index + 1 < TOTAL ? "つぎ に すすむよ…" : "けっか を だすよ…";
     btn.className = "action next";
     btn.disabled = true;
-    autoNextId = setTimeout(next, AUTO_NEXT_MS);
+    autoNextId = setTimeout(next, p.correct ? AUTO_NEXT_OK_MS : AUTO_NEXT_NG_MS);
   }
 
   function next() {
@@ -547,7 +656,34 @@
     if (confirm("とちゅう で やめる？")) { stopTimer(); show("start"); }
   });
   $("checkBtn").addEventListener("click", check);
+  // すうじ ボタン は「おした しゅんかん」に はんのう する。
+  // ボタン と ボタン の すきま を おした とき は、いちばん ちかい ボタン と して あつかう。
+  function nearestKey(x, y) {
+    let best = null, bestDist = Infinity;
+    $("keypad").querySelectorAll("button").forEach((b) => {
+      const r = b.getBoundingClientRect();
+      const dx = Math.max(r.left - x, 0, x - r.right);
+      const dy = Math.max(r.top - y, 0, y - r.bottom);
+      const d = dx * dx + dy * dy;
+      if (d < bestDist) { bestDist = d; best = b; }
+    });
+    return best;
+  }
+  function flash(btn) {
+    btn.classList.add("pressed");
+    setTimeout(() => btn.classList.remove("pressed"), 120);
+  }
+  $("keypad").addEventListener("pointerdown", (e) => {
+    if (e.button !== 0) return;
+    e.preventDefault(); // もじ の せんたく や ダブルタップ で の かくだい を ふせぐ
+    const btn = nearestKey(e.clientX, e.clientY);
+    if (!btn || btn.disabled) return;
+    flash(btn);
+    pressKey(btn.dataset.key);
+  });
+  // Tab キー で えらんで Enter / スペース で おした とき
   $("keypad").addEventListener("click", (e) => {
+    if (e.detail !== 0) return; // マウス・タッチ は pointerdown で しょり ずみ
     const btn = e.target.closest("button");
     if (btn && !btn.disabled) pressKey(btn.dataset.key);
   });
@@ -557,7 +693,10 @@
     if (!$("quiz").classList.contains("active")) return;
     if (/^[0-9]$/.test(e.key)) pressKey(e.key);
     else if (e.key === "Backspace") { e.preventDefault(); pressKey("back"); }
-    else if (e.key === "Enter") { e.preventDefault(); check(); }
+    else if (e.key === "Enter") {
+      if (document.activeElement && document.activeElement.closest("#keypad")) return; // Tab で えらんだ すうじ ボタン を おす
+      e.preventDefault(); check();
+    }
   });
 })();
 </script>
