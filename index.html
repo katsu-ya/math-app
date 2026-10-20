@@ -209,6 +209,49 @@
   @keyframes pop { 0% { transform: scale(.6); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
   .pop { animation: pop .35s ease-out; }
 
+  /* カレンダー */
+  .calendar {
+    margin-top: 28px;
+    background: var(--card);
+    border-radius: 24px;
+    padding: 12px 12px 10px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    --cell: 42px;
+  }
+  .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .cal-title { font-size: 22px; font-weight: bold; }
+  .cal-nav { width: 52px; height: 40px; padding: 0; font-size: 18px; border-radius: 14px; background: var(--main); }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; text-align: center; }
+  .cal-week { margin-bottom: 3px; }
+  .cal-week span { font-size: 14px; font-weight: bold; color: #888; }
+  .cal-week .sun, .cal-day.sun .cal-num { color: #e03131; }
+  .cal-week .sat, .cal-day.sat .cal-num { color: #1c7ed6; }
+  .cal-day {
+    position: relative;
+    height: var(--cell);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 12px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .cal-day.future .cal-num { opacity: .4; }
+  .cal-day.today { background: #ffe8cc; box-shadow: inset 0 0 0 3px var(--main); }
+  .cal-day.today .cal-num { color: #d9480f; font-size: 20px; }
+  .cal-day.picked { box-shadow: inset 0 0 0 2px #adb5bd; }
+  .cal-day.today.picked { box-shadow: inset 0 0 0 3px var(--main); }
+  .cal-num { position: relative; z-index: 1; text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 2px #fff; }
+  .cal-mark { position: absolute; inset: 1px; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+  .cal-mark svg { height: 100%; width: 100%; }
+  .cal-info { margin-top: 8px; min-height: 1.4em; font-size: 18px; font-weight: bold; text-align: center; color: #d9480f; }
+  .cal-legend { margin-top: 4px; display: flex; justify-content: center; align-items: center; gap: 14px; font-size: 14px; color: #777; }
+  .cal-legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .cal-legend svg { width: 22px; height: 22px; }
+
   @media (max-width: 380px) {
     .question { font-size: 42px; }
     .choice { font-size: 20px; }
@@ -253,6 +296,24 @@
     .review .fix { font-size: 15px; }
     .finish-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .finish-btns .big-btn { margin-top: 18px; font-size: 24px; }
+  }
+
+  /* ひろい パソコン：はじめ の がめん は、ひだり に えらぶ ところ、みぎ に カレンダー */
+  @media (min-width: 860px) {
+    body.on-start .wrap { max-width: 1080px; }
+    .start-layout { display: grid; grid-template-columns: 1.15fr 1fr; gap: 36px; align-items: start; }
+    .calendar { margin-top: 10px; --cell: 40px; }
+  }
+  @media (min-width: 860px) and (min-height: 700px) {
+    .calendar { margin-top: 16px; padding: 14px 16px 12px; --cell: 46px; }
+  }
+  @media (min-width: 860px) and (min-height: 800px) {
+    .calendar { margin-top: 22px; --cell: 52px; }
+    .cal-day { font-size: 20px; }
+  }
+  @media (min-width: 860px) and (min-height: 900px) {
+    .calendar { margin-top: 30px; padding: 18px 18px 14px; --cell: 58px; }
+    .cal-grid { gap: 4px; }
   }
 
   /* たて に よゆう が ある パソコン では、もう すこし ゆったり */
@@ -332,13 +393,15 @@
   }
 </style>
 </head>
-<body>
+<body class="on-start">
 <div class="wrap">
 
   <!-- はじめ がめん -->
   <section id="start" class="screen active">
     <h1>🧮 けいさん れんしゅう</h1>
 
+    <div class="start-layout">
+    <div class="start-main">
     <h2>① どの けいさん を する？</h2>
     <div class="grid grid-2" id="opChoices">
       <button class="choice c-plus selected" data-op="+"><span class="mark">＋</span>たしざん</button>
@@ -356,6 +419,23 @@
     </div>
 
     <button class="big-btn" id="startBtn">スタート！</button>
+    </div>
+
+    <!-- カレンダー -->
+    <div class="calendar">
+      <div class="cal-head">
+        <button class="cal-nav" id="calPrev" aria-label="まえ の つき">◀</button>
+        <div class="cal-title" id="calTitle"></div>
+        <button class="cal-nav" id="calNext" aria-label="つぎ の つき">▶</button>
+      </div>
+      <div class="cal-grid cal-week">
+        <span class="sun">にち</span><span>げつ</span><span>か</span><span>すい</span><span>もく</span><span>きん</span><span class="sat">ど</span>
+      </div>
+      <div class="cal-grid" id="calDays"></div>
+      <div class="cal-info" id="calInfo"></div>
+      <div class="cal-legend" id="calLegend"></div>
+    </div>
+    </div>
   </section>
 
   <!-- もんだい がめん -->
@@ -520,10 +600,131 @@
     return list;
   }
 
+  // ---- きろく（ブラウザ に ほぞん して、とじても きえない）----
+  const RECORD_KEY = "keisan-renshu-records";
+  const MARU_COUNT = 10;     // この かず いじょう で ○
+  const HANAMARU_COUNT = 20; // この かず いじょう で はなまる
+
+  function loadRecords() {
+    try {
+      const data = JSON.parse(localStorage.getItem(RECORD_KEY));
+      return data && typeof data === "object" && !Array.isArray(data) ? data : {};
+    } catch (e) {
+      return {};
+    }
+  }
+  let records = loadRecords();
+
+  const pad2 = (n) => String(n).padStart(2, "0");
+  const dateKey = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+  const countOf = (key) => Number(records[key]) || 0;
+
+  // こたえあわせ を する たび に、その日 の かず を 1 ふやす
+  function addRecord() {
+    records = loadRecords(); // べつ の タブ で ふえた ぶん も いかす
+    const key = dateKey(new Date());
+    records[key] = countOf(key) + 1;
+    try { localStorage.setItem(RECORD_KEY, JSON.stringify(records)); } catch (e) { /* ほぞん できなくても つづける */ }
+  }
+
+  // ---- カレンダー ----
+  const MARU_SVG =
+    '<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="41" fill="none" stroke="#f03e3e" stroke-width="7"/></svg>';
+  const HANAMARU_SVG = (() => {
+    // まわり の はなびら
+    const N = 10, R = 38, r = 12;
+    const pt = (i) => {
+      const a = (i / N) * Math.PI * 2 - Math.PI / 2;
+      return `${(50 + R * Math.cos(a)).toFixed(1)} ${(50 + R * Math.sin(a)).toFixed(1)}`;
+    };
+    let petals = `M${pt(0)}`;
+    for (let i = 1; i <= N; i++) petals += ` A${r} ${r} 0 0 1 ${pt(i)}`;
+    // なか の ぐるぐる（まんなか の すうじ に かからない ように そと がわ だけ）
+    let spiral = "";
+    for (let i = 0; i <= 80; i++) {
+      const t = i / 80;
+      const a = -Math.PI / 2 + t * Math.PI * 2 * 1.75;
+      const rr = 31 - t * 9;
+      spiral += `${i ? " L" : "M"}${(50 + rr * Math.cos(a)).toFixed(1)} ${(50 + rr * Math.sin(a)).toFixed(1)}`;
+    }
+    return '<svg viewBox="0 0 100 100" aria-hidden="true"><g stroke="#f03e3e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">' +
+      `<path d="${petals}" fill="#fff0f6"/><path d="${spiral}" fill="none"/></g></svg>`;
+  })();
+  const markOf = (n) => n >= HANAMARU_COUNT ? HANAMARU_SVG : n >= MARU_COUNT ? MARU_SVG : "";
+
+  let calYear, calMonth, calPicked = null;
+
+  function resetCalendar() {
+    const now = new Date();
+    calYear = now.getFullYear();
+    calMonth = now.getMonth();
+    calPicked = null;
+    renderCalendar();
+  }
+
+  function renderCalendar() {
+    const todayKey = dateKey(new Date());
+    $("calTitle").textContent = `${calYear}ねん ${calMonth + 1}がつ`;
+    const first = new Date(calYear, calMonth, 1).getDay();
+    const days = new Date(calYear, calMonth + 1, 0).getDate();
+    let html = "";
+    for (let i = 0; i < first; i++) html += "<div></div>";
+    for (let d = 1; d <= days; d++) {
+      const key = `${calYear}-${pad2(calMonth + 1)}-${pad2(d)}`;
+      const wd = (first + d - 1) % 7;
+      const cls = ["cal-day",
+        wd === 0 ? "sun" : wd === 6 ? "sat" : "",
+        key === todayKey ? "today" : "",
+        key > todayKey ? "future" : "",
+        key === calPicked ? "picked" : ""].join(" ");
+      html += `<div class="${cls}" data-date="${key}">` +
+        `<span class="cal-mark">${markOf(countOf(key))}</span><span class="cal-num">${d}</span></div>`;
+    }
+    $("calDays").innerHTML = html;
+    renderCalInfo();
+  }
+
+  function renderCalInfo() {
+    const todayKey = dateKey(new Date());
+    const key = calPicked || todayKey;
+    const n = countOf(key);
+    let text;
+    if (key === todayKey) {
+      text = n >= HANAMARU_COUNT ? `きょう は ${n}もん！ はなまる 🎉`
+           : n >= MARU_COUNT ? `きょう は ${n}もん！ あと ${HANAMARU_COUNT - n}もん で はなまる`
+           : `きょう は ${n}もん。あと ${MARU_COUNT - n}もん で ○`;
+    } else {
+      const [, m, d] = key.split("-").map(Number);
+      text = key > todayKey ? `${m}がつ ${d}にち は まだ だよ`
+           : `${m}がつ ${d}にち は ${n}もん` + (n >= HANAMARU_COUNT ? " はなまる" : n >= MARU_COUNT ? " ○" : "");
+    }
+    $("calInfo").textContent = text;
+  }
+
+  $("calLegend").innerHTML =
+    `<span>${MARU_SVG} ${MARU_COUNT}もん いじょう</span><span>${HANAMARU_SVG} ${HANAMARU_COUNT}もん いじょう</span>`;
+  $("calPrev").addEventListener("click", () => {
+    if (--calMonth < 0) { calMonth = 11; calYear--; }
+    renderCalendar();
+  });
+  $("calNext").addEventListener("click", () => {
+    if (++calMonth > 11) { calMonth = 0; calYear++; }
+    renderCalendar();
+  });
+  $("calDays").addEventListener("click", (e) => {
+    const day = e.target.closest(".cal-day");
+    if (!day) return;
+    calPicked = calPicked === day.dataset.date ? null : day.dataset.date;
+    renderCalendar();
+  });
+  resetCalendar();
+
   // ---- がめん きりかえ ----
   function show(id) {
     document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
     $(id).classList.add("active");
+    document.body.classList.toggle("on-start", id === "start");
+    if (id === "start") resetCalendar();
     window.scrollTo(0, 0);
   }
 
@@ -602,6 +803,7 @@
     p.user = Number(input);
     p.correct = p.user === p.ans;
     answered = true;
+    addRecord();
     setKeypadEnabled(false);
 
     const r = $("result");
