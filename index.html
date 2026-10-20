@@ -734,11 +734,24 @@
   function unlockAudio() {
     try {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === "suspended") audioCtx.resume();
+      if (audioCtx.state !== "running") {
+        // iPhone で たしか に おと が でる ように、むおん を いっしゅん ならして から さいかい する
+        const src = audioCtx.createBufferSource();
+        src.buffer = audioCtx.createBuffer(1, 1, 22050);
+        src.connect(audioCtx.destination);
+        src.start(0);
+        audioCtx.resume();
+      }
     } catch (e) { /* おと が だせなくても つづける */ }
   }
-  document.addEventListener("pointerdown", unlockAudio);
-  document.addEventListener("keydown", unlockAudio);
+  // iPhone は ゆび を はなした とき か タップ した とき で ないと おと の じゅんび が できない ので、そこ で じゅんび する（タッチ した しゅんかん では だめ）
+  ["touchend", "click", "keydown"].forEach((type) => document.addEventListener(type, unlockAudio, true));
+
+  // がめん を けしたり ほか の アプリ に いったり して とまって いたら、ならす まえ に さいかい する
+  function readyAudio() {
+    if (audioCtx && audioCtx.state !== "running") audioCtx.resume().catch(() => {});
+    return audioCtx;
+  }
 
   function tone(freq, start, dur, type = "sine", vol = 0.35) {
     const osc = audioCtx.createOscillator();
@@ -754,14 +767,14 @@
   }
   // せいかい の「ピンポン」（たかい おと → ひくい おと）
   function playPinpon() {
-    if (!audioCtx) return;
+    if (!readyAudio()) return;
     const t = audioCtx.currentTime;
     tone(1319, t, 0.35);        // ピン（ミ）
     tone(1047, t + 0.18, 0.6);  // ポン（ド）
   }
   // まちがい の「ブブー」（ひくい ブザー の おと）
   function playBubu() {
-    if (!audioCtx) return;
+    if (!readyAudio()) return;
     const t = audioCtx.currentTime;
     tone(150, t, 0.16, "square", 0.12);        // ブ
     tone(150, t + 0.22, 0.6, "square", 0.12);  // ブー
