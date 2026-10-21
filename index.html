@@ -258,6 +258,83 @@
   }
   .home-btn { background: #9775fa; margin-top: 14px; font-size: 24px; }
 
+  /* おうちのかたへ（ほごしゃ むけ の がくしゅう レポート） */
+  .parent-link {
+    align-self: center;
+    margin-top: 20px;
+    background: none;
+    color: #888;
+    box-shadow: none;
+    font-size: 15px;
+    font-weight: normal;
+    padding: 6px 10px;
+    text-decoration: underline;
+  }
+  .parent-link:active { transform: none; box-shadow: none; }
+  #parent { font-size: 16px; line-height: 1.5; }
+  #parent h1 { margin-bottom: 6px; }
+  #parent h1 small { display: block; font-size: 16px; color: #888; font-weight: normal; }
+  .rp-card {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 14px 16px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    margin-top: 14px;
+  }
+  .rp-card h3 { margin: 0 0 10px; font-size: 18px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .rp-note { font-size: 13px; color: #888; font-weight: normal; }
+  .rp-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .rp-stat { background: var(--bg); border-radius: 12px; padding: 8px 10px; }
+  .rp-stat .label { font-size: 13px; color: #777; }
+  .rp-stat .val { font-size: 26px; font-weight: bold; color: #d9480f; line-height: 1.25; }
+  .rp-stat .val small { font-size: 14px; color: var(--text); margin-left: 2px; }
+  .rp-stat .sub { font-size: 12px; color: #888; min-height: 1.5em; }
+  .rp-op {
+    display: grid;
+    grid-template-columns: 4.6em 1fr 3.6em 3.6em;
+    align-items: center;
+    column-gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px dotted #ddd;
+  }
+  .rp-op:last-child { border-bottom: none; }
+  .rp-op > span:nth-child(n+3) { text-align: right; }
+  .rp-op-head { font-size: 12px; color: #888; padding: 0 0 4px; }
+  .rp-op-name { font-weight: bold; display: flex; align-items: center; gap: 6px; }
+  .rp-op-name i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .rp-op-bar { display: flex; align-items: center; gap: 8px; }
+  .rp-op-bar b { width: 2.8em; text-align: right; flex: none; }
+  .rp-op-bar .bar { flex: 1; height: 8px; background: #f1f3f5; border-radius: 4px; overflow: hidden; }
+  .rp-op-bar .bar span { display: block; height: 100%; }
+  .rp-op-sub { grid-column: 1 / -1; font-size: 12px; color: #888; text-align: left !important; }
+  .rp-op .up { color: var(--ok); font-weight: bold; }
+  .rp-op .down { color: var(--ng); font-weight: bold; }
+  .rp-op .flat { color: #888; }
+  .rp-weak { list-style: none; margin: 0; padding: 0; }
+  .rp-weak li { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-bottom: 1px dotted #ddd; }
+  .rp-weak li:last-child { border-bottom: none; }
+  .rp-weak .rank {
+    flex: none;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: #ffe8cc;
+    color: #d9480f;
+    font-weight: bold;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .rp-weak li:first-child .rank { background: var(--main); color: #fff; }
+  .rp-weak-sub { font-size: 13px; color: #777; }
+  .rp-empty { color: #888; }
+  .rp-advice { margin: 0 0 10px; }
+  .rp-advice:last-child { margin-bottom: 0; }
+  .rp-advice span { display: inline-block; font-size: 12px; font-weight: bold; color: #fff; border-radius: 6px; padding: 1px 8px; margin-right: 6px; }
+  .rp-advice.good span { background: var(--ok); }
+  .rp-advice.next span { background: var(--minus); }
+  .rp-foot { font-size: 12px; color: #888; margin: 12px 2px 0; }
+  @media (min-width: 600px) {
+    .rp-stats { grid-template-columns: repeat(3, 1fr); }
+  }
+
   /* パソコン など ひろい がめん：1がめん に おさまる ように すこし コンパクト に */
   @media (min-width: 600px) {
     .wrap { max-width: 640px; padding: 8px 16px; }
@@ -436,6 +513,36 @@
       <div class="cal-legend" id="calLegend"></div>
     </div>
     </div>
+
+    <button class="parent-link" id="parentBtn">おうちのかたへ</button>
+  </section>
+
+  <!-- おうちのかたへ（がくしゅう レポート） -->
+  <section id="parent" class="screen">
+    <h1>おうちのかたへ<small>学習レポート</small></h1>
+
+    <div class="rp-card">
+      <h3>取り組み</h3>
+      <div class="rp-stats" id="rpSummary"></div>
+    </div>
+
+    <div class="rp-card">
+      <h3>計算ごとの正答率 <span class="rp-note">今週（月曜〜）と先週の比較</span></h3>
+      <div id="rpOps"></div>
+    </div>
+
+    <div class="rp-card">
+      <h3>よく間違える問題 <span class="rp-note">直近30日</span></h3>
+      <ol class="rp-weak" id="rpWeak"></ol>
+    </div>
+
+    <div class="rp-card">
+      <h3>ひとことアドバイス</h3>
+      <div id="rpAdvice"></div>
+    </div>
+
+    <p class="rp-foot" id="rpFoot"></p>
+    <button class="big-btn home-btn" id="parentBack">もどる</button>
   </section>
 
   <!-- もんだい がめん -->
@@ -498,6 +605,7 @@
   let startTime = 0;
   let timerId = null;
   let autoNextId = null;
+  let shownAt = 0; // いま の もんだい を だした じこく
 
   const $ = (id) => document.getElementById(id);
 
@@ -627,6 +735,30 @@
     try { localStorage.setItem(RECORD_KEY, JSON.stringify(records)); } catch (e) { /* ほぞん できなくても つづける */ }
   }
 
+  // ---- 1もん ごと の きろく（おうちのかたへ の レポート で つかう）----
+  // けいさん・むずかしさ・もんだい・せいかい か・かかった じかん を のこす
+  const LOG_KEY = "keisan-renshu-log";
+  const LOG_KEEP_DAYS = 100; // これ より ふるい きろく は けす
+  const DAY_MS = 24 * 60 * 60 * 1000;
+
+  function loadLog() {
+    try {
+      const data = JSON.parse(localStorage.getItem(LOG_KEY));
+      return Array.isArray(data)
+        ? data.filter((e) => e && typeof e.t === "number" && "+-×÷".includes(e.op) && typeof e.lv === "string")
+        : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function addLog(p, ms) {
+    const now = Date.now();
+    const log = loadLog().filter((e) => e.t >= now - LOG_KEEP_DAYS * DAY_MS);
+    log.push({ t: now, op, lv: level, a: p.a, b: p.b, ok: p.correct ? 1 : 0, ms });
+    try { localStorage.setItem(LOG_KEY, JSON.stringify(log)); } catch (e) { /* ほぞん できなくても つづける */ }
+  }
+
   // ---- カレンダー ----
   const MARU_SVG =
     '<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="41" fill="none" stroke="#f03e3e" stroke-width="7"/></svg>';
@@ -719,12 +851,210 @@
   });
   resetCalendar();
 
+  // ---- おうちのかたへ（がくしゅう レポート）----
+  const OPS = [
+    { op: "+", name: "たし算", color: "var(--plus)" },
+    { op: "-", name: "ひき算", color: "var(--minus)" },
+    { op: "×", name: "かけ算", color: "var(--times)" },
+    { op: "÷", name: "わり算", color: "var(--divide)" },
+  ];
+  const AWAY_MS = 3 * 60 * 1000; // これ より ながく かかった もの は、せき を はなれた と みなして へいきん から のぞく
+  const WEAK_DAYS = 30;          // よく まちがえる もんだい を しらべる きかん
+
+  const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+  const pct = (r) => r == null ? "—" : `${Math.round(r * 100)}%`;
+  const secs = (ms) => ms == null ? "—" : `${(ms / 1000).toFixed(1)}秒`;
+
+  // きかん [from, to) の もんだいすう と べんきょう した ひ の かず（カレンダー の きろく から）
+  function countRange(from, to) {
+    let total = 0, days = 0;
+    for (let d = from; d < to; d = addDays(d, 1)) {
+      const n = countOf(dateKey(d));
+      total += n;
+      if (n > 0) days++;
+    }
+    return { total, days };
+  }
+
+  function summarize(list) {
+    const ok = list.filter((e) => e.ok).length;
+    const timed = list.filter((e) => e.ms > 0 && e.ms <= AWAY_MS);
+    return {
+      n: list.length,
+      rate: list.length ? ok / list.length : null,
+      avgMs: timed.length ? timed.reduce((s, e) => s + e.ms, 0) / timed.length : null,
+    };
+  }
+
+  // まちがい の なかま わけ（「7の段」「くり上がり」など）と、おうち で できる ひとこと
+  function weakTag(e) {
+    const two = e.lv[0] === "2";
+    const keta = two ? "2けた" : "1けた";
+    switch (e.op) {
+      case "+": {
+        const c = ones(e.a) + ones(e.b) >= 10;
+        return { key: `+${keta}${c}`, label: `たし算 くり上がり${c ? "あり" : "なし"}（${keta}）`,
+          tip: c ? "「10のまとまり」を作る考え方（7+8 → 7+3+5）を一緒に確かめてみましょう。"
+                 : "位をそろえて、一の位から順に計算する習慣をつけましょう。" };
+      }
+      case "-": {
+        const c = ones(e.a) < ones(e.b);
+        return { key: `-${keta}${c}`, label: `ひき算 くり下がり${c ? "あり" : "なし"}（${keta}）`,
+          tip: c ? "「10からひく」考え方（13−8 → 10−8+3）を一緒に確かめてみましょう。"
+                 : "位をそろえて、一の位から順に計算する習慣をつけましょう。" };
+      }
+      case "×": {
+        if (!two) return { key: `×${e.a}`, label: `かけ算 ${e.a}の段`,
+          tip: `${e.a}の段を声に出して唱える練習がおすすめです。` };
+        const c = !(tens(e.a) * e.b < 10 && ones(e.a) * e.b < 10);
+        return { key: `×2${c}`, label: `かけ算 2けた×1けた（くり上がり${c ? "あり" : "なし"}）`,
+          tip: c ? "くり上がった数を小さく書き留めてから、十の位を計算する練習をしてみましょう。"
+                 : "位ごとに分けて計算する考え方（34×2 → 30×2 と 4×2）を確かめましょう。" };
+      }
+      default: {
+        if (!two) return { key: `÷${e.b}`, label: `わり算 ÷${e.b}（${e.b}の段の逆）`,
+          tip: `わり算は九九の逆です。${e.b}の段の九九を復習すると解きやすくなります。` };
+        const q = e.a / e.b;
+        const c = !(tens(q) * e.b < 10 && ones(q) * e.b < 10);
+        return { key: `÷2${c}`, label: `わり算 2けた÷1けた（${c ? "十の位であまりが出る" : "各位がわりきれる"}）`,
+          tip: c ? "十の位のあまりを一の位に下ろす流れを、紙に書いて確かめましょう。"
+                 : "十の位、一の位の順に分けてわる考え方（68÷2 → 60÷2 と 8÷2）を確かめましょう。" };
+      }
+    }
+  }
+
+  // まちがい の おおい じゅん
+  function weakRanking(list) {
+    const groups = new Map();
+    list.forEach((e) => {
+      const tag = weakTag(e);
+      const g = groups.get(tag.key) || { ...tag, n: 0, miss: 0, probs: {} };
+      g.n++;
+      if (!e.ok) {
+        g.miss++;
+        const text = `${e.a} ${e.op} ${e.b}`;
+        g.probs[text] = (g.probs[text] || 0) + 1;
+      }
+      groups.set(tag.key, g);
+    });
+    return [...groups.values()]
+      .filter((g) => g.miss > 0)
+      .sort((x, y) => y.miss - x.miss || y.miss / y.n - x.miss / x.n)
+      .map((g) => {
+        const [text, times] = Object.entries(g.probs).sort((x, y) => y[1] - x[1])[0];
+        return { ...g, example: times > 1 ? `${text}（${times}回）` : text };
+      });
+  }
+
+  function diffHtml(cur, prev) {
+    if (cur == null || prev == null) return '<span class="flat">—</span>';
+    const d = Math.round(cur * 100) - Math.round(prev * 100);
+    return d > 0 ? `<span class="up">▲${d}</span>` : d < 0 ? `<span class="down">▼${-d}</span>` : '<span class="flat">±0</span>';
+  }
+
+  function renderReport() {
+    records = loadRecords();
+    const log = loadLog();
+    const today = startOfDay(new Date());
+    const tomorrow = addDays(today, 1);
+    const weekStart = addDays(today, -((today.getDay() + 6) % 7)); // げつようび はじまり
+    const lastWeekStart = addDays(weekStart, -7);
+    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+    const between = (from, to) => log.filter((e) => e.t >= from.getTime() && e.t < to.getTime());
+
+    // とりくみ（もんだいすう・ひにち は カレンダー と おなじ きろく から）
+    const week = countRange(weekStart, tomorrow);
+    const lastWeek = countRange(lastWeekStart, weekStart);
+    const month = countRange(monthStart, tomorrow);
+    const studiedToday = countOf(dateKey(today)) > 0;
+    let streak = 0;
+    // きょう まだ やって いなくても、きのう まで つづいて いれば れんぞく と する
+    for (let d = studiedToday ? today : addDays(today, -1); countOf(dateKey(d)) > 0; d = addDays(d, -1)) streak++;
+
+    const thisWeekLog = between(weekStart, tomorrow);
+    const lastWeekLog = between(lastWeekStart, weekStart);
+    const wAll = summarize(thisWeekLog);
+    const lwAll = summarize(lastWeekLog);
+
+    const tile = (label, val, unit, sub = "") =>
+      `<div class="rp-stat"><div class="label">${label}</div>` +
+      `<div class="val">${val}${val === "—" ? "" : `<small>${unit}</small>`}</div><div class="sub">${sub}</div></div>`;
+    $("rpSummary").innerHTML =
+      tile("今週 解いた問題", week.total, "問", `先週 ${lastWeek.total}問`) +
+      tile("今月 解いた問題", month.total, "問") +
+      tile("今週 勉強した日", week.days, "日", `先週 ${lastWeek.days}日`) +
+      tile("今月 勉強した日", month.days, "日") +
+      tile("連続日数", streak, "日", streak && !studiedToday ? "今日はまだ" : "") +
+      tile("今週 1問あたり平均", wAll.avgMs == null ? "—" : (wAll.avgMs / 1000).toFixed(1), "秒", `先週 ${secs(lwAll.avgMs)}`);
+
+    // けいさん ごと の せいとうりつ
+    const opRows = OPS.map((o) => ({
+      ...o,
+      cur: summarize(thisWeekLog.filter((e) => e.op === o.op)),
+      prev: summarize(lastWeekLog.filter((e) => e.op === o.op)),
+    }));
+    $("rpOps").innerHTML =
+      '<div class="rp-op rp-op-head"><span></span><span>今週</span><span>先週</span><span>先週比</span></div>' +
+      opRows.map((r) => `
+        <div class="rp-op">
+          <span class="rp-op-name"><i style="background:${r.color}"></i>${r.name}</span>
+          <span class="rp-op-bar"><b>${pct(r.cur.rate)}</b><span class="bar"><span style="width:${r.cur.rate == null ? 0 : Math.round(r.cur.rate * 100)}%;background:${r.color}"></span></span></span>
+          <span>${pct(r.prev.rate)}</span>
+          <span>${diffHtml(r.cur.rate, r.prev.rate)}</span>
+          <span class="rp-op-sub">今週 ${r.cur.n}問 ・ 1問 平均 ${secs(r.cur.avgMs)}</span>
+        </div>`).join("");
+
+    // よく まちがえる もんだい
+    const weakLog = between(addDays(today, -(WEAK_DAYS - 1)), tomorrow);
+    const weak = weakRanking(weakLog);
+    $("rpWeak").innerHTML = weak.length
+      ? weak.slice(0, 5).map((g, i) => `
+        <li><span class="rank">${i + 1}</span><div><b>${g.label}</b>
+          <div class="rp-weak-sub">まちがい ${g.miss}回 ／ ${g.n}問中（正答率 ${pct(1 - g.miss / g.n)}）・ 例：${g.example}</div></div></li>`).join("")
+      : `<li class="rp-empty">${weakLog.length ? `直近${WEAK_DAYS}日で間違えた問題はありません。すばらしい！` : "まだ記録がありません。"}</li>`;
+
+    // ひとこと アドバイス：「よいところ」と「次のステップ」を 1つ ずつ
+    const good = [], next = [];
+    const compared = opRows
+      .filter((r) => r.cur.n >= 5 && r.prev.n >= 5)
+      .map((r) => ({ ...r, d: Math.round(r.cur.rate * 100) - Math.round(r.prev.rate * 100) }));
+    const up = compared.filter((r) => r.d >= 10).sort((x, y) => y.d - x.d)[0];
+    const down = compared.filter((r) => r.d <= -10).sort((x, y) => x.d - y.d)[0];
+    const top = weak[0];
+
+    if (up) good.push(`${up.name}の正答率が先週より${up.d}ポイント上がりました。できるようになったことを、ぜひほめてあげてください。`);
+    if (wAll.n >= 20 && wAll.rate >= 0.9) good.push(`今週の正答率は${pct(wAll.rate)}ととても安定しています。「むずかしさ」を一段上げてみてもよい時期です。`);
+    if (streak >= 3) good.push(`${streak}日連続で取り組めています。続けていること自体を認めてあげると、やる気が長続きします。`);
+    if (week.total > 0) good.push(`今週は${week.total}問に取り組みました。正解したときに一緒に喜んであげましょう。`);
+
+    if (top && top.miss >= 3 && top.miss / top.n >= 0.3) next.push(`「${top.label}」でつまずきが多いようです。${top.tip}`);
+    if (down) next.push(`${down.name}の正答率が先週より${-down.d}ポイント下がっています。少しやさしい「むずかしさ」で自信を取り戻すのも効果的です。`);
+    if (wAll.n >= 10 && wAll.rate < 0.6) next.push(`今週の正答率は${pct(wAll.rate)}です。「むずかしさ」を一段下げて、できた経験を増やしてあげましょう。`);
+    if (week.total === 0) next.push(`今週はまだ取り組んでいません。1日${MARU_COUNT}問（カレンダーの○）を目標に、毎日の習慣にしてみましょう。`);
+    if (streak > 0 && !studiedToday) next.push(`今日取り組むと${streak + 1}日連続になります。声をかけてみてください。`);
+    next.push("この調子で、毎日少しずつ続けていきましょう。");
+
+    $("rpAdvice").innerHTML =
+      (good.length ? `<p class="rp-advice good"><span>よいところ</span>${good[0]}</p>` : "") +
+      `<p class="rp-advice next"><span>次のステップ</span>${next[0]}</p>`;
+
+    const first = log.length ? new Date(Math.min(...log.map((e) => e.t))) : null;
+    $("rpFoot").innerHTML =
+      (first
+        ? `※ 正答率・時間・よく間違える問題は、${first.getMonth() + 1}月${first.getDate()}日からの記録で集計しています（直近${LOG_KEEP_DAYS}日分を保存）。`
+        : "※ 正答率・時間・よく間違える問題は、これから解いた問題で集計されます。") +
+      `<br>※ 1問に${AWAY_MS / 60000}分以上かかったものは、席を離れていたとみなして平均時間から除いています。` +
+      "<br>※ 記録はこのブラウザだけに保存されています。";
+  }
+
   // ---- がめん きりかえ ----
   function show(id) {
     document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
     $(id).classList.add("active");
     document.body.classList.toggle("on-start", id === "start");
     if (id === "start") resetCalendar();
+    if (id === "parent") renderReport();
     window.scrollTo(0, 0);
   }
 
@@ -823,6 +1153,7 @@
     $("checkBtn").className = "action";
     setKeypadEnabled(true);
     renderInput();
+    shownAt = Date.now();
   }
 
   function renderInput() {
@@ -856,6 +1187,7 @@
     p.correct = p.user === p.ans;
     answered = true;
     addRecord();
+    addLog(p, Date.now() - shownAt);
     setKeypadEnabled(false);
 
     const r = $("result");
@@ -908,6 +1240,8 @@
   $("startBtn").addEventListener("click", startGame);
   $("retryBtn").addEventListener("click", startGame);
   $("homeBtn").addEventListener("click", () => show("start"));
+  $("parentBtn").addEventListener("click", () => show("parent"));
+  $("parentBack").addEventListener("click", () => show("start"));
   $("quitBtn").addEventListener("click", () => {
     if (confirm("とちゅう で やめる？")) { stopTimer(); show("start"); }
   });
