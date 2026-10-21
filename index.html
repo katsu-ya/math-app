@@ -259,9 +259,8 @@
   .home-btn { background: #9775fa; margin-top: 14px; font-size: 24px; }
 
   /* おうちのかたへ（ほごしゃ むけ の がくしゅう レポート） */
+  .start-links { align-self: center; display: flex; gap: 8px; margin-top: 20px; }
   .parent-link {
-    align-self: center;
-    margin-top: 20px;
     background: none;
     color: #888;
     box-shadow: none;
@@ -531,6 +530,22 @@
     body.on-story .action { margin-top: 10px; }
   }
 
+  /* せってい */
+  #settings { font-size: 16px; line-height: 1.5; }
+  .set-card h3 { font-size: 20px; }
+  .voice-select {
+    width: 100%;
+    font: inherit;
+    font-size: 18px;
+    padding: 10px 12px;
+    border: 3px solid #ffd8a8;
+    border-radius: 14px;
+    background: #fff;
+    color: var(--text);
+  }
+  .set-try { margin-top: 12px; width: 100%; font-size: 20px; padding: 10px; background: var(--minus); }
+  .set-note { font-size: 13px; color: #777; margin: 12px 0 0; }
+
   /* けっか がめん の けいけんち */
   .xp-gain { font-size: 22px; font-weight: bold; color: #e67700; }
   .xp-gain small { font-size: 15px; margin-left: 4px; }
@@ -591,7 +606,7 @@
     .buddy-pic { width: 58px; height: 58px; }
     .calendar { margin-top: 8px; padding: 10px 12px 8px; --cell: 30px; }
 
-    .parent-link { margin-top: 4px; }
+    .start-links { margin-top: 2px; }
 
     /* はじめ がめん：けいさん / ぶんしょうだい の きりかえ は ① の よこ に おく */
     .mode-row { display: flex; flex-direction: row-reverse; justify-content: space-between; align-items: center; gap: 12px; }
@@ -764,7 +779,22 @@
     </div>
     </div>
 
-    <button class="parent-link" id="parentBtn">おうちのかたへ</button>
+    <div class="start-links">
+      <button class="parent-link" id="settingsBtn">⚙️ せってい</button>
+      <button class="parent-link" id="parentBtn">おうちのかたへ</button>
+    </div>
+  </section>
+
+  <!-- せってい -->
+  <section id="settings" class="screen">
+    <h1>⚙️ せってい</h1>
+    <div class="rp-card set-card">
+      <h3>よみあげ の こえ</h3>
+      <select class="voice-select" id="voiceSelect" aria-label="よみあげ の こえ"></select>
+      <button class="set-try" id="voiceTry">🔊 ためしに きく</button>
+      <p class="set-note" id="voiceNote"></p>
+    </div>
+    <button class="big-btn home-btn" id="settingsBack">もどる</button>
   </section>
 
   <!-- バッジ いちらん -->
@@ -1015,11 +1045,52 @@
 
   // 本 の よみかた は かず で かわる（1ぽん 2ほん 3ぼん …）
   const honYomi = (n) => [0, 1, 6, 8].includes(n % 10) ? "ぽん" : n % 10 === 3 ? "ぼん" : "ほん";
-  // かず と たんい（3こ・5まい・3本・ふたり など）
+  // ---- よみあげ よう の よみかた（かず と たんい）----
+  const DIGIT = ["", "いち", "に", "さん", "よん", "ご", "ろく", "なな", "はち", "きゅう"];
+  // かず を ことば に わける（48 → ["よんじゅう", "はち"]）
+  function numWords(n) {
+    if (n === 0) return ["ぜろ"];
+    const th = Math.floor(n / 1000) % 10, hu = Math.floor(n / 100) % 10, te = Math.floor(n / 10) % 10, on = n % 10;
+    const w = [];
+    if (th) w.push(th === 1 ? "せん" : th === 3 ? "さんぜん" : th === 8 ? "はっせん" : `${DIGIT[th]}せん`);
+    if (hu) w.push(hu === 1 ? "ひゃく" : hu === 3 ? "さんびゃく" : hu === 6 ? "ろっぴゃく" : hu === 8 ? "はっぴゃく" : `${DIGIT[hu]}ひゃく`);
+    if (te) w.push(te === 1 ? "じゅう" : `${DIGIT[te]}じゅう`);
+    if (on) w.push(DIGIT[on]);
+    return w;
+  }
+  const numYomi = (n) => numWords(n).join("");
+  // 「いっこ」「ろっぽん」の ように つまる よみかた
+  const SOKUON = [["いち", "いっ"], ["ろく", "ろっ"], ["はち", "はっ"], ["じゅう", "じゅっ"], ["ひゃく", "ひゃっ"], ["ぴゃく", "ぴゃっ"], ["びゃく", "びゃっ"]];
+  function sokuon(word, skip = []) {
+    const hit = SOKUON.find(([k]) => word.endsWith(k) && !skip.includes(k));
+    return hit ? word.slice(0, -hit[0].length) + hit[1] : null;
+  }
+  const TSU = ["", "ひとつ", "ふたつ", "みっつ", "よっつ", "いつつ", "むっつ", "ななつ", "やっつ", "ここのつ", "とお"];
+  // かず と たんい の よみかた（3こ → さんこ、1本 → いっぽん、4人 → よにん など）
+  function countYomi(n, unit) {
+    const w = numWords(n);
+    const last = w.pop();
+    const head = w.join("");
+    switch (unit) {
+      case "こ":   return head + (sokuon(last) ? `${sokuon(last)}こ` : `${last}こ`);
+      case "さつ": return head + (sokuon(last, ["ろく"]) ? `${sokuon(last, ["ろく"])}さつ` : `${last}さつ`);
+      case "本":   return head + (sokuon(last) ? `${sokuon(last)}ぽん` : last.endsWith("さん") ? `${last}ぼん` : `${last}ほん`);
+      case "人":   return n === 1 ? "ひとり" : n === 2 ? "ふたり" : `${head}${last === "よん" ? "よ" : last}にん`;
+      case "つ":   return n <= 10 ? TSU[n] : `${numYomi(n)}こ`;
+      case "さら": return n === 1 ? "ひとさら" : n === 2 ? "ふたさら" : head + (sokuon(last, ["ろく"]) ? `${sokuon(last, ["ろく"])}さら` : `${last}さら`);
+      case "ふくろ": return n === 1 ? "ひとふくろ" : n === 2 ? "ふたふくろ" : `${numYomi(n)}ふくろ`;
+      default:     return `${numYomi(n)}${unit}`;
+    }
+  }
+
+  // かず と たんい（3こ・5まい・3本・ふたり など）。よみあげ よう の よみ も つけて おく
   function cnt(n, unit) {
-    if (unit === "本") return `${n}${R("本", honYomi(n))}`;
-    if (unit === "人") return n === 1 ? R("1人", "ひとり") : n === 2 ? R("2人", "ふたり") : `${n}${R("人", "にん")}`;
-    return `${n}${unit}`;
+    let shown;
+    if (unit === "本") shown = `${n}${R("本", honYomi(n))}`;
+    else if (unit === "人") shown = n === 1 ? R("1人", "ひとり") : n === 2 ? R("2人", "ふたり") : `${n}${R("人", "にん")}`;
+    else if (n === 1 && (unit === "さら" || unit === "ふくろ")) shown = `${R("1", "ひと")}${unit}`;
+    else shown = `${n}${unit}`;
+    return `<span data-yomi="${countYomi(n, unit)}">${shown}</span>`;
   }
   // 「なんこ」「なんぼん」など
   const nan = (unit) => unit === "本" ? `なん${R("本", "ぼん")}` : unit === "人" ? `なん${R("人", "にん")}` : `なん${unit}`;
@@ -1053,21 +1124,21 @@
     "×": [
       { only: (x) => x.food,
         hint: (a, b) => `「${ONE}さら${R("分", "ぶん")} の かず（${a}）× なんさら${R("分", "ぶん")}（${b}）」で かけざん だよ。`,
-        text: (a, b, x) => `${ONE}さらに ${x.name}が ${cnt(a, x.unit)}ずつ のって います。${b}さら${R("分", "ぶん")}では、ぜんぶで ${nan(x.unit)} ですか。` },
+        text: (a, b, x) => `${cnt(1, "さら")}に ${x.name}が ${cnt(a, x.unit)}ずつ のって います。${cnt(b, "さら")}${R("分", "ぶん")}では、ぜんぶで ${nan(x.unit)} ですか。` },
       { only: (x) => x.name !== "はな",
         hint: (a, b) => `「${ONE}ふくろ の かず（${a}）× なんふくろ（${b}）」で かけざん だよ。`,
-        text: (a, b, x) => `${ONE}ふくろに ${x.name}が ${cnt(a, x.unit)}ずつ はいって います。${b}ふくろ では、ぜんぶで ${nan(x.unit)} ですか。` },
+        text: (a, b, x) => `${cnt(1, "ふくろ")}に ${x.name}が ${cnt(a, x.unit)}ずつ はいって います。${cnt(b, "ふくろ")} では、ぜんぶで ${nan(x.unit)} ですか。` },
       { hint: (a, b) => `「${HITORI}${R("分", "ぶん")} の かず（${a}）× なん${R("人", "にん")}${R("分", "ぶん")}（${b}）」で かけざん だよ。`,
-        text: (a, b, x) => `${HITORI}に ${x.name}を ${cnt(a, x.unit)}ずつ くばります。${cnt(b, "人")}に くばると、ぜんぶで ${nan(x.unit)} いりますか。` },
+        text: (a, b, x) => `${cnt(1, "人")}に ${x.name}を ${cnt(a, x.unit)}ずつ くばります。${cnt(b, "人")}に くばると、ぜんぶで ${nan(x.unit)} いりますか。` },
     ],
     "÷": [
       { who: "🧒", hint: () => `${ONAJI} ${WAKE}ける ときは わりざん だよ。`,
         text: (a, b, x) => `${x.name}が ${cnt(a, x.unit)} あります。${cnt(b, "人")}で ${ONAJI} ${WAKE}けると、${R("1人分", "ひとりぶん")}は ${nan(x.unit)} ですか。` },
       { unit: "人", hint: (a, b) => `${b}ずつ ${WAKE}けると なん${R("人", "にん")}に なるか は、わりざん で もとめるよ。`,
-        text: (a, b, x) => `${x.name}が ${cnt(a, x.unit)} あります。${HITORI}に ${cnt(b, x.unit)}ずつ ${WAKE}けると、${nan("人")}に ${WAKE}けられますか。` },
+        text: (a, b, x) => `${x.name}が ${cnt(a, x.unit)} あります。${cnt(1, "人")}に ${cnt(b, x.unit)}ずつ ${WAKE}けると、${nan("人")}に ${WAKE}けられますか。` },
       { who: "👜", only: (x) => x.name !== "はな",
         hint: () => `${ONAJI} ${WAKE}ける ときは わりざん だよ。`,
-        text: (a, b, x) => `${x.name}が ${cnt(a, x.unit)} あります。${b}つの ふくろに ${ONAJI} ${R("入", "い")}れると、${ONE}ふくろ ${nan(x.unit)} に なりますか。` },
+        text: (a, b, x) => `${x.name}が ${cnt(a, x.unit)} あります。${cnt(b, "つ")}の ふくろに ${ONAJI} ${R("入", "い")}れると、${cnt(1, "ふくろ")} ${nan(x.unit)} に なりますか。` },
     ],
   };
 
@@ -1083,8 +1154,16 @@
     }
   }
 
-  // ふりがな は よみ に して、よみあげ に つかう
-  const toSpeech = (html) => html.replace(/<ruby>.*?<rt>(.*?)<\/rt><\/ruby>/g, "$1").replace(/<[^>]+>/g, "");
+  // よみあげ よう の ひらがな の ぶん を つくる
+  // かず と たんい は よみ（data-yomi）に、かんじ は ふりがな に おきかえる
+  // わかちがき の すきま は のこす（「ともだちに じゅうよんほん」が「にじゅうよんほん」に きこえない ように）
+  const toSpeech = (html) => html
+    .replace(/<span data-yomi="([^"]*)">.*?<\/span>/g, "$1")
+    .replace(/<ruby>.*?<rt>(.*?)<\/rt><\/ruby>/g, "$1")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\d+/g, (d) => numYomi(Number(d)))
+    .replace(/\s+/g, " ")
+    .trim();
 
   function makeStoryProblem() {
     // かけざん・わりざん は「1こずつ」「1人で わける」に ならない ように する
@@ -1720,6 +1799,7 @@
     if (id === "start") { resetCalendar(); renderGrowth(); }
     if (id === "badges") renderBadges();
     if (id === "parent") renderReport();
+    if (id === "settings") renderSettings();
     window.scrollTo(0, 0);
     if (id === "start" || id === "finish") celebrate();
   }
@@ -1959,27 +2039,114 @@
 
   // ---- よみあげ（ブラウザ の おんせい で もんだいぶん を よむ）----
   const canSpeak = "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
+  const SPEECH_RATE = 0.85;      // こども むけ に すこし ゆっくり（1 が ふつう）
+  const SPEECH_PITCH = 1.15;     // すこし あかるめ の こえ の たかさ（1 が ふつう）
+  const SENTENCE_PAUSE_MS = 400; // 「。」の あと の ま
+
+  // しぜん な こえ ほど たかい てん に する
+  function voiceScore(v) {
+    const n = v.name;
+    let s = 0;
+    if (/natural|neural/i.test(n)) s += 100;                    // Edge など の「Natural」
+    if (/google/i.test(n)) s += 80;                             // Chrome の「Google 日本語」
+    if (/premium|enhanced|拡張|高品質|プレミアム/i.test(n)) s += 70; // iPhone・Mac の 高品質 な こえ
+    if (/siri/i.test(n)) s += 60;
+    if (/nanami|keita|kyoko|o-ren|otoya|hattori/i.test(n)) s += 20;
+    if (/ayumi|haruka|ichiro|sayaka/i.test(n)) s -= 10;         // ふるい Windows の こえ
+    if (/eloquence|compact/i.test(n)) s -= 30;                  // きかい っぽい こえ
+    return s;
+  }
+  const jaVoices = () => canSpeak
+    ? speechSynthesis.getVoices().filter((v) => /^ja([-_]|$)/i.test(v.lang)).sort((x, y) => voiceScore(y) - voiceScore(x))
+    : [];
+  // せってい で えらんだ こえ。なければ いちばん しぜん な こえ
+  function pickVoice() {
+    const voices = jaVoices();
+    return voices.find((v) => v.voiceURI === settings.voice) || voices[0] || null;
+  }
+
+  let speechRun = 0; // とめる たび に ふやして、のこって いる よみあげ を すすめない
   function stopSpeech() {
     if (!canSpeak) return;
+    speechRun++;
     speechSynthesis.cancel();
     $("speakBtn").classList.remove("speaking");
+  }
+  // ぶん ごと に わけて、あいだ に すこし ま を あけて よむ
+  function speakText(text, onDone = () => {}) {
+    stopSpeech();
+    const run = speechRun;
+    const parts = text.match(/[^。！？]+[。！？]?/g) || [];
+    const voice = pickVoice();
+    const say = (i) => {
+      if (run !== speechRun) return;
+      if (i >= parts.length) return onDone();
+      const u = new SpeechSynthesisUtterance(parts[i].trim());
+      u.lang = voice ? voice.lang : "ja-JP";
+      if (voice) u.voice = voice;
+      u.rate = SPEECH_RATE;
+      u.pitch = SPEECH_PITCH;
+      u.onend = () => setTimeout(() => say(i + 1), SENTENCE_PAUSE_MS);
+      u.onerror = () => { if (run === speechRun) onDone(); };
+      speechSynthesis.speak(u);
+    };
+    say(0);
   }
   function speakProblem() {
     const p = problems[index];
     if (!canSpeak || !p || !p.story) return;
-    const wasSpeaking = $("speakBtn").classList.contains("speaking");
-    stopSpeech();
-    if (wasSpeaking) return; // よんで いる とき に おすと とまる
-    const u = new SpeechSynthesisUtterance(p.speech);
-    u.lang = "ja-JP";
-    u.rate = 0.9;
-    const voice = speechSynthesis.getVoices().find((v) => /^ja/i.test(v.lang));
-    if (voice) u.voice = voice;
-    u.onend = u.onerror = () => $("speakBtn").classList.remove("speaking");
+    if ($("speakBtn").classList.contains("speaking")) return stopSpeech(); // よんで いる とき に おすと とまる
+    speakText(p.speech, () => $("speakBtn").classList.remove("speaking"));
     $("speakBtn").classList.add("speaking");
-    speechSynthesis.speak(u);
   }
   if (!canSpeak) $("speakBtn").hidden = true;
+
+  // ---- せってい（ブラウザ に ほぞん）----
+  const SETTINGS_KEY = "keisan-renshu-settings";
+  function loadSettings() {
+    try {
+      const d = JSON.parse(localStorage.getItem(SETTINGS_KEY));
+      return d && typeof d === "object" && !Array.isArray(d) ? d : {};
+    } catch (e) {
+      return {};
+    }
+  }
+  let settings = loadSettings();
+  function saveSettings() {
+    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) { /* ほぞん できなくても つづける */ }
+  }
+  // こえ の なまえ を みじかく する（「Microsoft Nanami Online (Natural) - Japanese (Japan)」→「Nanami Online (Natural)」）
+  const voiceLabel = (v) => v.name.replace(/^Microsoft\s+/i, "").replace(/\s*[-–]\s*Japanese.*$/i, "");
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  function renderSettings() {
+    const sel = $("voiceSelect");
+    const voices = jaVoices();
+    sel.disabled = $("voiceTry").disabled = !voices.length;
+    if (!canSpeak || !voices.length) {
+      sel.innerHTML = "<option>—</option>";
+      $("voiceNote").textContent = canSpeak
+        ? "日本語の声が見つかりません。端末の設定で日本語の読み上げ音声を追加すると使えるようになります。"
+        : "このブラウザでは読み上げが使えません。";
+      return;
+    }
+    sel.innerHTML = `<option value="">おまかせ（${esc(voiceLabel(voices[0]))}）</option>` +
+      voices.map((v) => `<option value="${esc(v.voiceURI)}">${esc(voiceLabel(v))}${voiceScore(v) >= 60 ? " ★" : ""}</option>`).join("");
+    sel.value = voices.some((v) => v.voiceURI === settings.voice) ? settings.voice : "";
+    $("voiceNote").textContent =
+      "★ は自然に聞こえやすい声です。「おまかせ」では、この端末でいちばん自然な声を自動で選びます。" +
+      "使える声は端末やブラウザによって違います。iPhone・iPad では「設定 → アクセシビリティ → 読み上げコンテンツ → 声 → 日本語」から、高品質な声をダウンロードできます。";
+  }
+
+  $("voiceSelect").addEventListener("change", () => {
+    settings.voice = $("voiceSelect").value || undefined;
+    saveSettings();
+  });
+  $("voiceTry").addEventListener("click", () => {
+    speakText("こんにちは。いっしょに ぶんしょうだい を といて みよう。りんごが さんこ、えんぴつが いっぽん あります。");
+  });
+  // こえ の いちらん は あと から とどく ブラウザ が ある（Chrome など）
+  if (canSpeak) speechSynthesis.onvoiceschanged = () => { if ($("settings").classList.contains("active")) renderSettings(); };
 
   function next() {
     index++;
@@ -2028,6 +2195,8 @@
   $("homeBtn").addEventListener("click", () => show("start"));
   $("parentBtn").addEventListener("click", () => show("parent"));
   $("parentBack").addEventListener("click", () => show("start"));
+  $("settingsBtn").addEventListener("click", () => show("settings"));
+  $("settingsBack").addEventListener("click", () => { stopSpeech(); show("start"); });
   $("badgeBtn").addEventListener("click", () => show("badges"));
   $("badgesBack").addEventListener("click", () => show("start"));
   $("celeOk").addEventListener("click", nextCelebration);
