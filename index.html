@@ -443,6 +443,94 @@
   .cele-badges.one .badge-desc { font-size: 15px; }
   .cele-box .big-btn { margin-top: 18px; }
 
+  /* けいさん / ぶんしょうだい の きりかえ */
+  .mode-switch { display: flex; gap: 4px; padding: 4px; margin-top: 6px; background: #ffe8cc; border-radius: 16px; }
+  .mode-switch button {
+    flex: 1;
+    background: none;
+    box-shadow: none;
+    color: #b35c00;
+    font-size: 18px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    white-space: nowrap;
+  }
+  .mode-switch button:active { transform: none; box-shadow: none; }
+  .mode-switch button.selected { background: #fff; color: var(--main); box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+
+  /* もんだい がめん の ならび（スマホ では 1れつ。ぶんしょうだい の パソコン では 2れつ） */
+  .quiz-body { display: flex; flex-direction: column; }
+  .quiz-main, .quiz-pad { display: contents; }
+  .story-card { order: 1; }
+  .shiki-box { order: 2; }
+  .quiz-main > .card { order: 3; }
+  .keypad { order: 4; }
+  .action { order: 5; }
+
+  /* ぶんしょうだい */
+  .story-card {
+    position: relative;
+    background: var(--card);
+    border-radius: 24px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  }
+  .story-card[hidden], .shiki-box[hidden] { display: none; }
+  .story-text { margin: 0; padding-right: 50px; font-size: 21px; line-height: 1.8; word-break: keep-all; overflow-wrap: anywhere; }
+  .story-text rt { font-size: .5em; }
+  .speak {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--minus);
+    font-size: 22px;
+    box-shadow: 0 4px 0 #1c7ed6;
+  }
+  .speak.speaking { animation: pulse 1s ease-in-out infinite; }
+  @keyframes pulse { 50% { transform: scale(1.12); } }
+  .story-pic { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; margin-top: 4px; font-size: 22px; line-height: 1.3; }
+  .story-pic:empty { display: none; }
+  .story-pic .grp { border: 2px dashed #ffc078; border-radius: 10px; padding: 0 4px; }
+  .story-pic .sym { font-weight: bold; color: #999; }
+  .shiki-label { font-size: 16px; font-weight: bold; color: #888; margin: 0 0 6px; }
+  .shiki { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .shiki button {
+    background: #fff;
+    color: #333;
+    border: 3px solid #ffd8a8;
+    box-shadow: 0 5px 0 #e0c9a6;
+    font-size: 22px;
+    padding: 9px 2px;
+    white-space: nowrap;
+  }
+  .shiki button.selected { background: var(--main); border-color: var(--main); color: #fff; box-shadow: 0 5px 0 #d9480f; }
+  .shiki button.right { background: var(--ok); border-color: var(--ok); color: #fff; box-shadow: 0 5px 0 #237a32; opacity: 1; }
+  .question .prompt { font-size: 24px; color: #aaa; }
+  .answer-box small { font-size: 22px; color: #666; margin-left: 6px; }
+  .answer-box.empty small { color: #ccc; }
+  .result .explain { font-size: 18px; color: var(--text); line-height: 1.45; margin-top: 2px; }
+  .result .explain b { color: var(--ok); font-size: 22px; }
+  .result .hint { font-size: 16px; color: #666; }
+  .topbar > span { white-space: nowrap; }
+  /* スマホ の ぶんしょうだい：すうじ ボタン まで なるべく 1がめん に はいる ように つめる */
+  @media (max-width: 859px) {
+    body.on-story .story-text { font-size: 19px; line-height: 1.7; }
+    body.on-story .story-pic { font-size: 18px; }
+    body.on-story .shiki-label { font-size: 14px; margin-bottom: 4px; }
+    body.on-story .shiki button { font-size: 20px; padding: 6px 2px; }
+    body.on-story .question { font-size: 32px; }
+    body.on-story .question .prompt { font-size: 18px; }
+    body.on-story .answer-box { font-size: 30px; min-height: 46px; }
+    body.on-story .result:empty { min-height: 0; }
+    body.on-story .keypad button { height: 44px; }
+    body.on-story .action { margin-top: 10px; }
+  }
+
   /* けっか がめん の けいけんち */
   .xp-gain { font-size: 22px; font-weight: bold; color: #e67700; }
   .xp-gain small { font-size: 15px; margin-left: 4px; }
@@ -504,6 +592,17 @@
     .calendar { margin-top: 8px; padding: 10px 12px 8px; --cell: 30px; }
 
     .parent-link { margin-top: 4px; }
+
+    /* はじめ がめん：けいさん / ぶんしょうだい の きりかえ は ① の よこ に おく */
+    .mode-row { display: flex; flex-direction: row-reverse; justify-content: space-between; align-items: center; gap: 12px; }
+    .mode-switch { margin-top: 0; padding: 3px; }
+    .mode-switch button { font-size: 14px; padding: 6px 10px; }
+
+    /* ぶんしょうだい：ひだり に もんだい と こたえ、みぎ に しき と すうじ ボタン */
+    body.on-story .wrap { max-width: 1080px; }
+    body.on-story .quiz-body { display: grid; grid-template-columns: 1.15fr 1fr; gap: 28px; align-items: start; }
+    body.on-story .quiz-main, body.on-story .quiz-pad { display: block; }
+    body.on-story .keypad { margin-top: 0; }
 
     body.on-badges .wrap { max-width: 1080px; }
     body.on-badges h1 { margin: 4px 0 12px; }
@@ -611,7 +710,13 @@
 
     <div class="start-layout">
     <div class="start-main">
-    <h2>① どの けいさん を する？</h2>
+    <div class="mode-row">
+      <div class="mode-switch" id="modeChoices">
+        <button class="selected" data-mode="calc">🔢 けいさん</button>
+        <button data-mode="story">📖 ぶんしょうだい</button>
+      </div>
+      <h2>① どの けいさん を する？</h2>
+    </div>
     <div class="grid grid-2" id="opChoices">
       <button class="choice c-plus selected" data-op="+"><span class="mark">＋</span>たしざん</button>
       <button class="choice c-minus" data-op="-"><span class="mark">－</span>ひきざん</button>
@@ -707,10 +812,27 @@
     </div>
     <div class="progress"><div id="bar"></div></div>
 
-    <div class="card">
-      <div class="question" id="question"></div>
-      <div class="answer-box empty" id="answerBox">？</div>
-      <div class="result" id="result"></div>
+    <div class="quiz-body">
+    <div class="quiz-main">
+      <!-- ぶんしょうだい の もんだいぶん と え -->
+      <div class="story-card" id="storyCard" hidden>
+        <button class="speak" id="speakBtn" aria-label="よみあげる">🔊</button>
+        <p class="story-text" id="storyText"></p>
+        <div class="story-pic" id="storyPic"></div>
+      </div>
+
+      <div class="card">
+        <div class="question" id="question"></div>
+        <div class="answer-box empty" id="answerBox">？</div>
+        <div class="result" id="result"></div>
+      </div>
+    </div>
+
+    <div class="quiz-pad">
+    <!-- ぶんしょうだい の しき を えらぶ -->
+    <div class="shiki-box" id="shikiBox" hidden>
+      <p class="shiki-label">① しき を えらぼう</p>
+      <div class="shiki" id="shikiChoices"></div>
     </div>
 
     <div class="keypad" id="keypad">
@@ -723,6 +845,8 @@
     </div>
 
     <button class="action" id="checkBtn" disabled>こたえあわせ</button>
+    </div>
+    </div>
   </section>
 
   <!-- けっか がめん -->
@@ -764,6 +888,7 @@
 
   let op = "+";
   let level = "1e";
+  let mode = "calc"; // calc: けいさん  story: ぶんしょうだい
   let problems = [];
   let index = 0;
   let input = "";
@@ -773,6 +898,8 @@
   let autoNextId = null;
   let shownAt = 0; // いま の もんだい を だした じこく
   let sessionXp = 0; // この 10もん で もらった けいけんち
+  let pickedOp = null; // ぶんしょうだい で えらんだ しき
+  let waitingNext = false; // まちがえた ぶんしょうだい の せつめい を よんで いる ところ
 
   const $ = (id) => document.getElementById(id);
 
@@ -789,6 +916,13 @@
   }
   setupChoices("opChoices", (d) => { op = d.op; });
   setupChoices("levelChoices", (d) => { level = d.level; });
+  // けいさん / ぶんしょうだい
+  $("modeChoices").querySelectorAll("button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      $("modeChoices").querySelectorAll("button").forEach((b) => b.classList.toggle("selected", b === btn));
+      mode = btn.dataset.mode;
+    });
+  });
 
   // ---- もんだい を つくる ----
   const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -861,12 +995,125 @@
     return { a, b, ans, text: `${a} ${op} ${b}` };
   }
 
+  // ---- ぶんしょうだい を つくる ----
+  // かず は makeProblem() と おなじ じょうけん（むずかしさ）で つくり、おはなし に する
+  const R = (kanji, yomi) => `<ruby>${kanji}<rt>${yomi}</rt></ruby>`; // ふりがな
+  const SYM = { "+": "＋", "-": "−", "×": "×", "÷": "÷" };
+
+  const ITEMS = [
+    { name: "りんご",   emoji: "🍎", unit: "こ",   food: true },
+    { name: "みかん",   emoji: "🍊", unit: "こ",   food: true },
+    { name: "いちご",   emoji: "🍓", unit: "こ",   food: true },
+    { name: "あめ",     emoji: "🍬", unit: "こ",   food: true },
+    { name: "クッキー", emoji: "🍪", unit: "まい", food: true },
+    { name: "ふうせん", emoji: "🎈", unit: "こ" },
+    { name: "シール",   emoji: "⭐", unit: "まい" },
+    { name: "えんぴつ", emoji: "✏️", unit: "本" },
+    { name: "はな",     emoji: "🌷", unit: "本" },
+    { name: "ほん",     emoji: "📕", unit: "さつ" },
+  ];
+
+  // 本 の よみかた は かず で かわる（1ぽん 2ほん 3ぼん …）
+  const honYomi = (n) => [0, 1, 6, 8].includes(n % 10) ? "ぽん" : n % 10 === 3 ? "ぼん" : "ほん";
+  // かず と たんい（3こ・5まい・3本・ふたり など）
+  function cnt(n, unit) {
+    if (unit === "本") return `${n}${R("本", honYomi(n))}`;
+    if (unit === "人") return n === 1 ? R("1人", "ひとり") : n === 2 ? R("2人", "ふたり") : `${n}${R("人", "にん")}`;
+    return `${n}${unit}`;
+  }
+  // 「なんこ」「なんぼん」など
+  const nan = (unit) => unit === "本" ? `なん${R("本", "ぼん")}` : unit === "人" ? `なん${R("人", "にん")}` : `なん${unit}`;
+  // こたえ の よこ に だす たんい
+  const unitWord = (unit) => unit === "本" ? R("本", "ほん") : unit === "人" ? R("人", "にん") : unit;
+
+  const ONE = R("1", "ひと");
+  const HITORI = R("1人", "ひとり");
+  const ONAJI = `${R("同", "おな")}じ ${R("数", "かず")}ずつ`;
+  const WAKE = R("分", "わ");
+
+  // ぶんしょうだい の かた（a, b は しき の かず、x は もの）
+  // only: つかえる もの、who: え に だす わける さき、unit: こたえ の たんい（なければ もの の たんい）
+  const STORIES = {
+    "+": [
+      { hint: () => "「あわせて」は たしざん だよ。",
+        text: (a, b, x) => `おおきい ${x.name}が ${cnt(a, x.unit)}、ちいさい ${x.name}が ${cnt(b, x.unit)} あります。あわせて ${nan(x.unit)} ですか。` },
+      { hint: () => "もらって ふえた ときは たしざん だよ。",
+        text: (a, b, x) => `${x.name}を ${cnt(a, x.unit)} もって います。ともだち から ${cnt(b, x.unit)} もらいました。ぜんぶで ${nan(x.unit)} に なりましたか。` },
+      { hint: () => "「ふえると」は たしざん だよ。",
+        text: (a, b, x) => `はこに ${x.name}が ${cnt(a, x.unit)} はいって います。${cnt(b, x.unit)} ふえると、ぜんぶで ${nan(x.unit)} に なりますか。` },
+    ],
+    "-": [
+      { hint: () => "あげて へった 「のこり」は ひきざん だよ。",
+        text: (a, b, x) => `${x.name}が ${cnt(a, x.unit)} あります。ともだちに ${cnt(b, x.unit)} あげました。のこりは ${nan(x.unit)} ですか。` },
+      { hint: () => "「ちがいは」は おおきい かず から ちいさい かず を ひくよ。",
+        text: (a, b, x) => `おおきい ${x.name}が ${cnt(a, x.unit)}、ちいさい ${x.name}が ${cnt(b, x.unit)} あります。かずの ちがいは ${nan(x.unit)} ですか。` },
+      { hint: () => "「なんこ おおい」は おおい ほう から すくない ほう を ひくよ。",
+        text: (a, b, x) => `お${R("兄", "にい")}さんは ${x.name}を ${cnt(a, x.unit)}、わたしは ${cnt(b, x.unit)} もって います。お${R("兄", "にい")}さんの ほうが ${nan(x.unit)} おおい ですか。` },
+    ],
+    "×": [
+      { only: (x) => x.food,
+        hint: (a, b) => `「${ONE}さら${R("分", "ぶん")} の かず（${a}）× なんさら${R("分", "ぶん")}（${b}）」で かけざん だよ。`,
+        text: (a, b, x) => `${ONE}さらに ${x.name}が ${cnt(a, x.unit)}ずつ のって います。${b}さら${R("分", "ぶん")}では、ぜんぶで ${nan(x.unit)} ですか。` },
+      { only: (x) => x.name !== "はな",
+        hint: (a, b) => `「${ONE}ふくろ の かず（${a}）× なんふくろ（${b}）」で かけざん だよ。`,
+        text: (a, b, x) => `${ONE}ふくろに ${x.name}が ${cnt(a, x.unit)}ずつ はいって います。${b}ふくろ では、ぜんぶで ${nan(x.unit)} ですか。` },
+      { hint: (a, b) => `「${HITORI}${R("分", "ぶん")} の かず（${a}）× なん${R("人", "にん")}${R("分", "ぶん")}（${b}）」で かけざん だよ。`,
+        text: (a, b, x) => `${HITORI}に ${x.name}を ${cnt(a, x.unit)}ずつ くばります。${cnt(b, "人")}に くばると、ぜんぶで ${nan(x.unit)} いりますか。` },
+    ],
+    "÷": [
+      { who: "🧒", hint: () => `${ONAJI} ${WAKE}ける ときは わりざん だよ。`,
+        text: (a, b, x) => `${x.name}が ${cnt(a, x.unit)} あります。${cnt(b, "人")}で ${ONAJI} ${WAKE}けると、${R("1人分", "ひとりぶん")}は ${nan(x.unit)} ですか。` },
+      { unit: "人", hint: (a, b) => `${b}ずつ ${WAKE}けると なん${R("人", "にん")}に なるか は、わりざん で もとめるよ。`,
+        text: (a, b, x) => `${x.name}が ${cnt(a, x.unit)} あります。${HITORI}に ${cnt(b, x.unit)}ずつ ${WAKE}けると、${nan("人")}に ${WAKE}けられますか。` },
+      { who: "👜", only: (x) => x.name !== "はな",
+        hint: () => `${ONAJI} ${WAKE}ける ときは わりざん だよ。`,
+        text: (a, b, x) => `${x.name}が ${cnt(a, x.unit)} あります。${b}つの ふくろに ${ONAJI} ${R("入", "い")}れると、${ONE}ふくろ ${nan(x.unit)} に なりますか。` },
+    ],
+  };
+
+  const PIC_MAX = 30; // これ より おおい ときは え を はぶく
+  function storyPicture(story, a, b, x) {
+    const e = (n) => x.emoji.repeat(n);
+    const sym = (s) => `<span class="sym">${s}</span>`;
+    switch (op) {
+      case "+": return a + b <= PIC_MAX ? `<span>${e(a)}</span>${sym("＋")}<span>${e(b)}</span>` : "";
+      case "-": return a <= PIC_MAX ? `<span>${e(a)}</span>${sym("−")}<span>${e(b)}</span>` : "";
+      case "×": return a * b <= PIC_MAX ? Array.from({ length: b }, () => `<span class="grp">${e(a)}</span>`).join("") : "";
+      default:  return a <= PIC_MAX ? `<span>${e(a)}</span>` + (story.who ? `${sym("→")}<span>${story.who.repeat(b)}</span>` : "") : "";
+    }
+  }
+
+  // ふりがな は よみ に して、よみあげ に つかう
+  const toSpeech = (html) => html.replace(/<ruby>.*?<rt>(.*?)<\/rt><\/ruby>/g, "$1").replace(/<[^>]+>/g, "");
+
+  function makeStoryProblem() {
+    // かけざん・わりざん は「1こずつ」「1人で わける」に ならない ように する
+    const p = pick(makeProblem, (q) => (op !== "×" && op !== "÷") || (q.a > 1 && q.b > 1));
+    const stories = STORIES[op];
+    const story = stories[rand(0, stories.length - 1)];
+    const x = pick(() => ITEMS[rand(0, ITEMS.length - 1)], (it) => !story.only || story.only(it));
+    const html = story.text(p.a, p.b, x);
+    // しき の えらびかた：たし・ひき・かけ（わりざん の とき は ひき・かけ・わり）
+    const ops = op === "÷" ? ["-", "×", "÷"] : ["+", "-", "×"];
+    const big = Math.max(p.a, p.b), small = Math.min(p.a, p.b);
+    return {
+      ...p,
+      story: true,
+      html,
+      speech: toSpeech(html),
+      pic: storyPicture(story, p.a, p.b, x),
+      unit: story.unit || x.unit,
+      hint: story.hint(p.a, p.b),
+      options: ops.map((o) => ({ op: o, text: o === "-" ? `${big} ${SYM[o]} ${small}` : `${p.a} ${SYM[o]} ${p.b}` })),
+    };
+  }
+
   function makeProblems() {
     const list = [];
     const seen = new Set();
     let tries = 0;
     while (list.length < TOTAL) {
-      const p = makeProblem();
+      const p = mode === "story" ? makeStoryProblem() : makeProblem();
       if (!seen.has(p.text) || tries++ > 200) {
         seen.add(p.text);
         list.push(p);
@@ -922,7 +1169,9 @@
   function addLog(p, ms) {
     const now = Date.now();
     const log = loadLog().filter((e) => e.t >= now - LOG_KEEP_DAYS * DAY_MS);
-    log.push({ t: now, op, lv: level, a: p.a, b: p.b, ok: p.correct ? 1 : 0, ms });
+    const e = { t: now, op, lv: level, a: p.a, b: p.b, ok: p.correct ? 1 : 0, ms };
+    if (p.story) { e.st = 1; e.sk = p.shikiOk ? 1 : 0; } // ぶんしょうだい と、しき が あって いた か
+    log.push(e);
     try { localStorage.setItem(LOG_KEY, JSON.stringify(log)); } catch (e) { /* ほぞん できなくても つづける */ }
   }
 
@@ -1064,6 +1313,19 @@
   }
 
   // まちがい の なかま わけ（「7の段」「くり上がり」など）と、おうち で できる ひとこと
+  const STORY_TIPS = {
+    "+": "「あわせて」「ぜんぶで」「ふえると」はたし算の合図です。問題文の言葉に線を引きながら一緒に読んでみましょう。",
+    "-": "「のこりは」「ちがいは」「いくつ多い」はひき算の合図です。問題文の言葉に線を引きながら一緒に読んでみましょう。",
+    "×": "「1つ分の数」と「いくつ分」を絵や図にすると、かけ算の式が立てやすくなります。",
+    "÷": "「同じ数ずつ分ける」はわり算の合図です。おはじきなどで実際に分けてみるのも効果的です。",
+  };
+
+  // ぶんしょうだい の「しき の えらびかた」
+  function storyTag(e) {
+    const name = OPS.find((o) => o.op === e.op).name;
+    return { key: `st${e.op}`, label: `文章題 式の選び方（${name}）`, tip: STORY_TIPS[e.op] };
+  }
+
   function weakTag(e) {
     const two = e.lv[0] === "2";
     const keta = two ? "2けた" : "1けた";
@@ -1103,16 +1365,20 @@
   // まちがい の おおい じゅん
   function weakRanking(list) {
     const groups = new Map();
-    list.forEach((e) => {
-      const tag = weakTag(e);
+    const count = (tag, e, missed) => {
       const g = groups.get(tag.key) || { ...tag, n: 0, miss: 0, probs: {} };
       g.n++;
-      if (!e.ok) {
+      if (missed) {
         g.miss++;
         const text = `${e.a} ${e.op} ${e.b}`;
         g.probs[text] = (g.probs[text] || 0) + 1;
       }
       groups.set(tag.key, g);
+    };
+    list.forEach((e) => {
+      // ぶんしょうだい は まず しき を しらべ、しき が あって いれば けいさん の なかま でも しらべる
+      if (e.st) count(storyTag(e), e, !e.sk);
+      if (!e.st || e.sk) count(weakTag(e), e, !e.ok);
     });
     return [...groups.values()]
       .filter((g) => g.miss > 0)
@@ -1450,6 +1716,7 @@
     $(id).classList.add("active");
     document.body.classList.toggle("on-start", id === "start");
     document.body.classList.toggle("on-badges", id === "badges");
+    document.body.classList.toggle("on-story", id === "quiz" && mode === "story");
     if (id === "start") { resetCalendar(); renderGrowth(); }
     if (id === "badges") renderBadges();
     if (id === "parent") renderReport();
@@ -1548,6 +1815,8 @@
     problems = makeProblems();
     index = 0;
     sessionXp = 0;
+    $("storyCard").hidden = mode !== "story";
+    $("shikiBox").hidden = mode !== "story";
     show("quiz");
     showProblem();
     startTimer();
@@ -1557,28 +1826,52 @@
     const p = problems[index];
     input = "";
     answered = false;
+    pickedOp = null;
+    waitingNext = false;
+    stopSpeech();
     $("qNum").textContent = `${index + 1}もんめ / ${TOTAL}`;
     $("bar").style.width = `${(index / TOTAL) * 100}%`;
-    $("question").textContent = `${p.text} ＝`;
     $("result").textContent = "";
     $("result").className = "result";
     $("checkBtn").textContent = "こたえあわせ";
     $("checkBtn").className = "action";
-    setKeypadEnabled(true);
+    if (p.story) {
+      $("storyText").innerHTML = p.html;
+      $("storyPic").innerHTML = p.pic;
+      $("shikiChoices").innerHTML = p.options.map((o) => `<button data-op="${o.op}">${o.text}</button>`).join("");
+      window.scrollTo(0, 0); // もんだいぶん から よめる ように
+    }
+    renderQuestion();
+    setKeypadEnabled(!p.story); // ぶんしょうだい は しき を えらんで から こたえ を いれる
     renderInput();
     shownAt = Date.now();
   }
 
+  // ぶんしょうだい は えらんだ しき を だす（まだ なら「しき を えらんでね」）
+  function renderQuestion() {
+    const p = problems[index];
+    if (!p.story) { $("question").textContent = `${p.text} ＝`; return; }
+    const o = p.options.find((x) => x.op === pickedOp);
+    $("question").innerHTML = o ? `${o.text} ＝` : '<span class="prompt">① の しき を えらんでね</span>';
+    $("shikiChoices").querySelectorAll("button").forEach((b) => b.classList.toggle("selected", b.dataset.op === pickedOp));
+  }
+
+  function pickShiki(o) {
+    if (answered) return;
+    pickedOp = o;
+    renderQuestion();
+    setKeypadEnabled(true);
+    renderInput();
+    // スマホ では つぎ に つかう すうじ ボタン が みえる ところ まで うごかす
+    $("checkBtn").scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+
   function renderInput() {
+    const p = problems[index];
     const box = $("answerBox");
-    if (input === "") {
-      box.textContent = "？";
-      box.classList.add("empty");
-    } else {
-      box.textContent = input;
-      box.classList.remove("empty");
-    }
-    $("checkBtn").disabled = !answered && input === "";
+    box.innerHTML = (input === "" ? "？" : input) + (p.story ? `<small>${unitWord(p.unit)}</small>` : "");
+    box.classList.toggle("empty", input === "");
+    $("checkBtn").disabled = !answered && (input === "" || (p.story && !pickedOp));
   }
 
   function setKeypadEnabled(on) {
@@ -1586,7 +1879,7 @@
   }
 
   function pressKey(key) {
-    if (answered) return;
+    if (answered || (problems[index].story && !pickedOp)) return;
     if (key === "back") input = input.slice(0, -1);
     else if (key === "clear") input = "";
     else if (input.length < MAX_DIGITS) input = input === "0" ? key : input + key;
@@ -1596,9 +1889,17 @@
   function check() {
     if (answered || input === "") return;
     const p = problems[index];
+    if (p.story && !pickedOp) return;
     p.user = Number(input);
-    p.correct = p.user === p.ans;
+    if (p.story) {
+      p.userOp = pickedOp;
+      p.shikiOk = pickedOp === op;
+      p.correct = p.shikiOk && p.user === p.ans;
+    } else {
+      p.correct = p.user === p.ans;
+    }
     answered = true;
+    stopSpeech();
     addRecord();
     addLog(p, Date.now() - shownAt);
     if (p.correct) sessionXp += XP_PER_CORRECT;
@@ -1615,19 +1916,70 @@
       r.innerHTML = "⭕ せいかい！";
       r.className = "result ok pop";
       playPinpon();
+    } else if (p.story) {
+      // ただしい しき と かんがえかた を みせる
+      const right = `${p.options.find((o) => o.op === op).text} ＝ ${p.ans}${unitWord(p.unit)}`;
+      r.innerHTML = `❌ ざんねん…<div class="explain">` +
+        (p.shikiOk ? "しき は あってるよ！ けいさん を たしかめよう。" : `<div class="hint">💡 ${p.hint}</div>`) +
+        `<div>ただしい しき：<b>${right}</b></div></div>`;
+      r.className = "result ng pop";
+      playBubu();
     } else {
       r.innerHTML = `❌ ざんねん…<small>こたえ は <b>${p.ans}</b></small>`;
       r.className = "result ng pop";
       playBubu();
     }
+    if (p.story) {
+      $("shikiChoices").querySelectorAll("button").forEach((b) => {
+        b.disabled = true;
+        b.classList.toggle("right", !p.correct && b.dataset.op === op);
+      });
+    }
     $("bar").style.width = `${((index + 1) / TOTAL) * 100}%`;
-    // せいかい は 1.5びょう、まちがい は 3びょう で じどう で つぎ へ すすむ
     const btn = $("checkBtn");
-    btn.textContent = index + 1 < TOTAL ? "つぎ に すすむよ…" : "けっか を だすよ…";
     btn.className = "action next";
+    if (p.story && !p.correct) {
+      // ぶんしょうだい で まちがえた ときは、せつめい を よみおわって から じぶん で すすむ
+      btn.textContent = index + 1 < TOTAL ? "つぎ の もんだい へ ▶" : "けっか を みる ▶";
+      btn.disabled = false;
+      waitingNext = true;
+      return;
+    }
+    // せいかい は 1.5びょう、まちがい は 3びょう で じどう で つぎ へ すすむ
+    btn.textContent = index + 1 < TOTAL ? "つぎ に すすむよ…" : "けっか を だすよ…";
     btn.disabled = true;
     autoNextId = setTimeout(next, p.correct ? AUTO_NEXT_OK_MS : AUTO_NEXT_NG_MS);
   }
+
+  // こたえあわせ ボタン（Enter キー）：まちがえた ぶんしょうだい の あと は「つぎ へ」
+  function onAction() {
+    if (waitingNext) { waitingNext = false; next(); }
+    else check();
+  }
+
+  // ---- よみあげ（ブラウザ の おんせい で もんだいぶん を よむ）----
+  const canSpeak = "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
+  function stopSpeech() {
+    if (!canSpeak) return;
+    speechSynthesis.cancel();
+    $("speakBtn").classList.remove("speaking");
+  }
+  function speakProblem() {
+    const p = problems[index];
+    if (!canSpeak || !p || !p.story) return;
+    const wasSpeaking = $("speakBtn").classList.contains("speaking");
+    stopSpeech();
+    if (wasSpeaking) return; // よんで いる とき に おすと とまる
+    const u = new SpeechSynthesisUtterance(p.speech);
+    u.lang = "ja-JP";
+    u.rate = 0.9;
+    const voice = speechSynthesis.getVoices().find((v) => /^ja/i.test(v.lang));
+    if (voice) u.voice = voice;
+    u.onend = u.onerror = () => $("speakBtn").classList.remove("speaking");
+    $("speakBtn").classList.add("speaking");
+    speechSynthesis.speak(u);
+  }
+  if (!canSpeak) $("speakBtn").hidden = true;
 
   function next() {
     index++;
@@ -1655,13 +2007,18 @@
       score >= 5 ? "👍 がんばったね！" :
                    "💪 つぎ も がんばろう！";
 
-    $("review").innerHTML = problems.map((p) => `
+    $("review").innerHTML = problems.map((p) => {
+      // ぶんしょうだい は えらんだ しき と、まちがい の とき は ただしい しき を だす
+      const mine = p.story ? `${p.options.find((o) => o.op === p.userOp).text} ＝ ${p.user}` : `${p.text} ＝ ${p.user}`;
+      const fix = p.story ? `${p.options.find((o) => o.op === op).text} ＝ ${p.ans}` : `こたえ ${p.ans}`;
+      return `
       <li>
-        <span>${p.text} ＝ ${p.user}</span>
+        <span>${mine}</span>
         ${p.correct
           ? '<span class="ok">⭕</span>'
-          : `<span class="ng">❌ <span class="fix">こたえ ${p.ans}</span></span>`}
-      </li>`).join("");
+          : `<span class="ng">❌ <span class="fix">${fix}</span></span>`}
+      </li>`;
+    }).join("");
     show("finish");
   }
 
@@ -1683,9 +2040,14 @@
   });
   $("buddyPic").addEventListener("animationend", () => $("buddyPic").classList.remove("jump"));
   $("quitBtn").addEventListener("click", () => {
-    if (confirm("とちゅう で やめる？")) { stopTimer(); show("start"); }
+    if (confirm("とちゅう で やめる？")) { stopTimer(); stopSpeech(); show("start"); }
   });
-  $("checkBtn").addEventListener("click", check);
+  $("checkBtn").addEventListener("click", onAction);
+  $("speakBtn").addEventListener("click", speakProblem);
+  $("shikiChoices").addEventListener("click", (e) => {
+    const btn = e.target.closest("button");
+    if (btn && !btn.disabled) pickShiki(btn.dataset.op);
+  });
   // すうじ ボタン は「おした しゅんかん」に はんのう する。
   // ボタン と ボタン の すきま を おした とき は、いちばん ちかい ボタン と して あつかう。
   function nearestKey(x, y) {
@@ -1725,7 +2087,8 @@
     else if (e.key === "Backspace") { e.preventDefault(); pressKey("back"); }
     else if (e.key === "Enter") {
       if (document.activeElement && document.activeElement.closest("#keypad")) return; // Tab で えらんだ すうじ ボタン を おす
-      e.preventDefault(); check();
+      if (document.activeElement && document.activeElement.closest("#shikiChoices, #speakBtn")) return; // Tab で えらんだ ボタン を おす
+      e.preventDefault(); onAction();
     }
   });
 
