@@ -1165,9 +1165,12 @@
     .replace(/\s+/g, " ")
     .trim();
 
-  function makeStoryProblem() {
-    // かけざん・わりざん は「1こずつ」「1人で わける」に ならない ように する
-    const p = pick(makeProblem, (q) => (op !== "×" && op !== "÷") || (q.a > 1 && q.b > 1));
+  // かけざん・わりざん の ぶんしょうだい は「1こずつ」「1人で わける」に ならない ように する
+  const storyOk = (q) => (op !== "×" && op !== "÷") || (q.a > 1 && q.b > 1);
+
+  // base：つかう かず（にがて もんだい の とき に わたす）。なければ ここ で つくる
+  function makeStoryProblem(base = pick(makeProblem, storyOk)) {
+    const p = base;
     const stories = STORIES[op];
     const story = stories[rand(0, stories.length - 1)];
     const x = pick(() => ITEMS[rand(0, ITEMS.length - 1)], (it) => !story.only || story.only(it));
@@ -1187,16 +1190,70 @@
     };
   }
 
+  // ---- にがて もんだい を おおめ に だす ----
+  // がくしゅう レポート の「よく まちがえる もんだい」と おなじ しらべかた で、
+  // いま えらんで いる けいさん・むずかしさ の にがて を みつけ、10もん の うち 3もん くらい に まぜる
+  const WEAK_RATIO = 0.3;    // にがて もんだい の わりあい
+  const WEAK_MIN_MISS = 2;   // この かいすう いじょう まちがえて いたら にがて
+  const WEAK_MIN_RATE = 0.2; // まちがい の わりあい が これ いじょう なら にがて
+
+  function weakTargets() {
+    const since = addDays(startOfDay(new Date()), -(WEAK_DAYS - 1)).getTime();
+    const list = loadLog().filter((e) => e.t >= since && e.op === op && e.lv === level);
+    return weakRanking(list)
+      // ぶんしょうだい の「しき の えらびかた」は かず では えらべない ので のぞく
+      .filter((g) => !g.key.startsWith("st") && g.miss >= WEAK_MIN_MISS && g.miss / g.n >= WEAK_MIN_RATE)
+      .map((g) => ({ key: g.key, miss: g.miss, probs: Object.keys(g.probs) }));
+  }
+
+  // まちがえた こと の ある もんだい を もういちど だす
+  function problemFromText(text) {
+    const [a, , b] = text.split(" ").map(Number);
+    const ans = op === "+" ? a + b : op === "-" ? a - b : op === "×" ? a * b : a / b;
+    return { a, b, ans, text };
+  }
+
+  // にがて の なかま（「7の段」「くり上がり あり」など）の もんだい を 1つ つくる
+  function makeWeakProblem(targets) {
+    // まちがい が おおい なかま ほど えらばれ やすく する
+    let r = Math.random() * targets.reduce((s, t) => s + t.miss, 0);
+    const target = targets.find((t) => (r -= t.miss) < 0) || targets[0];
+    let base = null;
+    // はんぶん は まちがえた もんだい そのもの、はんぶん は おなじ なかま の あたらしい もんだい
+    if (Math.random() < 0.5) {
+      const again = problemFromText(target.probs[rand(0, target.probs.length - 1)]);
+      if (mode !== "story" || storyOk(again)) base = again;
+    }
+    for (let i = 0; !base && i < 300; i++) {
+      const q = makeProblem();
+      if (weakTag({ op, lv: level, a: q.a, b: q.b }).key === target.key && (mode !== "story" || storyOk(q))) base = q;
+    }
+    if (!base) return null;
+    return { ...(mode === "story" ? makeStoryProblem(base) : base), weak: true };
+  }
+
   function makeProblems() {
     const list = [];
     const seen = new Set();
+    const add = (p) => { seen.add(p.text); list.push(p); };
     let tries = 0;
+
+    const targets = weakTargets();
+    if (targets.length) {
+      const want = Math.round(TOTAL * WEAK_RATIO);
+      for (let i = 0; i < want * 10 && list.length < want; i++) {
+        const p = makeWeakProblem(targets);
+        if (p && !seen.has(p.text)) add(p);
+      }
+    }
     while (list.length < TOTAL) {
       const p = mode === "story" ? makeStoryProblem() : makeProblem();
-      if (!seen.has(p.text) || tries++ > 200) {
-        seen.add(p.text);
-        list.push(p);
-      }
+      if (!seen.has(p.text) || tries++ > 200) add(p);
+    }
+    // にがて もんだい が はじめ に かたまらない ように まぜる
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = rand(0, i);
+      [list[i], list[j]] = [list[j], list[i]];
     }
     return list;
   }
@@ -1564,6 +1621,7 @@
         ? `※ 正答率・時間・よく間違える問題は、${first.getMonth() + 1}月${first.getDate()}日からの記録で集計しています（直近${LOG_KEEP_DAYS}日分を保存）。`
         : "※ 正答率・時間・よく間違える問題は、これから解いた問題で集計されます。") +
       `<br>※ 1問に${AWAY_MS / 60000}分以上かかったものは、席を離れていたとみなして平均時間から除いています。` +
+      `<br>※ 練習では、選んだ計算・むずかしさで直近${WEAK_DAYS}日に${WEAK_MIN_MISS}回以上・${Math.round(WEAK_MIN_RATE * 100)}%以上間違えた苦手を、1回${TOTAL}問のうち${Math.round(TOTAL * WEAK_RATIO)}問ほど混ぜて出します（半分は間違えた問題そのもの、半分は同じ種類の新しい問題）。` +
       "<br>※ 記録はこのブラウザだけに保存されています。";
   }
 
@@ -1993,7 +2051,7 @@
 
     const r = $("result");
     if (p.correct) {
-      r.innerHTML = "⭕ せいかい！";
+      r.innerHTML = p.weak ? "⭕ せいかい！ にがて を こくふく！💪" : "⭕ せいかい！";
       r.className = "result ok pop";
       playPinpon();
     } else if (p.story) {
