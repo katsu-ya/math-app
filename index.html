@@ -592,7 +592,12 @@
   .dan-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
   .dan-grid button { background: var(--times); font-size: 15px; line-height: 1.2; padding: 8px 2px; opacity: .45; }
   .dan-grid button b { display: block; font-size: 34px; }
-  .dan-grid button.selected { opacity: 1; outline: 5px solid #333; outline-offset: -5px; }
+  /* えらんで いる だん は、くっきり おおきく して ✔ を つける */
+  .dan-grid button.selected { opacity: 1; outline: 5px solid #333; outline-offset: -5px; transform: scale(1.08); z-index: 1; box-shadow: 0 5px 0 rgba(0,0,0,0.25), 0 0 0 4px #ffe066; }
+  .dan-grid button.selected::after {
+    content: "✔"; position: absolute; top: -8px; right: -8px; width: 26px; height: 26px; border-radius: 50%;
+    background: #333; color: #ffe066; font-size: 15px; line-height: 26px; text-align: center;
+  }
   .dan-grid .dan-all { background: var(--main); }
   .dan-grid .dan-all b { font-size: 26px; line-height: 1.3; }
   .c-order { background: var(--minus); }
@@ -944,7 +949,7 @@
   <!-- かけざん：なんの だん？ -->
   <section id="dan" class="screen">
     <h1>✖️ なんの だん？</h1>
-    <p class="dan-lead">いくつ でも えらべるよ</p>
+    <p class="dan-lead">1つ えらんでね</p>
     <div class="dan-grid" id="danChoices">
       <button data-dan="1"><b>1</b>のだん</button>
       <button data-dan="2"><b>2</b>のだん</button>
@@ -1934,12 +1939,13 @@
           perfRowBest: Number(d.perfRowBest) || 0,
           perfOps: Array.isArray(d.perfOps) ? d.perfOps : [],     // ぜんもん せいかい した けいさん
           perfLv: Array.isArray(d.perfLv) ? d.perfLv : [],        // ぜんもん せいかい した むずかしさ
+          randDans: Array.isArray(d.randDans) ? d.randDans : [],  // ばらばら で ぜんもん せいかい した だん
           storyOps: Array.isArray(d.storyOps) ? d.storyOps : [],  // ぶんしょうだい で ぜんもん せいかい した けいさん
         };
       }
     } catch (e) { /* よめなければ さいしょ から */ }
     return { xp: 0, perfect: 0, ops: [], kuku: [], badges: {}, stage2: "", story: 0, fixes: 0, hard: 0,
-      perfRow: 0, perfRowBest: 0, perfOps: [], perfLv: [], storyOps: [] };
+      perfRow: 0, perfRowBest: 0, perfOps: [], perfLv: [], randDans: [], storyOps: [] };
   }
   function saveGrowth(g) {
     try { localStorage.setItem(GROWTH_KEY, JSON.stringify(g)); } catch (e) { /* ほぞん できなくても つづける */ }
@@ -2040,8 +2046,7 @@
     { s2: 1, id: "hard5",      icon: "🦾", name: "2けた の たつじん", desc: "2けた むずかしい で ぜんもん せいかい を 5かい", goal: (s) => [s.hard, 5] },
     { s2: 1, id: "kuku81",     icon: "🐉", name: "くく 81もん いっき", desc: "ぜんぶ の だん を えらんで 81もん ぜんもん せいかい",
       check: (s) => s.session && s.session.dans.length === DANS.length },
-    { s2: 1, id: "kukurand",   icon: "🎲", name: "ばらばら くく", desc: "ばらばら で 3つ いじょう の だん を ぜんもん せいかい",
-      check: (s) => s.session && s.session.perfect && s.session.order === "rand" && s.session.dans.length >= 3 },
+    { s2: 1, id: "kukurand",   icon: "🎲", name: "ばらばら くく", desc: "ばらばら で 5つ の だん を ぜんもん せいかい", goal: (s) => [s.randDans, 5] },
     { s2: 1, id: "danspeed",   icon: "⏱️", name: "くく スピード", desc: "1つ の だん の 9もん を 35びょう いない で ぜんもん せいかい",
       check: (s) => s.session && s.session.perfect && s.session.dans.length === 1 && s.session.n === DANS.length && s.session.ms <= 35 * 1000 },
     { s2: 1, id: "speed45",    icon: "🚄", name: "ひかり の はやさ", desc: `${TOTAL}もん を 45びょう いない で ぜんもん せいかい`,
@@ -2094,6 +2099,7 @@
       hard: g.hard,
       story: g.story,
       storyOps: g.storyOps.length,
+      randDans: g.randDans.length,
       fixes: g.fixes,
       s2got: s2Count(g),
       session,
@@ -2703,13 +2709,16 @@
   $("nameChange").addEventListener("click", () => openName("settings"));
 
   // ---- かけざん：なんの だん？（えらんだ だん と だしかた は ブラウザ に ほぞん）----
+  // えらべる の は 1つ の だん か ぜんぶ（まえ に いくつ も えらんで いたら さいしょ の 1つ に する）
   let danPicked = Array.isArray(settings.dans) ? DANS.filter((d) => settings.dans.includes(d)) : [];
+  if (danPicked.length > 1 && danPicked.length < DANS.length) danPicked = danPicked.slice(0, 1);
   if (settings.danOrder === "rand") danOrder = "rand";
 
   function renderDan() {
     $("danChoices").querySelectorAll("button").forEach((b) => {
       const d = b.dataset.dan;
-      b.classList.toggle("selected", d === "all" ? danPicked.length === DANS.length : danPicked.includes(Number(d)));
+      const all = danPicked.length === DANS.length;
+      b.classList.toggle("selected", d === "all" ? all : !all && danPicked.includes(Number(d)));
     });
     $("orderChoices").querySelectorAll(".choice").forEach((b) => b.classList.toggle("selected", b.dataset.order === danOrder));
     const first = danPicked[0] || 3;
@@ -2723,8 +2732,7 @@
     const btn = e.target.closest("button");
     if (!btn) return;
     const d = btn.dataset.dan;
-    if (d === "all") danPicked = danPicked.length === DANS.length ? [] : [...DANS];
-    else danPicked = DANS.filter((x) => (x === Number(d)) !== danPicked.includes(x)); // おした だん だけ きりかえる
+    danPicked = d === "all" ? [...DANS] : [Number(d)]; // まえ の えらび は はずれる
     settings.dans = danPicked;
     saveSettings();
     renderDan();
@@ -2780,6 +2788,7 @@
       g.perfRowBest = Math.max(g.perfRowBest, g.perfRow);
       const add = (list, v) => { if (!list.includes(v)) list.push(v); };
       add(story ? g.storyOps : g.perfOps, op);
+      if (dans && danOrder === "rand") masters.forEach((d) => add(g.randDans, d));
       if (LEVELS.includes(playLevel())) add(g.perfLv, playLevel());
       if (playLevel() === "2h") g.hard++;
     }, { perfect, ms: elapsed, level: playLevel(), n: total, dans: masters, story, order: dans ? danOrder : "" });
