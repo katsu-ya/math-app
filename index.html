@@ -545,6 +545,43 @@
   }
   .set-try { margin-top: 12px; width: 100%; font-size: 20px; padding: 10px; background: var(--minus); }
   .set-note { font-size: 13px; color: #777; margin: 12px 0 0; }
+  .set-name { font-size: 22px; font-weight: bold; word-break: keep-all; overflow-wrap: anywhere; }
+  .set-name small { font-size: 15px; color: #888; font-weight: normal; margin-left: 6px; }
+  .set-name-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; }
+  .set-name-row .set-name { flex: 1; }
+  .set-name-row .set-try { width: auto; margin: 0; padding: 8px 16px; font-size: 18px; flex: none; }
+
+  /* なまえ */
+  .greet { text-align: center; font-size: 20px; font-weight: bold; color: #d9480f; margin: -12px 0 12px; word-break: keep-all; overflow-wrap: anywhere; }
+  #name { font-size: 16px; }
+  .name-label { display: block; font-weight: bold; color: #888; margin: 0 0 6px; }
+  .name-label.second { margin-top: 18px; }
+  .name-input {
+    width: 100%;
+    font: inherit;
+    font-size: 28px;
+    font-weight: bold;
+    padding: 8px 14px;
+    border: 3px solid #ffd8a8;
+    border-radius: 14px;
+    background: #fff;
+    color: var(--text);
+  }
+  .name-input:focus { outline: none; border-color: var(--main); }
+  .honor { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .honor button {
+    background: #fff;
+    color: #333;
+    border: 3px solid #ffd8a8;
+    box-shadow: 0 5px 0 #e0c9a6;
+    font-size: 20px;
+    padding: 10px 2px;
+    white-space: nowrap;
+  }
+  .honor button.selected { background: var(--main); border-color: var(--main); color: #fff; box-shadow: 0 5px 0 #d9480f; }
+  .name-preview { margin-top: 18px; text-align: center; font-size: 22px; font-weight: bold; color: #d9480f; min-height: 1.5em; word-break: keep-all; overflow-wrap: anywhere; }
+  .name-foot { text-align: center; font-size: 13px; color: #999; margin: 12px 0 0; word-break: keep-all; }
+  .cele-name { font-size: 22px; font-weight: bold; color: #d9480f; margin-top: 4px; word-break: keep-all; overflow-wrap: anywhere; }
 
   /* けっか がめん の けいけんち */
   .xp-gain { font-size: 22px; font-weight: bold; color: #e67700; }
@@ -651,6 +688,7 @@
     /* けっか がめん：ふりかえり を 2れつ、ボタン を よこ に ならべる */
     #finish .card { padding: 16px 20px; }
     .praise { font-size: 24px; margin: 4px 0 4px; }
+    .praise.long { font-size: 20px; } /* ながい なまえ でも 1ぎょう に おさめる */
     .score { font-size: 56px; margin: 0; line-height: 1.2; }
     .score small { font-size: 26px; }
     .time { font-size: 20px; }
@@ -793,6 +831,7 @@
   <!-- はじめ がめん -->
   <section id="start" class="screen active">
     <h1>🧮 けいさん れんしゅう</h1>
+    <p class="greet" id="greet" hidden></p>
 
     <div class="start-layout">
     <div class="start-main">
@@ -887,9 +926,38 @@
     <p class="dan-foot">2けた の かけざん は「もどる」で むずかしさ を えらんでね</p>
   </section>
 
+  <!-- なまえ（この たんまつ の なか だけ に ほぞん） -->
+  <section id="name" class="screen">
+    <h1>なまえを おしえてね</h1>
+    <div class="rp-card">
+      <label class="name-label" for="nameInput">なまえ（ひらがな が おすすめ）</label>
+      <input class="name-input" id="nameInput" type="text" maxlength="10" autocomplete="off" enterkeyhint="done" placeholder="れい：ゆう">
+      <p class="name-label second">よびかた</p>
+      <div class="honor" id="honorChoices">
+        <button data-honor="さん">さん</button>
+        <button data-honor="くん">くん</button>
+        <button data-honor="ちゃん">ちゃん</button>
+        <button data-honor="">よびすて</button>
+      </div>
+      <div class="name-preview" id="namePreview"></div>
+    </div>
+    <div class="finish-btns">
+      <button class="big-btn" id="nameOk">けってい！</button>
+      <button class="big-btn home-btn" id="nameSkip">あとで</button>
+    </div>
+    <p class="name-foot">なまえ は この たんまつ の なか だけ に ほぞん して、そと には おくらないよ</p>
+  </section>
+
   <!-- せってい -->
   <section id="settings" class="screen">
     <h1>⚙️ せってい</h1>
+    <div class="rp-card set-card">
+      <h3>なまえ</h3>
+      <div class="set-name-row">
+        <div class="set-name" id="setName"></div>
+        <button class="set-try" id="nameChange">✏️ なまえを かえる</button>
+      </div>
+    </div>
     <div class="rp-card set-card">
       <h3>よみあげ の こえ</h3>
       <select class="voice-select" id="voiceSelect" aria-label="よみあげ の こえ"></select>
@@ -1980,15 +2048,18 @@
       if ($("start").classList.contains("active")) renderGrowth();
       return;
     }
+    const who = esc(callName());
     if (c.type === "level") {
       $("celeTitle").textContent = "レベルアップ！";
-      $("celeBody").innerHTML = `<div class="cele-pic">${buddySvg(c.stage)}</div>` +
+      $("celeBody").innerHTML = (who ? `<div class="cele-name">${who}、すごい！</div>` : "") +
+        `<div class="cele-pic">${buddySvg(c.stage)}</div>` +
         `<div class="cele-text">Lv.${c.stage + 1}「${STAGES[c.stage].name}」に なったよ！</div>`;
       playFanfare();
     } else {
       const list = c.ids.map((id) => BADGES.find((b) => b.id === id));
       $("celeTitle").textContent = "バッジ ゲット！";
-      $("celeBody").innerHTML = `<div class="cele-badges${list.length === 1 ? " one" : ""}">` +
+      $("celeBody").innerHTML = (who ? `<div class="cele-name">${who}、おめでとう！</div>` : "") +
+        `<div class="cele-badges${list.length === 1 ? " one" : ""}">` +
         list.map((b) => `<div class="cele-badge">${medal(b, true)}<div class="cele-text">${b.name}</div><div class="badge-desc">${b.desc}</div></div>`).join("") +
         "</div>";
       playKirarin();
@@ -2018,6 +2089,8 @@
     if (id === "badges") renderBadges();
     if (id === "parent") renderReport();
     if (id === "settings") renderSettings();
+    if (id === "start") renderGreet();
+    if (id === "name") { renderName(); $("nameInput").focus(); }
     window.scrollTo(0, 0);
     if (id === "start" || id === "finish") celebrate();
   }
@@ -2211,7 +2284,10 @@
 
     const r = $("result");
     if (p.correct) {
-      r.innerHTML = p.weak ? "⭕ せいかい！ にがて を こくふく！💪" : "⭕ せいかい！";
+      const c = esc(callName());
+      const PRAISES = ["すごい！", "せいかい！", "やったね！", "さすが！"];
+      r.innerHTML = p.weak ? (c ? `⭕ ${c}、にがて を こくふく！💪` : "⭕ せいかい！ にがて を こくふく！💪")
+        : c ? `⭕ ${c}、${PRAISES[rand(0, PRAISES.length - 1)]}` : "⭕ せいかい！";
       r.className = "result ok pop";
       playPinpon();
     } else if (p.story) {
@@ -2314,7 +2390,8 @@
     const p = problems[index];
     if (!canSpeak || !p || !p.story) return;
     if ($("speakBtn").classList.contains("speaking")) return stopSpeech(); // よんで いる とき に おすと とまる
-    speakText(p.speech, () => $("speakBtn").classList.remove("speaking"));
+    const c = speechCall();
+    speakText((c ? `${c}、もんだい だよ。` : "") + p.speech, () => $("speakBtn").classList.remove("speaking"));
     $("speakBtn").classList.add("speaking");
   }
   if (!canSpeak) $("speakBtn").hidden = true;
@@ -2338,6 +2415,8 @@
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
   function renderSettings() {
+    const c = callName();
+    $("setName").innerHTML = c ? esc(c) : '<small style="margin:0">まだ ありません</small>';
     const sel = $("voiceSelect");
     const voices = jaVoices();
     sel.disabled = $("voiceTry").disabled = !voices.length;
@@ -2348,23 +2427,98 @@
         : "このブラウザでは読み上げが使えません。";
       return;
     }
-    sel.innerHTML = `<option value="">おまかせ（${esc(voiceLabel(voices[0]))}）</option>` +
-      voices.map((v) => `<option value="${esc(v.voiceURI)}">${esc(voiceLabel(v))}${voiceScore(v) >= 60 ? " ★" : ""}</option>`).join("");
+    // 🌐 は インターネット を つかう こえ（なまえ は よまない）
+    const mark = (v) => (voiceScore(v) >= 60 ? " ★" : "") + (v.localService ? "" : " 🌐");
+    sel.innerHTML = `<option value="">おまかせ（${esc(voiceLabel(voices[0]))}${mark(voices[0])}）</option>` +
+      voices.map((v) => `<option value="${esc(v.voiceURI)}">${esc(voiceLabel(v))}${mark(v)}</option>`).join("");
     sel.value = voices.some((v) => v.voiceURI === settings.voice) ? settings.voice : "";
+    renderVoiceNote();
+  }
+  function renderVoiceNote() {
+    const v = pickVoice();
     $("voiceNote").textContent =
       "★ は自然に聞こえやすい声です。「おまかせ」では、この端末でいちばん自然な声を自動で選びます。" +
+      "🌐 はインターネットを使う声です。名前を外部に送らないため、🌐 の声では名前を読み上げません。" +
+      (callName() && v && !v.localService ? "（いま選んでいる声では名前を読み上げません。名前を呼んでほしいときは 🌐 のない声を選んでください）" : "") +
       "使える声は端末やブラウザによって違います。iPhone・iPad では「設定 → アクセシビリティ → 読み上げコンテンツ → 声 → 日本語」から、高品質な声をダウンロードできます。";
   }
 
   $("voiceSelect").addEventListener("change", () => {
     settings.voice = $("voiceSelect").value || undefined;
     saveSettings();
+    renderVoiceNote();
   });
   $("voiceTry").addEventListener("click", () => {
-    speakText("こんにちは。いっしょに ぶんしょうだい を といて みよう。りんごが さんこ、えんぴつが いっぽん あります。");
+    const c = speechCall();
+    speakText(`こんにちは${c ? `、${c}` : ""}。いっしょに ぶんしょうだい を といて みよう。りんごが さんこ、えんぴつが いっぽん あります。`);
   });
   // こえ の いちらん は あと から とどく ブラウザ が ある（Chrome など）
   if (canSpeak) speechSynthesis.onvoiceschanged = () => { if ($("settings").classList.contains("active")) renderSettings(); };
+
+  // ---- なまえ（この たんまつ の localStorage だけ に ほぞん して、そと には おくらない）----
+  const HONORS = ["さん", "くん", "ちゃん", ""]; // "" は よびすて
+  const NAME_MAX = 10;
+  const cleanName = (s) => String(s || "").replace(/[\u0000-\u001f\u007f<>]/g, "").trim().slice(0, NAME_MAX);
+  const honorOf = (h) => HONORS.includes(h) ? h : "さん";
+  // よびかけ（「ゆうさん」など）。なまえ が なければ ""
+  const callName = () => { const n = cleanName(settings.name); return n ? n + honorOf(settings.honor) : ""; };
+  // よみあげ で よぶ なまえ。インターネット を つかう こえ（Google・Natural など）に わたす と
+  // なまえ が そと に おくられる ので、たんまつ の なか で よむ こえ の とき だけ よぶ
+  function speechCall() {
+    const v = pickVoice();
+    return v && v.localService ? callName() : "";
+  }
+
+  function renderGreet() {
+    const c = callName();
+    $("greet").hidden = !c;
+    $("greet").textContent = c ? `${c}、きょうも がんばろう！` : "";
+  }
+
+  let nameFrom = "first"; // first: はじめて ひらいた とき  settings: せってい から
+  let honorPicked = "さん";
+  function openName(from) {
+    nameFrom = from;
+    $("nameInput").value = cleanName(settings.name);
+    honorPicked = honorOf(settings.honor);
+    show("name");
+  }
+  function renderName() {
+    $("honorChoices").querySelectorAll("button").forEach((b) => b.classList.toggle("selected", b.dataset.honor === honorPicked));
+    const n = cleanName($("nameInput").value);
+    $("namePreview").textContent = n ? `${n}${honorPicked}、きょうも がんばろう！` : nameFrom === "first" ? "なまえ を いれてね" : "なまえ なし で つかうよ";
+    $("nameSkip").textContent = nameFrom === "first" ? "あとで" : "もどる";
+  }
+  function saveName() {
+    settings.name = cleanName($("nameInput").value) || undefined; // からっぽ なら なまえ を けす
+    settings.honor = honorPicked;
+    settings.nameAsked = true;
+    saveSettings();
+    $("nameInput").blur();
+    show(nameFrom === "first" ? "start" : "settings");
+  }
+  $("nameInput").addEventListener("input", renderName);
+  $("nameInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); saveName(); } // にほんご の へんかん ちゅう の Enter は のぞく
+  });
+  $("honorChoices").addEventListener("click", (e) => {
+    const btn = e.target.closest("button");
+    if (!btn) return;
+    honorPicked = btn.dataset.honor;
+    renderName();
+  });
+  $("nameOk").addEventListener("click", saveName);
+  $("nameSkip").addEventListener("click", () => {
+    $("nameInput").blur();
+    if (nameFrom === "first") {
+      settings.nameAsked = true; // つぎ から は きかない（せってい から いつでも いれられる）
+      saveSettings();
+      show("start");
+    } else {
+      show("settings");
+    }
+  });
+  $("nameChange").addEventListener("click", () => openName("settings"));
 
   // ---- かけざん：なんの だん？（えらんだ だん と だしかた は ブラウザ に ほぞん）----
   let danPicked = Array.isArray(settings.dans) ? DANS.filter((d) => settings.dans.includes(d)) : [];
@@ -2441,11 +2595,15 @@
       g.perfect++;
     }, { perfect, ms: elapsed, level: playLevel(), n: total, dans: masters });
     $("xpGain").innerHTML = `⭐ けいけんち +${sessionXp}` + (perfect ? `<small>（ぜんもん せいかい ボーナス +${PERFECT_BONUS}）</small>` : "");
-    $("praise").textContent =
-      score === total ? "💯 ぜんもん せいかい！すごい！" :
-      score >= total * 0.8 ? "🌟 よく できました！" :
-      score >= total * 0.5 ? "👍 がんばったね！" :
-                             "💪 つぎ も がんばろう！";
+    // なまえ が ある とき は「💯 ゆうさん、ぜんもん せいかい！」の ように よびかける
+    const [icon, msg] =
+      score === total ? ["💯", "ぜんもん せいかい！すごい！"] :
+      score >= total * 0.8 ? ["🌟", "よく できました！"] :
+      score >= total * 0.5 ? ["👍", "がんばったね！"] :
+                             ["💪", "つぎ も がんばろう！"];
+    const who = callName();
+    $("praise").textContent = who ? `${icon} ${who}、${score === total ? "ぜんもん せいかい！" : msg}` : `${icon} ${msg}`;
+    $("praise").classList.toggle("long", $("praise").textContent.length > 18);
 
     $("review").className = dans ? "review dan-review" : "review";
     $("danMiss").hidden = true;
@@ -2546,7 +2704,10 @@
   // ひらいた とき：これまで の きろく で もらえる バッジ が あれば ここ で わたす
   updateGrowth(() => {});
   renderGrowth();
-  celebrate();
+  renderGreet();
+  // はじめて ひらいた とき は なまえ を きく（おいわい は はじめ の がめん に もどって から）
+  if (!settings.nameAsked && !cleanName(settings.name)) openName("first");
+  else celebrate();
 })();
 </script>
 </body>
