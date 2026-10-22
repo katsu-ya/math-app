@@ -620,6 +620,42 @@
   .dan-badge.locked .badge-name { color: #999; }
   .medal.dan span { font-weight: bold; color: #2b8a3e; }
 
+  /* ステージ2：きんいろ の バッジ と、こん いろ の カード */
+  .medal.s2 {
+    position: relative;
+    background: radial-gradient(circle at 35% 30%, #fffbe6, #ffd43b 40%, #e8a200 72%, #a86b00);
+    box-shadow: inset 0 0 0 3px #fff3bf, inset 0 0 0 6px #b77f00, 0 3px 0 #7a4f00, 0 0 12px rgba(255, 196, 0, .7);
+  }
+  .medal.s2::after { content: "✦"; position: absolute; top: -4px; right: -1px; font-size: .5em; color: #fff; text-shadow: 0 0 4px #fab005, 0 0 2px #b77f00; }
+  .medal.s2.locked { background: #dddbea; box-shadow: inset 0 0 0 3px #f1f0f8, inset 0 0 0 6px #c5c2d9; }
+  .medal.s2.locked::after { content: none; }
+  .badge-card.s2 { background: linear-gradient(160deg, #3b2f7a, #1f1b4d); box-shadow: 0 3px 10px rgba(31, 27, 77, .35); }
+  .badge-card.s2 .badge-name { color: #ffe066; }
+  .badge-card.s2 .badge-desc { color: #d0c8ff; }
+  .badge-card.s2 .badge-prog { color: #ffd43b; }
+  .badge-card.s2.locked { background: #f1f0f8; box-shadow: none; }
+  .badge-card.s2.locked .badge-name { color: #8f8aa8; }
+  .badge-card.s2.locked .badge-desc { color: #888; }
+  .badge-card.s2.locked .badge-prog { color: #6c5fc7; }
+  .badge-tabs { display: flex; justify-content: center; gap: 12px; margin: -8px 0 12px; }
+  .badge-tabs button { font-size: 17px; padding: 6px 18px; border-radius: 999px; background: #fff3bf; color: #8a5a00; box-shadow: 0 3px 0 #f0d58a; opacity: .5; }
+  .badge-tabs button.s2 { background: linear-gradient(160deg, #3b2f7a, #1f1b4d); color: #ffe066; box-shadow: 0 3px 0 #120f33; }
+  .badge-tabs button.on { opacity: 1; outline: 3px solid #333; outline-offset: 2px; }
+  .badge-tabs small { font-size: 13px; margin-left: 4px; }
+  .badge-secret { margin: -2px 0 12px; text-align: center; font-size: 16px; font-weight: bold; color: #6c5fc7; background: #f3f0ff; border: 2px dashed #b197fc; border-radius: 14px; padding: 6px; }
+  .badge-summary[hidden], .badge-tabs[hidden], .badge-secret[hidden], #stage1Box[hidden], .badge-grid[hidden] { display: none; }
+  .badge-grid.s2-grid .badge-name { overflow-wrap: anywhere; }
+  /* ステージ2 が あらわれた とき の おいわい */
+  .celebrate.gold { background: rgba(31, 27, 77, .9); }
+  .cele-box.gold { background: linear-gradient(170deg, #fffbe6, #ffe8a3); box-shadow: 0 0 0 6px #fab005, 0 0 40px 8px rgba(255, 196, 0, .6); }
+  .cele-box.gold .cele-title { white-space: normal; color: #b35c00; font-size: 34px; line-height: 1.3; text-shadow: 0 3px 0 #fff; }
+  .cele-box.gold .cele-text { font-size: 22px; }
+  .cele-box.gold .badge-desc { font-size: 15px; margin-top: 6px; }
+  .s2-reveal { display: flex; justify-content: center; gap: 8px; margin: 18px 0 14px; }
+  .s2-reveal .medal { width: 64px; height: 64px; margin: 0; font-size: 32px; animation: pop .5s ease-out both; }
+  .s2-reveal .medal span { color: #7a4f00; font-weight: bold; }
+  .cele-badges.one .medal.s2 { box-shadow: inset 0 0 0 5px #fff3bf, inset 0 0 0 10px #b77f00, 0 4px 0 #7a4f00, 0 0 22px rgba(255, 196, 0, .8); }
+
   /* レポート の だん ごと の せいとうりつ */
   .rp-dans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .rp-dan { background: var(--bg); border-radius: 12px; padding: 6px 10px 8px; }
@@ -633,6 +669,7 @@
   @media (min-width: 600px) {
     .review.dan-review { grid-template-columns: 1fr; }
     .dan-badge-grid { grid-template-columns: repeat(9, 1fr); }
+    .badge-grid.s2-grid { grid-template-columns: repeat(5, 1fr); }
   }
   @media (min-width: 860px) {
     /* だん を たくさん えらんだ ときも 1がめん に はいる ように 2れつ */
@@ -730,9 +767,18 @@
 
     body.on-badges .wrap { max-width: 1080px; }
     body.on-badges h1 { margin: 4px 0 12px; }
+    /* バッジ の かず・タブ・ひみつ は タイトル の よこ に ならべる */
+    .badge-top { display: flex; justify-content: center; align-items: center; gap: 24px; }
+    .badge-head { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+    .badge-summary, .badge-tabs { margin: 0; }
+    .badge-secret { margin: 0; padding: 2px 14px; font-size: 15px; }
     .badge-grid { grid-template-columns: repeat(8, 1fr); gap: 8px; }
     .badge-card { padding: 8px 4px 6px; }
     .medal { width: 56px; height: 56px; font-size: 30px; }
+    /* ステージ2 は 10こ ずつ 2れつ */
+    .badge-grid.s2-grid { grid-template-columns: repeat(10, 1fr); gap: 8px 6px; }
+    .s2-grid .badge-card { padding: 8px 2px 6px; }
+    .s2-grid .badge-name { font-size: 13px; }
   }
   @media (min-width: 860px) and (min-height: 700px) {
     .buddy { margin-top: 10px; padding: 6px 12px 6px 6px; }
@@ -969,13 +1015,25 @@
 
   <!-- バッジ いちらん -->
   <section id="badges" class="screen">
-    <h1>🏅 バッジ</h1>
-    <div class="badge-summary" id="badgeSummary"></div>
-    <div class="badge-grid" id="badgeGrid"></div>
-    <div class="dan-badges">
-      <div class="dan-badges-title">✖️ だん マスター<small>その だん の 9もん を ぜんぶ せいかい で ゲット</small></div>
-      <div class="dan-badge-grid" id="danBadgeGrid"></div>
+    <div class="badge-top">
+      <h1>🏅 バッジ</h1>
+      <div class="badge-head">
+        <div class="badge-summary" id="badgeSummary"></div>
+        <div class="badge-tabs" id="badgeTabs" hidden>
+          <button data-tab="1">ステージ1 <small id="tab1Count"></small></button>
+          <button data-tab="2" class="s2">✨ ステージ2 <small id="tab2Count"></small></button>
+        </div>
+        <div class="badge-secret" id="badgeSecret">？？？ ひみつの バッジが あるかも…</div>
+      </div>
     </div>
+    <div id="stage1Box">
+      <div class="badge-grid" id="badgeGrid"></div>
+      <div class="dan-badges">
+        <div class="dan-badges-title">✖️ だん マスター<small>その だん の 9もん を ぜんぶ せいかい で ゲット</small></div>
+        <div class="dan-badge-grid" id="danBadgeGrid"></div>
+      </div>
+    </div>
+    <div class="badge-grid s2-grid" id="badge2Grid" hidden></div>
     <button class="big-btn home-btn" id="badgesBack">もどる</button>
   </section>
 
@@ -1866,10 +1924,22 @@
           ops: Array.isArray(d.ops) ? d.ops : [],       // せいかい した こと が ある けいさん
           kuku: Array.isArray(d.kuku) ? d.kuku : [],    // せいかい した くく（"7 × 8" など）
           badges: d.badges && typeof d.badges === "object" ? d.badges : {}, // もらった バッジ と その ひ
+          // ここ から した は ステージ2 の バッジ で つかう
+          stage2: typeof d.stage2 === "string" ? d.stage2 : "",  // ステージ2 が あらわれた ひ
+          // ぶんしょうだい の せいかい かず（まだ かぞえて いなければ のこって いる きろく から）
+          story: d.story != null ? Number(d.story) || 0 : loadLog().filter((e) => e.st && e.ok).length,
+          fixes: Number(d.fixes) || 0,                  // にがて の もんだい を せいかい した かず
+          hard: Number(d.hard) || 0,                    // 2けた むずかしい で ぜんもん せいかい した かいすう
+          perfRow: Number(d.perfRow) || 0,              // いま つづけて ぜんもん せいかい して いる かいすう
+          perfRowBest: Number(d.perfRowBest) || 0,
+          perfOps: Array.isArray(d.perfOps) ? d.perfOps : [],     // ぜんもん せいかい した けいさん
+          perfLv: Array.isArray(d.perfLv) ? d.perfLv : [],        // ぜんもん せいかい した むずかしさ
+          storyOps: Array.isArray(d.storyOps) ? d.storyOps : [],  // ぶんしょうだい で ぜんもん せいかい した けいさん
         };
       }
     } catch (e) { /* よめなければ さいしょ から */ }
-    return { xp: 0, perfect: 0, ops: [], kuku: [], badges: {} };
+    return { xp: 0, perfect: 0, ops: [], kuku: [], badges: {}, stage2: "", story: 0, fixes: 0, hard: 0,
+      perfRow: 0, perfRowBest: 0, perfOps: [], perfLv: [], storyOps: [] };
   }
   function saveGrowth(g) {
     try { localStorage.setItem(GROWTH_KEY, JSON.stringify(g)); } catch (e) { /* ほぞん できなくても つづける */ }
@@ -1932,6 +2002,7 @@
   // ---- バッジ ----
   // goal: [いま の かず, めあて] を かえす（バッジ いちらん で「あと どれくらい」を だす）
   // check: その かい の 10もん の けっか で きまる もの
+  const LEVELS = ["1e", "1h", "2e", "2h"];
   const BADGES = [
     { id: "first10",    icon: "🌱", name: "はじめの いっぽ",   desc: "はじめて 10もん とく",        goal: (s) => [s.total, 10] },
     { id: "total100",   icon: "⭐", name: "100もん たっせい",  desc: "ぜんぶ で 100もん とく",      goal: (s) => [s.total, 100] },
@@ -1954,11 +2025,58 @@
     // 1かい の なか で、その だん の ×1〜×9 を ぜんぶ せいかい
     ...DANS.map((d) => ({ id: `dan${d}`, dan: d, icon: String(d), name: `${d}のだん マスター`, desc: `${d}のだん の 9もん を ぜんぶ せいかい`,
       check: (s) => s.session && s.session.dans.includes(d) })),
+
+    // ---- ステージ2：ステージ1 を ぜんぶ あつめる と あらわれる、すこし むずかしい バッジ ----
+    // おなじ こと の くりかえし だけ で なく、いろいろ な モード を つかう と とれる ように する
+    { s2: 1, id: "total2000",  icon: "🚀", name: "2000もん たっせい", desc: "ぜんぶ で 2000もん とく", goal: (s) => [s.total, 2000] },
+    { s2: 1, id: "days50",     icon: "📅", name: "50にち がんばった", desc: "といた ひ が ぜんぶ で 50にち", goal: (s) => [s.days, 50] },
+    { s2: 1, id: "streak30",   icon: "☀️", name: "30にち れんぞく", desc: "30にち つづけて とく", goal: (s) => [s.streak, 30] },
+    { s2: 1, id: "hanamaru30", icon: "🌺", name: "はなまる 30こ", desc: "カレンダー の はなまる を 30こ", goal: (s) => [s.hanamaru, 30] },
+    { s2: 1, id: "hanaweek",   icon: "🎀", name: "はなまる 1しゅうかん", desc: "7にち つづけて はなまる", goal: (s) => [s.hanaRun, 7] },
+    { s2: 1, id: "perfect30",  icon: "🏹", name: "ぜんもん せいかい 30かい", desc: "ぜんもん せいかい を 30かい", goal: (s) => [s.perfect, 30] },
+    { s2: 1, id: "perfrow3",   icon: "🔗", name: "3れんぱつ", desc: "3かい つづけて ぜんもん せいかい", goal: (s) => [s.perfRow, 3] },
+    { s2: 1, id: "perfops",    icon: "🧩", name: "4つの けいさん めいじん", desc: "＋ − × ÷ それぞれ で ぜんもん せいかい", goal: (s) => [s.perfOps, 4] },
+    { s2: 1, id: "perflv",     icon: "🪜", name: "ぜんぶ の むずかしさ", desc: "⭐ 〜 ⭐⭐⭐⭐ それぞれ で ぜんもん せいかい", goal: (s) => [s.perfLv, LEVELS.length] },
+    { s2: 1, id: "hard5",      icon: "🦾", name: "2けた の たつじん", desc: "2けた むずかしい で ぜんもん せいかい を 5かい", goal: (s) => [s.hard, 5] },
+    { s2: 1, id: "kuku81",     icon: "🐉", name: "くく 81もん いっき", desc: "ぜんぶ の だん を えらんで 81もん ぜんもん せいかい",
+      check: (s) => s.session && s.session.dans.length === DANS.length },
+    { s2: 1, id: "kukurand",   icon: "🎲", name: "ばらばら くく", desc: "ばらばら で 3つ いじょう の だん を ぜんもん せいかい",
+      check: (s) => s.session && s.session.perfect && s.session.order === "rand" && s.session.dans.length >= 3 },
+    { s2: 1, id: "danspeed",   icon: "⏱️", name: "くく スピード", desc: "1つ の だん の 9もん を 35びょう いない で ぜんもん せいかい",
+      check: (s) => s.session && s.session.perfect && s.session.dans.length === 1 && s.session.n === DANS.length && s.session.ms <= 35 * 1000 },
+    { s2: 1, id: "speed45",    icon: "🚄", name: "ひかり の はやさ", desc: `${TOTAL}もん を 45びょう いない で ぜんもん せいかい`,
+      check: (s) => s.session && s.session.perfect && s.session.n >= TOTAL && s.session.ms <= 45 * 1000 },
+    { s2: 1, id: "speed2",     icon: "🏎️", name: "2けた スピード", desc: `2けた の ${TOTAL}もん を 2ふん いない で ぜんもん せいかい`,
+      check: (s) => s.session && s.session.perfect && s.session.n >= TOTAL && s.session.level[0] === "2" && s.session.ms <= 120 * 1000 },
+    { s2: 1, id: "story100",   icon: "📚", name: "ぶんしょうだい 100もん", desc: "ぶんしょうだい を 100もん せいかい", goal: (s) => [s.story, 100] },
+    { s2: 1, id: "storyops",   icon: "🦉", name: "ぶんしょうだい はかせ", desc: "ぶんしょうだい の ＋ − × ÷ それぞれ で ぜんもん せいかい", goal: (s) => [s.storyOps, 4] },
+    { s2: 1, id: "allday",     icon: "🎡", name: "いろいろ チャレンジ", desc: "1にち に ＋ − × ÷ と ぶんしょうだい を ぜんぶ やる", goal: (s) => [s.allday, 5] },
+    { s2: 1, id: "fix30",      icon: "🛡️", name: "にがて こくふく 30かい", desc: "にがて の もんだい を 30かい せいかい", goal: (s) => [s.fixes, 30] },
+    { s2: 1, id: "legend",     icon: "💎", name: "でんせつ の けいさん はかせ", desc: "ステージ2 の ほか の バッジ を ぜんぶ ゲット",
+      goal: (s) => [s.s2got, STAGE2.length - 1] },
   ];
+  const STAGE1 = BADGES.filter((b) => !b.s2);
+  const STAGE2 = BADGES.filter((b) => b.s2);
+  const s2Count = (g) => STAGE2.filter((b) => b.id !== "legend" && g.badges[b.id]).length;
 
   function badgeStats(g, session) {
     records = loadRecords();
     const counts = Object.values(records).map((n) => Number(n) || 0);
+    // はなまる が いちばん ながく つづいた ひかず
+    const hana = new Set(Object.keys(records).filter((k) => countOf(k) >= HANAMARU_COUNT));
+    let hanaRun = 0;
+    hana.forEach((k) => {
+      const [y, m, d] = k.split("-").map(Number);
+      let n = 0;
+      for (let x = new Date(y, m - 1, d); hana.has(dateKey(x)); x = addDays(x, 1)) n++;
+      hanaRun = Math.max(hanaRun, n);
+    });
+    // 1にち に やった しゅるい（＋ − × ÷ と ぶんしょうだい）の いちばん おおい かず
+    const kinds = {};
+    loadLog().forEach((e) => {
+      const k = dateKey(new Date(e.t));
+      (kinds[k] = kinds[k] || new Set()).add(e.st ? "story" : e.op);
+    });
     return {
       total: counts.reduce((a, n) => a + n, 0),
       hanamaru: counts.filter((n) => n >= HANAMARU_COUNT).length,
@@ -1967,11 +2085,22 @@
       ops: g.ops.length,
       kuku: g.kuku.length,
       stage: stageOf(g.xp) + 1,
+      days: counts.filter((n) => n > 0).length,
+      hanaRun,
+      allday: Math.max(0, ...Object.values(kinds).map((k) => k.size)),
+      perfRow: g.perfRowBest,
+      perfOps: g.perfOps.length,
+      perfLv: g.perfLv.length,
+      hard: g.hard,
+      story: g.story,
+      storyOps: g.storyOps.length,
+      fixes: g.fixes,
+      s2got: s2Count(g),
       session,
     };
   }
   const isEarned = (b, s) => b.goal ? b.goal(s)[0] >= b.goal(s)[1] : !!b.check(s);
-  const medal = (b, got) => `<div class="medal${b.dan ? " dan" : ""}${got ? "" : " locked"}"><span>${b.icon}</span></div>`;
+  const medal = (b, got) => `<div class="medal${b.dan ? " dan" : ""}${b.s2 ? " s2" : ""}${got ? "" : " locked"}"><span>${b.icon}</span></div>`;
 
   // おいわい は ためて おいて、けっか がめん か はじめ の がめん で じゅんばん に だす
   const celebrations = [];
@@ -1985,13 +2114,25 @@
     if (after > before) celebrations.push({ type: "level", stage: after });
 
     const s = badgeStats(g, session);
-    const got = BADGES.filter((b) => !g.badges[b.id] && isEarned(b, s)).map((b) => b.id);
-    got.forEach((id) => { g.badges[id] = dateKey(new Date()); });
-    if (got.length) {
-      // いっしょ に もらった バッジ は 1かい の おいわい に まとめる
-      const last = celebrations[celebrations.length - 1];
-      if (last && last.type === "badges") last.ids.push(...got);
-      else celebrations.push({ type: "badges", ids: got });
+    const today = dateKey(new Date());
+    // ステージ2 は ステージ1 を ぜんぶ あつめて から。
+    // あらわれた とき や「でんせつ」の よう に、もらった バッジ で つぎ が とれる こと が ある ので くりかえす
+    for (;;) {
+      const got = (g.stage2 ? BADGES : STAGE1).filter((b) => !g.badges[b.id] && isEarned(b, s)).map((b) => b.id);
+      got.forEach((id) => { g.badges[id] = today; });
+      if (got.length) {
+        // いっしょ に もらった バッジ は 1かい の おいわい に まとめる
+        const last = celebrations[celebrations.length - 1];
+        if (last && last.type === "badges") last.ids.push(...got);
+        else celebrations.push({ type: "badges", ids: got });
+      }
+      s.s2got = s2Count(g);
+      if (!g.stage2 && STAGE1.every((b) => g.badges[b.id])) {
+        g.stage2 = today;
+        celebrations.push({ type: "stage2" });
+        continue;
+      }
+      if (!got.length) break;
     }
     saveGrowth(g);
   }
@@ -2005,15 +2146,31 @@
     $("buddyName").textContent = STAGES[st].name;
     $("xpBar").style.width = next ? `${((g.xp - STAGES[st].xp) / (next.xp - STAGES[st].xp)) * 100}%` : "100%";
     $("buddyNext").textContent = next ? `あと ${next.xp - g.xp} で レベルアップ` : `けいけんち ${g.xp}・さいこう レベル！`;
-    $("badgeCount").textContent = `${BADGES.filter((b) => g.badges[b.id]).length}/${BADGES.length}`;
+    // ステージ2 が でる まで は ステージ1 の かず だけ
+    const list = g.stage2 ? BADGES : STAGE1;
+    $("badgeCount").textContent = `${list.filter((b) => g.badges[b.id]).length}/${list.length}`;
   }
 
+  let badgeTab = 0; // 1: ステージ1  2: ステージ2  0: ひらいた とき に きめる
   function renderBadges() {
     const g = loadGrowth();
     const s = badgeStats(g, null);
-    $("badgeSummary").textContent = `${BADGES.filter((b) => g.badges[b.id]).length} / ${BADGES.length} こ ゲット！`;
+    const gotCount = (list) => list.filter((b) => g.badges[b.id]).length;
+    // ステージ2 が でる まで は タブ を ださず、ひみつ が ある こと だけ ほのめかす
+    if (!g.stage2) badgeTab = 1;
+    else if (!badgeTab) badgeTab = 2;
+    $("badgeSummary").hidden = !!g.stage2;
+    $("badgeSummary").textContent = `${gotCount(STAGE1)} / ${STAGE1.length} こ ゲット！`;
+    $("badgeSecret").hidden = !!g.stage2;
+    $("badgeTabs").hidden = !g.stage2;
+    $("tab1Count").textContent = `${gotCount(STAGE1)}/${STAGE1.length}`;
+    $("tab2Count").textContent = `${gotCount(STAGE2)}/${STAGE2.length}`;
+    $("badgeTabs").querySelectorAll("button").forEach((b) => b.classList.toggle("on", Number(b.dataset.tab) === badgeTab));
+    $("stage1Box").hidden = badgeTab !== 1;
+    $("badge2Grid").hidden = badgeTab !== 2;
+
     const gotOn = (when) => { const [, m, d] = when.split("-").map(Number); return `${m}/${d} ゲット`; };
-    $("badgeGrid").innerHTML = BADGES.filter((b) => !b.dan).map((b) => {
+    const card = (b) => {
       const when = g.badges[b.id];
       let sub = "";
       if (when) {
@@ -2022,9 +2179,11 @@
         const [cur, goal] = b.goal(s);
         sub = `${Math.min(cur, goal)} / ${goal}`;
       }
-      return `<div class="badge-card${when ? "" : " locked"}">${medal(b, !!when)}` +
+      return `<div class="badge-card${b.s2 ? " s2" : ""}${when ? "" : " locked"}">${medal(b, !!when)}` +
         `<div class="badge-name">${b.name}</div><div class="badge-desc">${b.desc}</div><div class="badge-prog">${sub}</div></div>`;
-    }).join("");
+    };
+    $("badgeGrid").innerHTML = STAGE1.filter((b) => !b.dan).map(card).join("");
+    $("badge2Grid").innerHTML = g.stage2 ? STAGE2.map(card).join("") : "";
     // だん マスター は 1れつ に ちいさく ならべる
     $("danBadgeGrid").innerHTML = BADGES.filter((b) => b.dan).map((b) => {
       const when = g.badges[b.id];
@@ -2034,9 +2193,10 @@
   }
 
   // ---- おいわい の がめん ----
-  function confetti() {
-    const colors = ["#ff7b7b", "#4dabf7", "#51cf66", "#fcc419", "#ff922b", "#9775fa"];
-    $("confetti").innerHTML = Array.from({ length: 40 }, (_, i) =>
+  function confetti(gold = false) {
+    const colors = gold ? ["#ffd43b", "#fab005", "#fff3bf", "#f59f00", "#ffe066", "#b197fc"]
+      : ["#ff7b7b", "#4dabf7", "#51cf66", "#fcc419", "#ff922b", "#9775fa"];
+    $("confetti").innerHTML = Array.from({ length: gold ? 90 : 40 }, (_, i) =>
       `<span style="left:${Math.random() * 100}%;background:${colors[i % colors.length]};` +
       `animation-duration:${2 + Math.random() * 2}s;animation-delay:${Math.random() * 0.6}s"></span>`).join("");
   }
@@ -2049,7 +2209,19 @@
       return;
     }
     const who = esc(callName());
-    if (c.type === "level") {
+    const gold = c.type === "stage2";
+    $("celebrate").classList.toggle("gold", gold);
+    $("celeBox").classList.toggle("gold", gold);
+    if (gold) {
+      // ステージ1 を ぜんぶ あつめた ときだけ の とくべつ な おいわい
+      $("celeTitle").innerHTML = "あたらしい バッジ が<br>あらわれた！";
+      $("celeBody").innerHTML = (who ? `<div class="cele-name">${who}、すごすぎる！</div>` : "") +
+        `<div class="s2-reveal">${[0, 1, 2, 3, 4].map((i) =>
+          `<div class="medal s2" style="animation-delay:${0.3 + i * 0.15}s"><span>？</span></div>`).join("")}</div>` +
+        `<div class="cele-text">ひみつ の バッジ が ${STAGE2.length}こ でて きたよ！</div>` +
+        `<div class="badge-desc">バッジ の がめん の「ステージ2」で みて みよう</div>`;
+      playStage2();
+    } else if (c.type === "level") {
       $("celeTitle").textContent = "レベルアップ！";
       $("celeBody").innerHTML = (who ? `<div class="cele-name">${who}、すごい！</div>` : "") +
         `<div class="cele-pic">${buddySvg(c.stage)}</div>` +
@@ -2064,7 +2236,7 @@
         "</div>";
       playKirarin();
     }
-    confetti();
+    confetti(gold);
     $("celebrate").hidden = false;
     const box = $("celeBox");
     box.classList.remove("pop");
@@ -2154,6 +2326,14 @@
     [1047, 1319, 1568].forEach((f) => tone(f, t + 0.42, 0.9, "triangle", 0.22));
   }
   // バッジ ゲット の「キラリーン」
+  // ステージ2 が あらわれた とき：かけあがって ジャーン、さいご に キラキラ
+  function playStage2() {
+    if (!readyAudio()) return;
+    const t = audioCtx.currentTime;
+    [392, 523, 659, 784, 1047].forEach((f, i) => tone(f, t + i * 0.11, 0.25, "triangle", 0.28));
+    [523, 659, 784, 1047].forEach((f) => tone(f, t + 0.62, 1.6, "triangle", 0.18));
+    [2093, 2637, 3136, 4186, 3136, 4186].forEach((f, i) => tone(f, t + 0.75 + i * 0.09, 0.5, "sine", 0.12));
+  }
   function playKirarin() {
     if (!readyAudio()) return;
     const t = audioCtx.currentTime;
@@ -2279,6 +2459,8 @@
       g.xp += XP_PER_CORRECT;
       if (!g.ops.includes(op)) g.ops.push(op);
       if (op === "×" && playLevel()[0] === "1" && !g.kuku.includes(p.text)) g.kuku.push(p.text);
+      if (p.story) g.story++;
+      if (p.weak) g.fixes++;
     });
     setKeypadEnabled(false);
 
@@ -2589,11 +2771,18 @@
       const ps = problems.filter((p) => !p.story && p.a === d);
       return new Set(ps.map((p) => p.b)).size === DANS.length && ps.every((p) => p.correct);
     }) : [];
+    const story = mode === "story";
     updateGrowth((g) => {
-      if (!perfect) return;
+      if (!perfect) { g.perfRow = 0; return; }
       g.xp += PERFECT_BONUS;
       g.perfect++;
-    }, { perfect, ms: elapsed, level: playLevel(), n: total, dans: masters });
+      g.perfRow++;
+      g.perfRowBest = Math.max(g.perfRowBest, g.perfRow);
+      const add = (list, v) => { if (!list.includes(v)) list.push(v); };
+      add(story ? g.storyOps : g.perfOps, op);
+      if (LEVELS.includes(playLevel())) add(g.perfLv, playLevel());
+      if (playLevel() === "2h") g.hard++;
+    }, { perfect, ms: elapsed, level: playLevel(), n: total, dans: masters, story, order: dans ? danOrder : "" });
     $("xpGain").innerHTML = `⭐ けいけんち +${sessionXp}` + (perfect ? `<small>（ぜんもん せいかい ボーナス +${PERFECT_BONUS}）</small>` : "");
     // なまえ が ある とき は「💯 ゆうさん、ぜんもん せいかい！」の ように よびかける
     const [icon, msg] =
@@ -2637,7 +2826,11 @@
   $("parentBack").addEventListener("click", () => show("start"));
   $("settingsBtn").addEventListener("click", () => show("settings"));
   $("settingsBack").addEventListener("click", () => { stopSpeech(); show("start"); });
-  $("badgeBtn").addEventListener("click", () => show("badges"));
+  $("badgeBtn").addEventListener("click", () => { badgeTab = 0; show("badges"); });
+  $("badgeTabs").addEventListener("click", (e) => {
+    const btn = e.target.closest("button");
+    if (btn) { badgeTab = Number(btn.dataset.tab); renderBadges(); }
+  });
   $("badgesBack").addEventListener("click", () => show("start"));
   $("celeOk").addEventListener("click", nextCelebration);
   // キャラクター を さわる と ぴょん と はねる
