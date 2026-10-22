@@ -550,6 +550,77 @@
   .xp-gain { font-size: 22px; font-weight: bold; color: #e67700; }
   .xp-gain small { font-size: 15px; margin-left: 4px; }
 
+  /* かけざん：なんの だん？ */
+  .dan-lead { text-align: center; font-size: 18px; font-weight: bold; color: #888; margin: -8px 0 10px; }
+  .dan-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  .dan-grid button { background: var(--times); font-size: 15px; line-height: 1.2; padding: 8px 2px; opacity: .45; }
+  .dan-grid button b { display: block; font-size: 34px; }
+  .dan-grid button.selected { opacity: 1; outline: 5px solid #333; outline-offset: -5px; }
+  .dan-grid .dan-all { background: var(--main); }
+  .dan-grid .dan-all b { font-size: 26px; line-height: 1.3; }
+  .c-order { background: var(--minus); }
+  .c-order small { display: block; font-size: 16px; }
+  .dan-info { text-align: center; font-size: 20px; font-weight: bold; color: #d9480f; margin-top: 16px; min-height: 1.4em; }
+  .dan-foot { text-align: center; font-size: 13px; color: #999; margin: 12px 0 0; word-break: keep-all; }
+  #dan .big-btn { margin-top: 12px; }
+
+  /* だん の けっか：だん ごと に ×1〜×9 の ⭕❌ を ならべる */
+  .review.dan-review li { display: grid; grid-template-columns: 5.4em 1fr; gap: 8px; padding: 6px 2px; font-size: 16px; }
+  .dr-name { font-weight: bold; white-space: nowrap; }
+  .dr-cells { display: grid; grid-template-columns: repeat(9, 1fr); gap: 3px; }
+  .dr-cells span { height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: bold; color: #fff; }
+  .dr-cells .c-ok { background: var(--ok); }
+  .dr-cells .c-ng { background: var(--ng); }
+  .dan-miss { text-align: left; font-size: 16px; color: #666; margin: 10px 2px 0; }
+
+  /* バッジ いちらん の だん マスター */
+  .dan-badges { margin-top: 10px; background: var(--card); border-radius: 18px; padding: 6px 6px 4px; box-shadow: 0 3px 10px rgba(0,0,0,0.06); }
+  .dan-badges-title { text-align: center; font-size: 15px; font-weight: bold; color: #2b8a3e; margin-bottom: 4px; }
+  .dan-badges-title small { font-size: 12px; font-weight: normal; color: #888; margin-left: 6px; }
+  .dan-badge-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px 4px; text-align: center; }
+  .dan-badge .medal { width: 40px; height: 40px; font-size: 22px; }
+  .dan-badge .badge-name { margin-top: 2px; }
+  .dan-badge.locked .badge-name { color: #999; }
+  .medal.dan span { font-weight: bold; color: #2b8a3e; }
+
+  /* レポート の だん ごと の せいとうりつ */
+  .rp-dans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .rp-dan { background: var(--bg); border-radius: 12px; padding: 6px 10px 8px; }
+  .rp-dan-head { display: flex; justify-content: space-between; font-size: 14px; }
+  .rp-dan-val { font-size: 22px; font-weight: bold; color: #2b8a3e; line-height: 1.3; }
+  .rp-dan-val.low { color: var(--ng); }
+  .rp-dan .bar { height: 6px; background: #e9ecef; border-radius: 3px; overflow: hidden; }
+  .rp-dan .bar span { display: block; height: 100%; background: var(--times); }
+  .rp-dan-sub { font-size: 12px; color: #888; margin-top: 2px; }
+
+  @media (min-width: 600px) {
+    .review.dan-review { grid-template-columns: 1fr; }
+    .dan-badge-grid { grid-template-columns: repeat(9, 1fr); }
+  }
+  @media (min-width: 860px) {
+    /* だん を たくさん えらんだ ときも 1がめん に はいる ように 2れつ */
+    body.on-dan .wrap { max-width: 960px; }
+    .review.dan-review { grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); }
+  }
+  @media (min-width: 600px) and (max-height: 699px) {
+    /* たて が せまい ときは だん の がめん と けっか を すこし つめる */
+    .dan-grid { gap: 8px; }
+    .dan-grid button { padding: 5px 2px; }
+    .dan-info { margin-top: 10px; }
+    .dan-foot { margin-top: 8px; }
+    .review.dan-review li { padding: 4px 2px; }
+    .dr-cells span { height: 24px; }
+  }
+  @media (min-width: 860px) and (max-height: 699px) {
+    /* たて が せまい ときは だん マスター を 1ぎょう に つめる */
+    .dan-badges { display: flex; align-items: center; gap: 10px; margin-top: 4px; padding: 2px 12px; }
+    .dan-badges-title { margin: 0; white-space: nowrap; }
+    .dan-badges-title small { display: none; }
+    .dan-badge-grid { flex: 1; }
+    .dan-badge .badge-name, .dan-badge .badge-prog { display: none; }
+    .dan-badge .medal { width: 34px; height: 34px; font-size: 19px; }
+  }
+
   /* パソコン など ひろい がめん：1がめん に おさまる ように すこし コンパクト に */
   @media (min-width: 600px) {
     .wrap { max-width: 640px; padding: 8px 16px; }
@@ -785,6 +856,37 @@
     </div>
   </section>
 
+  <!-- かけざん：なんの だん？ -->
+  <section id="dan" class="screen">
+    <h1>✖️ なんの だん？</h1>
+    <p class="dan-lead">いくつ でも えらべるよ</p>
+    <div class="dan-grid" id="danChoices">
+      <button data-dan="1"><b>1</b>のだん</button>
+      <button data-dan="2"><b>2</b>のだん</button>
+      <button data-dan="3"><b>3</b>のだん</button>
+      <button data-dan="4"><b>4</b>のだん</button>
+      <button data-dan="5"><b>5</b>のだん</button>
+      <button data-dan="6"><b>6</b>のだん</button>
+      <button data-dan="7"><b>7</b>のだん</button>
+      <button data-dan="8"><b>8</b>のだん</button>
+      <button data-dan="9"><b>9</b>のだん</button>
+      <button data-dan="all" class="dan-all"><b>🌈</b>ぜんぶ</button>
+    </div>
+
+    <h2>だしかた は？</h2>
+    <div class="grid grid-2" id="orderChoices">
+      <button class="choice c-order selected" data-order="seq"><span class="mark">🔢</span>じゅんばん<small id="seqExample">3×1、3×2…</small></button>
+      <button class="choice c-order" data-order="rand"><span class="mark">🔀</span>ばらばら<small>まぜて でる</small></button>
+    </div>
+
+    <div class="dan-info" id="danInfo"></div>
+    <div class="finish-btns">
+      <button class="big-btn" id="danStart">スタート！</button>
+      <button class="big-btn home-btn" id="danBack">もどる</button>
+    </div>
+    <p class="dan-foot">2けた の かけざん は「もどる」で むずかしさ を えらんでね</p>
+  </section>
+
   <!-- せってい -->
   <section id="settings" class="screen">
     <h1>⚙️ せってい</h1>
@@ -802,6 +904,10 @@
     <h1>🏅 バッジ</h1>
     <div class="badge-summary" id="badgeSummary"></div>
     <div class="badge-grid" id="badgeGrid"></div>
+    <div class="dan-badges">
+      <div class="dan-badges-title">✖️ だん マスター<small>その だん の 9もん を ぜんぶ せいかい で ゲット</small></div>
+      <div class="dan-badge-grid" id="danBadgeGrid"></div>
+    </div>
     <button class="big-btn home-btn" id="badgesBack">もどる</button>
   </section>
 
@@ -817,6 +923,11 @@
     <div class="rp-card">
       <h3>計算ごとの正答率 <span class="rp-note">今週（月曜〜）と先週の比較</span></h3>
       <div id="rpOps"></div>
+    </div>
+
+    <div class="rp-card">
+      <h3>かけ算 段ごとの正答率 <span class="rp-note">九九・直近30日　🏅＝マスター</span></h3>
+      <div class="rp-dans" id="rpDans"></div>
     </div>
 
     <div class="rp-card">
@@ -890,6 +1001,7 @@
         <div class="xp-gain" id="xpGain"></div>
       </div>
       <ul class="review" id="review"></ul>
+      <p class="dan-miss" id="danMiss" hidden></p>
     </div>
     <div class="finish-btns">
       <button class="big-btn" id="retryBtn">もういちど</button>
@@ -919,6 +1031,11 @@
   let op = "+";
   let level = "1e";
   let mode = "calc"; // calc: けいさん  story: ぶんしょうだい
+  const DANS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+  let dans = null;   // かけざん の だん を えらんで とく とき（[3, 7] など）。null なら むずかしさ で だす
+  let danOrder = "seq"; // seq: じゅんばん  rand: ばらばら
+  // きろく に のこす むずかしさ（だん を えらんだ とき は "1k"：1けた の くく）
+  const playLevel = () => dans ? "1k" : level;
   let problems = [];
   let index = 0;
   let input = "";
@@ -944,7 +1061,10 @@
       });
     });
   }
-  setupChoices("opChoices", (d) => { op = d.op; });
+  setupChoices("opChoices", (d) => {
+    op = d.op;
+    if (op === "×" && mode === "calc") show("dan"); // かけざん は なんの だん か を えらぶ
+  });
   setupChoices("levelChoices", (d) => { level = d.level; });
   // けいさん / ぶんしょうだい
   $("modeChoices").querySelectorAll("button").forEach((btn) => {
@@ -1199,7 +1319,9 @@
 
   function weakTargets() {
     const since = addDays(startOfDay(new Date()), -(WEAK_DAYS - 1)).getTime();
-    const list = loadLog().filter((e) => e.t >= since && e.op === op && e.lv === level);
+    // だん を えらんだ とき は、1けた の かけざん の きろく を ぜんぶ つかう
+    const same = dans ? (e) => e.op === "×" && e.lv[0] === "1" : (e) => e.op === op && e.lv === level;
+    const list = loadLog().filter((e) => e.t >= since && same(e));
     return weakRanking(list)
       // ぶんしょうだい の「しき の えらびかた」は かず では えらべない ので のぞく
       .filter((g) => !g.key.startsWith("st") && g.miss >= WEAK_MIN_MISS && g.miss / g.n >= WEAK_MIN_RATE)
@@ -1232,7 +1354,27 @@
     return { ...(mode === "story" ? makeStoryProblem(base) : base), weak: true };
   }
 
+  function shuffle(list) {
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = rand(0, i);
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+    return list;
+  }
+
+  // ---- かけざん の だん を えらんで だす ----
+  // えらんだ だん の 9もん（×1〜×9）を ぜんぶ だす。まえ に まちがえた にがて の もんだい には しるし を つける
+  function makeDanProblems() {
+    const missed = new Set(weakTargets().flatMap((t) => t.probs));
+    const list = dans.flatMap((d) => DANS.map((b) => {
+      const text = `${d} × ${b}`;
+      return { a: d, b, ans: d * b, text, weak: missed.has(text) };
+    }));
+    return danOrder === "rand" ? shuffle(list) : list;
+  }
+
   function makeProblems() {
+    if (dans) return makeDanProblems();
     const list = [];
     const seen = new Set();
     const add = (p) => { seen.add(p.text); list.push(p); };
@@ -1251,11 +1393,7 @@
       if (!seen.has(p.text) || tries++ > 200) add(p);
     }
     // にがて もんだい が はじめ に かたまらない ように まぜる
-    for (let i = list.length - 1; i > 0; i--) {
-      const j = rand(0, i);
-      [list[i], list[j]] = [list[j], list[i]];
-    }
-    return list;
+    return shuffle(list);
   }
 
   // ---- きろく（ブラウザ に ほぞん して、とじても きえない）----
@@ -1305,7 +1443,7 @@
   function addLog(p, ms) {
     const now = Date.now();
     const log = loadLog().filter((e) => e.t >= now - LOG_KEEP_DAYS * DAY_MS);
-    const e = { t: now, op, lv: level, a: p.a, b: p.b, ok: p.correct ? 1 : 0, ms };
+    const e = { t: now, op, lv: playLevel(), a: p.a, b: p.b, ok: p.correct ? 1 : 0, ms };
     if (p.story) { e.st = 1; e.sk = p.shikiOk ? 1 : 0; } // ぶんしょうだい と、しき が あって いた か
     log.push(e);
     try { localStorage.setItem(LOG_KEY, JSON.stringify(log)); } catch (e) { /* ほぞん できなくても つづける */ }
@@ -1590,6 +1728,17 @@
           <div class="rp-weak-sub">まちがい ${g.miss}回 ／ ${g.n}問中（正答率 ${pct(1 - g.miss / g.n)}）・ 例：${g.example}</div></div></li>`).join("")
       : `<li class="rp-empty">${weakLog.length ? `直近${WEAK_DAYS}日で間違えた問題はありません。すばらしい！` : "まだ記録がありません。"}</li>`;
 
+    // かけざん の だん ごと の せいとうりつ（1けた の かけざん。ぶんしょうだい は しき が あって いた もの）
+    const badges = loadGrowth().badges;
+    const kukuLog = weakLog.filter((e) => e.op === "×" && e.lv[0] === "1" && (!e.st || e.sk));
+    $("rpDans").innerHTML = DANS.map((d) => {
+      const s = summarize(kukuLog.filter((e) => e.a === d));
+      return `<div class="rp-dan"><div class="rp-dan-head"><b>${d}の段</b>${badges[`dan${d}`] ? "🏅" : ""}</div>` +
+        `<div class="rp-dan-val${s.rate != null && s.rate < 0.7 ? " low" : ""}">${pct(s.rate)}</div>` +
+        `<div class="bar"><span style="width:${s.rate == null ? 0 : Math.round(s.rate * 100)}%"></span></div>` +
+        `<div class="rp-dan-sub">${s.n}問</div></div>`;
+    }).join("");
+
     // ひとこと アドバイス：「よいところ」と「次のステップ」を 1つ ずつ
     const good = [], next = [];
     const compared = opRows
@@ -1723,17 +1872,20 @@
     { id: "streak3",    icon: "🔥", name: "3にち れんぞく",    desc: "3にち つづけて とく",         goal: (s) => [s.streak, 3] },
     { id: "streak7",    icon: "🌈", name: "7にち れんぞく",    desc: "7にち つづけて とく",         goal: (s) => [s.streak, 7] },
     { id: "streak14",   icon: "👑", name: "14にち れんぞく",   desc: "14にち つづけて とく",        goal: (s) => [s.streak, 14] },
-    { id: "perfect1",   icon: "💯", name: "はじめての ぜんもん せいかい", desc: `${TOTAL}もん ぜんぶ せいかい`, goal: (s) => [s.perfect, 1] },
+    { id: "perfect1",   icon: "💯", name: "はじめての ぜんもん せいかい", desc: "ぜんもん せいかい する", goal: (s) => [s.perfect, 1] },
     { id: "perfect10",  icon: "🎯", name: "ぜんもん せいかい 10かい", desc: "ぜんもん せいかい を 10かい", goal: (s) => [s.perfect, 10] },
     { id: "hanamaru1",  icon: "🌸", name: "はじめての はなまる", desc: `1にち に ${HANAMARU_COUNT}もん とく`, goal: (s) => [s.hanamaru, 1] },
     { id: "hanamaru10", icon: "💐", name: "はなまる 10こ",     desc: "カレンダー の はなまる を 10こ", goal: (s) => [s.hanamaru, 10] },
     { id: "allops",     icon: "🧮", name: "4つの けいさん",    desc: "＋ − × ÷ ぜんぶ で せいかい", goal: (s) => [s.ops, 4] },
     { id: "kuku",       icon: "🎓", name: "くく マスター",     desc: "くく の 81もん を ぜんぶ せいかい", goal: (s) => [s.kuku, 81] },
     { id: "speed",      icon: "⚡", name: "スピードスター",    desc: `${TOTAL}もん を 1ぷん いない で ぜんもん せいかい`,
-      check: (s) => s.session && s.session.perfect && s.session.ms <= 60 * 1000 },
+      check: (s) => s.session && s.session.perfect && s.session.n >= TOTAL && s.session.ms <= 60 * 1000 },
     { id: "hard",       icon: "💪", name: "チャレンジャー",    desc: "2けた むずかしい で ぜんもん せいかい",
       check: (s) => s.session && s.session.perfect && s.session.level === "2h" },
     { id: "maxlevel",   icon: "🐔", name: "そだて めいじん",   desc: `${STAGES[STAGES.length - 1].name} に そだてる`, goal: (s) => [s.stage, STAGES.length] },
+    // 1かい の なか で、その だん の ×1〜×9 を ぜんぶ せいかい
+    ...DANS.map((d) => ({ id: `dan${d}`, dan: d, icon: String(d), name: `${d}のだん マスター`, desc: `${d}のだん の 9もん を ぜんぶ せいかい`,
+      check: (s) => s.session && s.session.dans.includes(d) })),
   ];
 
   function badgeStats(g, session) {
@@ -1751,7 +1903,7 @@
     };
   }
   const isEarned = (b, s) => b.goal ? b.goal(s)[0] >= b.goal(s)[1] : !!b.check(s);
-  const medal = (b, got) => `<div class="medal${got ? "" : " locked"}"><span>${b.icon}</span></div>`;
+  const medal = (b, got) => `<div class="medal${b.dan ? " dan" : ""}${got ? "" : " locked"}"><span>${b.icon}</span></div>`;
 
   // おいわい は ためて おいて、けっか がめん か はじめ の がめん で じゅんばん に だす
   const celebrations = [];
@@ -1792,18 +1944,24 @@
     const g = loadGrowth();
     const s = badgeStats(g, null);
     $("badgeSummary").textContent = `${BADGES.filter((b) => g.badges[b.id]).length} / ${BADGES.length} こ ゲット！`;
-    $("badgeGrid").innerHTML = BADGES.map((b) => {
+    const gotOn = (when) => { const [, m, d] = when.split("-").map(Number); return `${m}/${d} ゲット`; };
+    $("badgeGrid").innerHTML = BADGES.filter((b) => !b.dan).map((b) => {
       const when = g.badges[b.id];
       let sub = "";
       if (when) {
-        const [, m, d] = when.split("-").map(Number);
-        sub = `${m}/${d} ゲット`;
+        sub = gotOn(when);
       } else if (b.goal) {
         const [cur, goal] = b.goal(s);
         sub = `${Math.min(cur, goal)} / ${goal}`;
       }
       return `<div class="badge-card${when ? "" : " locked"}">${medal(b, !!when)}` +
         `<div class="badge-name">${b.name}</div><div class="badge-desc">${b.desc}</div><div class="badge-prog">${sub}</div></div>`;
+    }).join("");
+    // だん マスター は 1れつ に ちいさく ならべる
+    $("danBadgeGrid").innerHTML = BADGES.filter((b) => b.dan).map((b) => {
+      const when = g.badges[b.id];
+      return `<div class="dan-badge${when ? "" : " locked"}" title="${b.name}">${medal(b, !!when)}` +
+        `<div class="badge-name">${b.dan}のだん</div><div class="badge-prog">${when ? gotOn(when) : ""}</div></div>`;
     }).join("");
   }
 
@@ -1854,7 +2012,9 @@
     document.body.classList.toggle("on-start", id === "start");
     document.body.classList.toggle("on-badges", id === "badges");
     document.body.classList.toggle("on-story", id === "quiz" && mode === "story");
+    document.body.classList.toggle("on-dan", id === "finish" && !!dans);
     if (id === "start") { resetCalendar(); renderGrowth(); }
+    if (id === "dan") renderDan();
     if (id === "badges") renderBadges();
     if (id === "parent") renderReport();
     if (id === "settings") renderSettings();
@@ -1967,8 +2127,8 @@
     pickedOp = null;
     waitingNext = false;
     stopSpeech();
-    $("qNum").textContent = `${index + 1}もんめ / ${TOTAL}`;
-    $("bar").style.width = `${(index / TOTAL) * 100}%`;
+    $("qNum").textContent = `${index + 1}もんめ / ${problems.length}`;
+    $("bar").style.width = `${(index / problems.length) * 100}%`;
     $("result").textContent = "";
     $("result").className = "result";
     $("checkBtn").textContent = "こたえあわせ";
@@ -2045,7 +2205,7 @@
       if (!p.correct) return; // まちがい でも もんだいすう の バッジ は しらべる
       g.xp += XP_PER_CORRECT;
       if (!g.ops.includes(op)) g.ops.push(op);
-      if (op === "×" && level[0] === "1" && !g.kuku.includes(p.text)) g.kuku.push(p.text);
+      if (op === "×" && playLevel()[0] === "1" && !g.kuku.includes(p.text)) g.kuku.push(p.text);
     });
     setKeypadEnabled(false);
 
@@ -2073,18 +2233,18 @@
         b.classList.toggle("right", !p.correct && b.dataset.op === op);
       });
     }
-    $("bar").style.width = `${((index + 1) / TOTAL) * 100}%`;
+    $("bar").style.width = `${((index + 1) / problems.length) * 100}%`;
     const btn = $("checkBtn");
     btn.className = "action next";
     if (p.story && !p.correct) {
       // ぶんしょうだい で まちがえた ときは、せつめい を よみおわって から じぶん で すすむ
-      btn.textContent = index + 1 < TOTAL ? "つぎ の もんだい へ ▶" : "けっか を みる ▶";
+      btn.textContent = index + 1 < problems.length ? "つぎ の もんだい へ ▶" : "けっか を みる ▶";
       btn.disabled = false;
       waitingNext = true;
       return;
     }
     // せいかい は 1.5びょう、まちがい は 3びょう で じどう で つぎ へ すすむ
-    btn.textContent = index + 1 < TOTAL ? "つぎ に すすむよ…" : "けっか を だすよ…";
+    btn.textContent = index + 1 < problems.length ? "つぎ に すすむよ…" : "けっか を だすよ…";
     btn.disabled = true;
     autoNextId = setTimeout(next, p.correct ? AUTO_NEXT_OK_MS : AUTO_NEXT_NG_MS);
   }
@@ -2206,32 +2366,94 @@
   // こえ の いちらん は あと から とどく ブラウザ が ある（Chrome など）
   if (canSpeak) speechSynthesis.onvoiceschanged = () => { if ($("settings").classList.contains("active")) renderSettings(); };
 
+  // ---- かけざん：なんの だん？（えらんだ だん と だしかた は ブラウザ に ほぞん）----
+  let danPicked = Array.isArray(settings.dans) ? DANS.filter((d) => settings.dans.includes(d)) : [];
+  if (settings.danOrder === "rand") danOrder = "rand";
+
+  function renderDan() {
+    $("danChoices").querySelectorAll("button").forEach((b) => {
+      const d = b.dataset.dan;
+      b.classList.toggle("selected", d === "all" ? danPicked.length === DANS.length : danPicked.includes(Number(d)));
+    });
+    $("orderChoices").querySelectorAll(".choice").forEach((b) => b.classList.toggle("selected", b.dataset.order === danOrder));
+    const first = danPicked[0] || 3;
+    $("seqExample").textContent = `${first}×1、${first}×2…`;
+    $("danInfo").textContent = !danPicked.length ? "だん を えらんでね"
+      : `${danPicked.length === DANS.length ? "ぜんぶ の だん" : danPicked.map((d) => `${d}のだん`).join("・")}（${danPicked.length * DANS.length}もん）`;
+    $("danStart").disabled = !danPicked.length;
+  }
+
+  $("danChoices").addEventListener("click", (e) => {
+    const btn = e.target.closest("button");
+    if (!btn) return;
+    const d = btn.dataset.dan;
+    if (d === "all") danPicked = danPicked.length === DANS.length ? [] : [...DANS];
+    else danPicked = DANS.filter((x) => (x === Number(d)) !== danPicked.includes(x)); // おした だん だけ きりかえる
+    settings.dans = danPicked;
+    saveSettings();
+    renderDan();
+  });
+  setupChoices("orderChoices", (d) => {
+    danOrder = d.order;
+    settings.danOrder = danOrder;
+    saveSettings();
+  });
+
+  // だん の けっか：だん ごと に ×1〜×9 の ⭕❌ と、まちがえた もんだい
+  const MISS_MAX = 12; // まちがえた もんだい を ならべる かず
+  function renderDanReview() {
+    $("review").innerHTML = dans.map((d) => {
+      const ps = problems.filter((p) => p.a === d).sort((x, y) => x.b - y.b);
+      const cells = ps.map((p) => `<span class="${p.correct ? "c-ok" : "c-ng"}" title="${p.text} ＝ ${p.ans}">${p.b}</span>`).join("");
+      return `<li><span class="dr-name">${d}のだん${ps.every((p) => p.correct) ? "🏅" : ""}</span><span class="dr-cells">${cells}</span></li>`;
+    }).join("");
+    const miss = problems.filter((p) => !p.correct);
+    $("danMiss").hidden = !miss.length;
+    $("danMiss").textContent = "❌ まちがえた もんだい：" +
+      miss.slice(0, MISS_MAX).map((p) => `${p.a}×${p.b}＝${p.ans}`).join("　") +
+      (miss.length > MISS_MAX ? `　ほか ${miss.length - MISS_MAX}もん` : "");
+  }
+
   function next() {
     index++;
-    if (index < TOTAL) showProblem();
+    if (index < problems.length) showProblem();
     else finish();
   }
 
   function finish() {
     const elapsed = stopTimer();
+    const total = problems.length;
     const score = problems.filter((p) => p.correct).length;
-    $("score").innerHTML = `${score}<small> / ${TOTAL} もん</small>`;
+    $("score").innerHTML = `${score}<small> / ${total} もん</small>`;
     $("timeResult").innerHTML = `かかった じかん：<span class="nowrap">${formatTime(elapsed)}</span>`;
 
-    const perfect = score === TOTAL;
+    const perfect = score === total;
     if (perfect) sessionXp += PERFECT_BONUS;
+    // ×1〜×9 が ぜんぶ でて、ぜんぶ せいかい した だん（だん マスター の バッジ）
+    const kuku = op === "×" && playLevel()[0] === "1";
+    const masters = kuku ? DANS.filter((d) => {
+      const ps = problems.filter((p) => !p.story && p.a === d);
+      return new Set(ps.map((p) => p.b)).size === DANS.length && ps.every((p) => p.correct);
+    }) : [];
     updateGrowth((g) => {
       if (!perfect) return;
       g.xp += PERFECT_BONUS;
       g.perfect++;
-    }, { perfect, ms: elapsed, level });
+    }, { perfect, ms: elapsed, level: playLevel(), n: total, dans: masters });
     $("xpGain").innerHTML = `⭐ けいけんち +${sessionXp}` + (perfect ? `<small>（ぜんもん せいかい ボーナス +${PERFECT_BONUS}）</small>` : "");
     $("praise").textContent =
-      score === TOTAL ? "💯 ぜんもん せいかい！すごい！" :
-      score >= 8 ? "🌟 よく できました！" :
-      score >= 5 ? "👍 がんばったね！" :
-                   "💪 つぎ も がんばろう！";
+      score === total ? "💯 ぜんもん せいかい！すごい！" :
+      score >= total * 0.8 ? "🌟 よく できました！" :
+      score >= total * 0.5 ? "👍 がんばったね！" :
+                             "💪 つぎ も がんばろう！";
 
+    $("review").className = dans ? "review dan-review" : "review";
+    $("danMiss").hidden = true;
+    if (dans) {
+      renderDanReview();
+      show("finish");
+      return;
+    }
     $("review").innerHTML = problems.map((p) => {
       // ぶんしょうだい は えらんだ しき と、まちがい の とき は ただしい しき を だす
       const mine = p.story ? `${p.options.find((o) => o.op === p.userOp).text} ＝ ${p.user}` : `${p.text} ＝ ${p.user}`;
@@ -2248,7 +2470,9 @@
   }
 
   // ---- イベント ----
-  $("startBtn").addEventListener("click", startGame);
+  $("startBtn").addEventListener("click", () => { dans = null; startGame(); });
+  $("danStart").addEventListener("click", () => { dans = [...danPicked]; op = "×"; startGame(); });
+  $("danBack").addEventListener("click", () => show("start"));
   $("retryBtn").addEventListener("click", startGame);
   $("homeBtn").addEventListener("click", () => show("start"));
   $("parentBtn").addEventListener("click", () => show("parent"));
