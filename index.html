@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>けいさん れんしゅう</title>
+<!-- ホーム画面 に ついか して アプリ の ように つかう（PWA） -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#fff8e7">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="けいさん">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
   :root {
     --bg: #fff8e7;
@@ -330,6 +339,37 @@
   .rp-advice.good span { background: var(--ok); }
   .rp-advice.next span { background: var(--minus); }
   .rp-foot { font-size: 12px; color: #888; margin: 12px 2px 0; }
+  /* きろく の ほぞん */
+  .st-card p { margin: 0 0 8px; }
+  .st-card .st-ok, .st-card .st-warn { font-size: 18px; font-weight: bold; margin-bottom: 4px; }
+  .st-ok { color: var(--ok); }
+  .st-warn { color: #e8590c; }
+  .st-card button { background: var(--minus); font-size: 15px; padding: 8px 14px; border-radius: 12px; box-shadow: 0 3px 0 #1c7ed6; margin: 0 8px 8px 0; }
+  .st-install { background: var(--bg); border-radius: 12px; padding: 10px 12px; margin: 4px 0 12px; }
+  .st-install[hidden] { display: none; }
+  .st-install h4 { margin: 0 0 6px; font-size: 16px; color: #d9480f; }
+  .st-install ol { margin: 0 0 8px; padding-left: 1.4em; }
+  .st-install p:last-child { margin-bottom: 0; }
+  .st-note { font-size: 13px; color: #777; }
+
+  /* あたらしい バージョン の おしらせ */
+  .update-bar {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9;
+    background: var(--main);
+    font-size: 17px;
+    line-height: 1.3;
+    padding: 8px 22px;
+    border-radius: 999px;
+    box-shadow: 0 4px 0 #d9480f, 0 6px 20px rgba(0,0,0,.2);
+    white-space: nowrap;
+  }
+  .update-bar small { display: block; font-size: 12px; }
+  .update-bar:active { transform: translate(-50%, 4px); }
+  .update-bar[hidden], body.on-quiz .update-bar { display: none; } /* もんだい を といて いる あいだ は ださない */
   @media (min-width: 600px) {
     .rp-stats { grid-template-columns: repeat(3, 1fr); }
   }
@@ -1071,6 +1111,15 @@
       <div id="rpAdvice"></div>
     </div>
 
+    <div class="rp-card st-card">
+      <h3>記録の保存 <span class="rp-note">記録はこの端末の中だけにあります</span></h3>
+      <div id="stStatus"></div>
+      <div class="st-install" id="stInstall" hidden></div>
+      <p>機種変更やホーム画面への追加の前に、記録（キャラクター・バッジ・カレンダー・名前など）をファイルに保存しておけます。</p>
+      <button id="backupBtn">記録をファイルに保存</button><button id="restoreBtn">ファイルから戻す</button>
+      <input type="file" id="restoreFile" accept=".json,application/json" hidden>
+    </div>
+
     <p class="rp-foot" id="rpFoot"></p>
     <button class="big-btn home-btn" id="parentBack">もどる</button>
   </section>
@@ -1151,6 +1200,8 @@
     <button class="big-btn" id="celeOk">やったー！</button>
   </div>
 </div>
+
+<button class="update-bar" id="updateBar" hidden>✨ あたらしい バージョン が あります<small>タップ で こうしん</small></button>
 
 <script>
 (() => {
@@ -2262,10 +2313,11 @@
     document.body.classList.toggle("on-badges", id === "badges");
     document.body.classList.toggle("on-story", id === "quiz" && mode === "story");
     document.body.classList.toggle("on-dan", id === "finish" && !!dans);
+    document.body.classList.toggle("on-quiz", id === "quiz");
     if (id === "start") { resetCalendar(); renderGrowth(); }
     if (id === "dan") renderDan();
     if (id === "badges") renderBadges();
-    if (id === "parent") renderReport();
+    if (id === "parent") { renderReport(); renderStorage(); }
     if (id === "settings") renderSettings();
     if (id === "start") renderGreet();
     if (id === "name") { renderName(); $("nameInput").focus(); }
@@ -2902,6 +2954,130 @@
       e.preventDefault(); onAction();
     }
   });
+
+  // ---- アプリ として つかう（PWA）と、きろく を きえにくく する ----
+  const STORE_PREFIX = "keisan-renshu-"; // この アプリ の きろく の なまえ の はじまり
+  const isStandalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/.test(navigator.userAgent);
+  let installPrompt = null; // Android や パソコン の Chrome で「ホーム画面 に ついか」を だす ため の もの
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    installPrompt = e;
+    if ($("parent").classList.contains("active")) renderStorage();
+  });
+  window.addEventListener("appinstalled", () => { installPrompt = null; });
+
+  // ブラウザ に「きろく を けさないで」と たのむ（えいぞく ストレージ）
+  async function askPersist() {
+    try { return navigator.storage && navigator.storage.persist ? await navigator.storage.persist() : null; } catch (e) { return null; }
+  }
+  // Firefox は こども に かくにん が でて しまう ので、おうちのかた が ボタン で たのむ
+  if (!/Firefox/.test(navigator.userAgent)) askPersist();
+
+  async function renderStorage() {
+    let persisted = null;
+    try { if (navigator.storage && navigator.storage.persisted) persisted = await navigator.storage.persisted(); } catch (e) { /* わからない */ }
+    const app = isStandalone();
+    let html =
+      persisted ? '<p class="st-ok">✅ 保護されています</p><p>端末の空き容量が少なくなっても、ブラウザがこのアプリの記録を自動で消すことはありません。</p>'
+      : persisted === false ? '<p class="st-warn">⚠️ まだ保護されていません</p><p>端末の空き容量が少なくなったとき、ブラウザが記録を消すことがあります。</p><button id="persistBtn">保護を申請する</button>'
+      : '<p class="st-warn">このブラウザでは、保護されているか確認できません</p>';
+    if (isIOS && !app) html += '<p class="st-note">iPhone・iPad の Safari では、7日以上ひらかないと記録が消えることがあります。ホーム画面に追加したアプリには、この制限がありません。</p>';
+    $("stStatus").innerHTML = html;
+
+    // ブラウザ で ひらいて いる とき だけ、ホーム画面 への ついか の しかた を だす
+    $("stInstall").hidden = app;
+    if (app) return;
+    const button = installPrompt ? '<button id="installBtn">ホーム画面に追加する</button>' : "";
+    $("stInstall").innerHTML = '<h4>📲 ホーム画面に追加すると、きろくが きえにくくなります</h4>' + (
+      isIOS ? '<ol><li>Safari でこのページを開きます</li><li>画面下（iPad は上）の共有ボタン（四角から矢印が出ているマーク）をタップ</li><li>「ホーム画面に追加」→「追加」をタップ</li></ol>' +
+        '<p class="st-note">⚠️ iPhone・iPad では、Safari とホーム画面のアプリで記録が別々になります。先にこの下の「記録をファイルに保存」でファイルを作り、ホーム画面のアプリで「ファイルから戻す」を使うと引き継げます。</p>'
+      : isAndroid ? (button || '<ol><li>Chrome でこのページを開きます</li><li>右上の「︙」をタップ</li><li>「ホーム画面に追加」または「アプリをインストール」をタップ</li></ol>') +
+        '<p class="st-note">記録はそのまま引き継がれます。</p>'
+      : (button || '<p>Chrome・Edge では、アドレスバーの右にあるインストールのボタンから、アプリとして追加できます。</p>') +
+        '<p class="st-note">記録はそのまま引き継がれます。</p>');
+  }
+
+  $("stStatus").addEventListener("click", async (e) => {
+    if (e.target.id === "persistBtn") { await askPersist(); renderStorage(); }
+  });
+  $("stInstall").addEventListener("click", async (e) => {
+    if (e.target.id !== "installBtn" || !installPrompt) return;
+    installPrompt.prompt();
+    await installPrompt.userChoice;
+    installPrompt = null;
+    renderStorage();
+  });
+
+  // きろく を ファイル に して とっておく / もどす（ファイル は この たんまつ の なか だけ。どこ にも おくらない）
+  function backupText() {
+    const data = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k.startsWith(STORE_PREFIX)) data[k] = localStorage.getItem(k);
+    }
+    return JSON.stringify({ app: "keisan-renshu", v: 1, saved: new Date().toISOString(), data });
+  }
+  $("backupBtn").addEventListener("click", async () => {
+    const name = `keisan-kiroku-${dateKey(new Date())}.json`;
+    const file = new File([backupText()], name, { type: "application/json" });
+    // スマホ は「"ファイル" に ほぞん」などを えらべる がめん を だす
+    if ((isIOS || isAndroid) && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file] }); return; } catch (e) { if (e.name === "AbortError") return; }
+    }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(file);
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  });
+  $("restoreBtn").addEventListener("click", () => $("restoreFile").click());
+  $("restoreFile").addEventListener("change", async (e) => {
+    const f = e.target.files[0];
+    e.target.value = "";
+    if (!f) return;
+    let d, entries = [];
+    try {
+      d = JSON.parse(await f.text());
+      if (d && d.app === "keisan-renshu" && d.data && typeof d.data === "object") {
+        entries = Object.entries(d.data).filter(([k, v]) => k.startsWith(STORE_PREFIX) && typeof v === "string");
+        entries.forEach(([, v]) => JSON.parse(v)); // こわれて いない か たしかめる
+      }
+    } catch (err) { entries = []; }
+    if (!entries.length) {
+      alert("このファイルは読みこめませんでした。「記録をファイルに保存」で作ったファイルを選んでください。");
+      return;
+    }
+    const when = d.saved ? `${new Date(d.saved).toLocaleDateString("ja-JP")}に保存した` : "ファイルの";
+    if (!confirm(`${when}記録に置きかえます。今この端末にある記録は消えます。よろしいですか？`)) return;
+    Object.keys(localStorage).filter((k) => k.startsWith(STORE_PREFIX)).forEach((k) => localStorage.removeItem(k));
+    entries.forEach(([k, v]) => localStorage.setItem(k, v));
+    location.reload();
+  });
+
+  // オフライン でも つかえる ように する。あたらしい バージョン が とどいたら おしらせ を だす
+  if ("serviceWorker" in navigator && location.protocol !== "file:") {
+    const sw = navigator.serviceWorker;
+    sw.register("sw.js").catch(() => { /* つかえなくても ふつう に うごく */ });
+    let lastCheck = 0;
+    const checkUpdate = () => {
+      if (!sw.controller || Date.now() - lastCheck < 60 * 1000) return;
+      lastCheck = Date.now();
+      sw.controller.postMessage({ type: "check" });
+    };
+    sw.ready.then(checkUpdate);
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) checkUpdate(); });
+    sw.addEventListener("message", (e) => {
+      if (e.data && e.data.type === "update-ready") $("updateBar").hidden = false;
+      if (e.data && e.data.type === "applied") location.reload();
+    });
+    $("updateBar").addEventListener("click", () => {
+      $("updateBar").disabled = true;
+      if (sw.controller) sw.controller.postMessage({ type: "apply" });
+      else location.reload();
+    });
+  }
 
   // ひらいた とき：これまで の きろく で もらえる バッジ が あれば ここ で わたす
   updateGrowth(() => {});
