@@ -351,6 +351,12 @@
   .st-install ol { margin: 0 0 8px; padding-left: 1.4em; }
   .st-install p:last-child { margin-bottom: 0; }
   .st-note { font-size: 13px; color: #777; }
+  .st-backup { border-top: 1px dotted #ddd; padding-top: 10px; }
+  .st-backup h4 { margin: 0 0 6px; font-size: 16px; }
+  .st-last b { color: #d9480f; }
+  .st-due { background: #fff4e6; border-left: 4px solid #ff922b; border-radius: 8px; padding: 6px 10px; }
+  /* バックアップ が ひさしぶり の とき、「おうちのかたへ」に しるし を つける */
+  .parent-link.due::after { content: ""; position: absolute; inset: auto; top: 2px; right: -8px; width: 9px; height: 9px; border-radius: 50%; background: var(--ng); }
 
   /* あたらしい バージョン の おしらせ */
   .update-bar {
@@ -1115,9 +1121,14 @@
       <h3>記録の保存 <span class="rp-note">記録はこの端末の中だけにあります</span></h3>
       <div id="stStatus"></div>
       <div class="st-install" id="stInstall" hidden></div>
-      <p>機種変更やホーム画面への追加の前に、記録（キャラクター・バッジ・カレンダー・名前など）をファイルに保存しておけます。</p>
-      <button id="backupBtn">記録をファイルに保存</button><button id="restoreBtn">ファイルから戻す</button>
-      <input type="file" id="restoreFile" accept=".json,application/json" hidden>
+      <div class="st-backup">
+        <h4>バックアップ</h4>
+        <p>名前・キャラクター・経験値・バッジ・カレンダー・学習レポート・設定など、すべての記録を1つのファイルにします。機種変更や、iPhone でホーム画面に追加するときにも使えます。</p>
+        <p id="stLast"></p>
+        <button id="backupBtn">💾 きろくを ほぞん</button><button id="restoreBtn">📂 きろくを よみこむ</button>
+        <input type="file" id="restoreFile" hidden>
+        <p class="st-note" id="stBackupNote"></p>
+      </div>
     </div>
 
     <p class="rp-foot" id="rpFoot"></p>
@@ -2314,10 +2325,10 @@
     document.body.classList.toggle("on-story", id === "quiz" && mode === "story");
     document.body.classList.toggle("on-dan", id === "finish" && !!dans);
     document.body.classList.toggle("on-quiz", id === "quiz");
-    if (id === "start") { resetCalendar(); renderGrowth(); }
+    if (id === "start") { resetCalendar(); renderGrowth(); $("parentBtn").classList.toggle("due", backupDue()); }
     if (id === "dan") renderDan();
     if (id === "badges") renderBadges();
-    if (id === "parent") { renderReport(); renderStorage(); }
+    if (id === "parent") { renderReport(); renderStorage(); renderBackup(); }
     if (id === "settings") renderSettings();
     if (id === "start") renderGreet();
     if (id === "name") { renderName(); $("nameInput").focus(); }
@@ -2992,7 +3003,7 @@
     const button = installPrompt ? '<button id="installBtn">ホーム画面に追加する</button>' : "";
     $("stInstall").innerHTML = '<h4>📲 ホーム画面に追加すると、きろくが きえにくくなります</h4>' + (
       isIOS ? '<ol><li>Safari でこのページを開きます</li><li>画面下（iPad は上）の共有ボタン（四角から矢印が出ているマーク）をタップ</li><li>「ホーム画面に追加」→「追加」をタップ</li></ol>' +
-        '<p class="st-note">⚠️ iPhone・iPad では、Safari とホーム画面のアプリで記録が別々になります。先にこの下の「記録をファイルに保存」でファイルを作り、ホーム画面のアプリで「ファイルから戻す」を使うと引き継げます。</p>'
+        '<p class="st-note">⚠️ iPhone・iPad では、Safari とホーム画面のアプリで記録が別々になります。先にこの下の「きろくを ほぞん」でファイルを作り、ホーム画面のアプリで「きろくを よみこむ」を使うと引き継げます。</p>'
       : isAndroid ? (button || '<ol><li>Chrome でこのページを開きます</li><li>右上の「︙」をタップ</li><li>「ホーム画面に追加」または「アプリをインストール」をタップ</li></ol>') +
         '<p class="st-note">記録はそのまま引き継がれます。</p>'
       : (button || '<p>Chrome・Edge では、アドレスバーの右にあるインストールのボタンから、アプリとして追加できます。</p>') +
@@ -3010,49 +3021,161 @@
     renderStorage();
   });
 
-  // きろく を ファイル に して とっておく / もどす（ファイル は この たんまつ の なか だけ。どこ にも おくらない）
+  // ---- きろく の バックアップ（ファイル は この たんまつ の なか だけ。どこ にも おくらない）----
+  const BACKUP_APP = "keisan-renshu";
+  // ファイル の かたち を かえる とき は ふやして、upgradeBackup に ふるい かたち の よみかえ を たす
+  const BACKUP_V = 1;
+  const BACKUP_KEY = STORE_PREFIX + "backup"; // さいご に ほぞん した ひ（バックアップ には いれない）
+  const BACKUP_DUE_DAYS = 30; // これ いじょう たったら おしらせ
+  const isObj = (v) => !!v && typeof v === "object" && !Array.isArray(v);
+  // しって いる きろく の かたち（しらない キー は、あたらしい バージョン で ふえた もの と して そのまま もどす）
+  const BACKUP_CHECK = {
+    [RECORD_KEY]: (v) => isObj(v) && Object.values(v).every((n) => typeof n === "number"),
+    [LOG_KEY]: Array.isArray,
+    [GROWTH_KEY]: isObj,
+    [SETTINGS_KEY]: isObj,
+  };
+
+  // ふるい かたち の ファイル を いま の かたち に する（v1 が さいしょ なので、いま は なにも しない）
+  function upgradeBackup(d) {
+    return d;
+  }
+
+  function loadBackupInfo() {
+    try { const d = JSON.parse(localStorage.getItem(BACKUP_KEY)); return isObj(d) ? d : {}; } catch (e) { return {}; }
+  }
+
+  // なまえ を ファイル名 に つかえる ように する（かな は ローマじ、かんじ は そのまま、きごう は けす）
+  const ROMAJI = Object.fromEntries(("あa いi うu えe おo かka きki くku けke こko さsa しshi すsu せse そso たta ちchi つtsu てte とto " +
+    "なna にni ぬnu ねne のno はha ひhi ふfu へhe ほho まma みmi むmu めme もmo やya ゆyu よyo らra りri るru れre ろro わwa をo んn " +
+    "がga ぎgi ぐgu げge ごgo ざza じji ずzu ぜze ぞzo だda ぢji づzu でde どdo ばba びbi ぶbu べbe ぼbo ぱpa ぴpi ぷpu ぺpe ぽpo " +
+    "ぁa ぃi ぅu ぇe ぉo ゔvu").split(" ").map((w) => [w[0], w.slice(1)]));
+  function fileName(name) {
+    const chars = [...name.normalize("NFKC")].map((c) => {
+      const code = c.charCodeAt(0);
+      return code >= 0x30a1 && code <= 0x30f6 ? String.fromCharCode(code - 0x60) : c; // カタカナ → ひらがな
+    });
+    let out = "";
+    for (let i = 0; i < chars.length; i++) {
+      const c = chars[i];
+      const small = { "ゃ": "a", "ゅ": "u", "ょ": "o" }[chars[i + 1]];
+      if (c === "っ") {
+        const next = ROMAJI[chars[i + 1]] || "";
+        out += next[0] === "c" ? "t" : next[0] || ""; // っち → tchi
+      } else if (ROMAJI[c]) {
+        let r = ROMAJI[c];
+        if (small && r.endsWith("i")) { r = (/^(shi|chi|ji)$/.test(r) ? r.slice(0, -1) : r.slice(0, -1) + "y") + small; i++; }
+        out += r;
+      } else if (/[\p{L}\p{N}]/u.test(c)) {
+        out += c.toLowerCase();
+      }
+    }
+    return `keisan-${out ? out + "-" : ""}${dateKey(new Date())}.json`;
+  }
+
   function backupText() {
     const data = {};
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
-      if (k.startsWith(STORE_PREFIX)) data[k] = localStorage.getItem(k);
+      if (k.startsWith(STORE_PREFIX) && k !== BACKUP_KEY) data[k] = localStorage.getItem(k);
     }
-    return JSON.stringify({ app: "keisan-renshu", v: 1, saved: new Date().toISOString(), data });
+    return JSON.stringify({ app: BACKUP_APP, v: BACKUP_V, saved: new Date().toISOString(), name: cleanName(settings.name), data });
   }
+
+  // ファイル を しらべて、よめる なら { entries, saved, name } を、だめ なら { error } を かえす
+  function readBackup(text) {
+    let d;
+    try { d = JSON.parse(text); } catch (e) { return { error: "broken" }; }
+    if (!isObj(d) || d.app !== BACKUP_APP) return { error: "other" };
+    if (typeof d.v !== "number" || d.v < 1) return { error: "broken" };
+    if (d.v > BACKUP_V) return { error: "newer" };
+    d = upgradeBackup(d);
+    if (!isObj(d.data)) return { error: "broken" };
+    const entries = [];
+    for (const [k, raw] of Object.entries(d.data)) {
+      if (!k.startsWith(STORE_PREFIX) || k === BACKUP_KEY) continue;
+      let v;
+      try { v = JSON.parse(raw); } catch (e) { return { error: "broken" }; }
+      if (typeof raw !== "string" || (BACKUP_CHECK[k] && !BACKUP_CHECK[k](v))) return { error: "broken" };
+      entries.push([k, raw]);
+    }
+    if (!entries.length) return { error: "broken" };
+    const set = entries.find(([k]) => k === SETTINGS_KEY);
+    const name = cleanName(set && JSON.parse(set[1]).name);
+    return { entries, saved: d.saved, who: name && name + honorOf(set && JSON.parse(set[1]).honor) };
+  }
+
+  const jpDate = (t) => { const d = new Date(t); return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`; };
+
+  // さいご に ほぞん して から（まだ なら はじめて といた ひ から）1か月 いじょう たった か
+  function backupDue() {
+    const last = loadBackupInfo().at;
+    let from = last ? new Date(last) : null;
+    if (!from) {
+      const days = Object.keys(loadRecords()).filter((k) => Number(loadRecords()[k]) > 0).sort();
+      if (!days.length) return false;
+      const [y, m, d] = days[0].split("-").map(Number);
+      from = new Date(y, m - 1, d);
+    }
+    return Date.now() - from.getTime() >= BACKUP_DUE_DAYS * DAY_MS;
+  }
+
+  function renderBackup() {
+    const last = loadBackupInfo().at;
+    const due = backupDue();
+    $("stLast").className = "st-last" + (due ? " st-due" : "");
+    $("stLast").innerHTML = (last ? `さいごに ほぞんした日：<b>${jpDate(last)}</b>` : "まだ保存したことがありません。") +
+      (due ? `<br>⚠️ ${last ? "前回の保存から1か月以上たちました。" : ""}「きろくを ほぞん」で新しいファイルを作っておくと安心です。` : "");
+    $("stBackupNote").innerHTML = isIOS
+      ? "iPhone・iPad：「きろくを ほぞん」→「\"ファイル\"に保存」→「iCloud Drive」を選んで「保存」。読みこむときは「きろくを よみこむ」→「ファイルを選択」→「ブラウズ」から、そのファイルを選びます。"
+      : isAndroid ? "Android：保存したファイルは「ダウンロード」フォルダなどに入ります。共有メニューが出たときは、Google ドライブなどを選べます。"
+      : "パソコン：保存したファイルは「ダウンロード」フォルダに入ります。";
+    $("parentBtn").classList.toggle("due", due);
+  }
+
   $("backupBtn").addEventListener("click", async () => {
-    const name = `keisan-kiroku-${dateKey(new Date())}.json`;
-    const file = new File([backupText()], name, { type: "application/json" });
-    // スマホ は「"ファイル" に ほぞん」などを えらべる がめん を だす
+    const file = new File([backupText()], fileName(cleanName(settings.name)), { type: "application/json" });
+    const done = () => {
+      try { localStorage.setItem(BACKUP_KEY, JSON.stringify({ at: new Date().toISOString() })); } catch (e) { /* つづける */ }
+      renderBackup();
+    };
+    // スマホ は きょうゆう メニュー を だす（iPhone は「"ファイル"に保存」で iCloud Drive に おける）
     if ((isIOS || isAndroid) && navigator.canShare && navigator.canShare({ files: [file] })) {
-      try { await navigator.share({ files: [file] }); return; } catch (e) { if (e.name === "AbortError") return; }
+      try { await navigator.share({ files: [file] }); done(); return; } catch (e) { if (e.name === "AbortError") return; }
     }
     const a = document.createElement("a");
     a.href = URL.createObjectURL(file);
-    a.download = name;
+    a.download = file.name;
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+    done();
   });
   $("restoreBtn").addEventListener("click", () => $("restoreFile").click());
   $("restoreFile").addEventListener("change", async (e) => {
     const f = e.target.files[0];
     e.target.value = "";
     if (!f) return;
-    let d, entries = [];
-    try {
-      d = JSON.parse(await f.text());
-      if (d && d.app === "keisan-renshu" && d.data && typeof d.data === "object") {
-        entries = Object.entries(d.data).filter(([k, v]) => k.startsWith(STORE_PREFIX) && typeof v === "string");
-        entries.forEach(([, v]) => JSON.parse(v)); // こわれて いない か たしかめる
-      }
-    } catch (err) { entries = []; }
-    if (!entries.length) {
-      alert("このファイルは読みこめませんでした。「記録をファイルに保存」で作ったファイルを選んでください。");
+    const b = f.size > 20 * 1024 * 1024 ? { error: "other" } : readBackup(await f.text().catch(() => ""));
+    if (b.error) {
+      alert({
+        other: "けいさん れんしゅう の記録ファイルではないため、読みこめませんでした。\n「きろくを ほぞん」で作ったファイルを選んでください。",
+        newer: "新しいバージョンのアプリで保存したファイルです。\nアプリを最新にしてから読みこんでください。",
+      }[b.error] || "このファイルは読みこめませんでした（けいさん れんしゅう の記録ファイルではないか、こわれています）。\n今の記録はそのままです。");
       return;
     }
-    const when = d.saved ? `${new Date(d.saved).toLocaleDateString("ja-JP")}に保存した` : "ファイルの";
-    if (!confirm(`${when}記録に置きかえます。今この端末にある記録は消えます。よろしいですか？`)) return;
-    Object.keys(localStorage).filter((k) => k.startsWith(STORE_PREFIX)).forEach((k) => localStorage.removeItem(k));
-    entries.forEach(([k, v]) => localStorage.setItem(k, v));
+    const about = [b.who && `${b.who}の記録`, b.saved && !isNaN(new Date(b.saved)) && `${jpDate(b.saved)}に保存`].filter(Boolean).join("・");
+    if (!confirm(`いまの きろくは うわがきされます。よろしいですか？${about ? `\n\n（${about}）` : ""}`)) return;
+    // しらべおわった ファイル だけ を かきこむ。かきこめなかったら もと に もどす
+    const before = Object.keys(localStorage).filter((k) => k.startsWith(STORE_PREFIX) && k !== BACKUP_KEY).map((k) => [k, localStorage.getItem(k)]);
+    try {
+      before.forEach(([k]) => localStorage.removeItem(k));
+      b.entries.forEach(([k, v]) => localStorage.setItem(k, v));
+    } catch (err) {
+      Object.keys(localStorage).filter((k) => k.startsWith(STORE_PREFIX) && k !== BACKUP_KEY).forEach((k) => localStorage.removeItem(k));
+      before.forEach(([k, v]) => localStorage.setItem(k, v));
+      alert("読みこみに失敗しました。今の記録はそのままです。");
+      return;
+    }
     location.reload();
   });
 
@@ -3083,6 +3206,7 @@
   updateGrowth(() => {});
   renderGrowth();
   renderGreet();
+  $("parentBtn").classList.toggle("due", backupDue());
   // はじめて ひらいた とき は なまえ を きく（おいわい は はじめ の がめん に もどって から）
   if (!settings.nameAsked && !cleanName(settings.name)) openName("first");
   else celebrate();
