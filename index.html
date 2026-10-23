@@ -358,6 +358,22 @@
   /* バックアップ が ひさしぶり の とき、「おうちのかたへ」に しるし を つける */
   .parent-link.due::after { content: ""; position: absolute; inset: auto; top: 2px; right: -8px; width: 9px; height: 9px; border-radius: 50%; background: var(--ng); }
 
+  /* おうちのかた の あんしょうばんごう */
+  #pin { max-width: 420px; margin: 0 auto; text-align: center; }
+  .pin-lead { font-size: 17px; font-weight: bold; margin: -6px 0 10px; line-height: 1.5; word-break: keep-all; }
+  .pin-q { font-size: 34px; font-weight: bold; color: #d9480f; letter-spacing: 2px; margin-bottom: 8px; }
+  .pin-q[hidden] { display: none; }
+  .pin-dots { display: flex; justify-content: center; gap: 14px; height: 44px; align-items: center; }
+  .pin-dots span { width: 22px; height: 22px; border-radius: 50%; border: 3px solid #adb5bd; }
+  .pin-dots span.on { background: #495057; border-color: #495057; }
+  .pin-dots b { width: 40px; height: 44px; border-bottom: 3px solid #adb5bd; font-size: 30px; line-height: 44px; }
+  .pin-msg { min-height: 1.5em; margin: 6px 0 0; font-size: 15px; font-weight: bold; color: var(--ng); line-height: 1.5; word-break: keep-all; }
+  .pin-msg.ok { color: #555; font-weight: normal; }
+  #pin .pin-pad { order: 0; width: 100%; max-width: 340px; margin: 8px auto 0; } /* もんだい がめん の ならべかた を つかわない */
+  .pin-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; max-width: 340px; margin: 4px auto 0; }
+  .pin-foot .big-btn { flex: 1; margin-top: 10px; }
+  .pin-foot .parent-link { font-size: 14px; }
+
   /* あたらしい バージョン の おしらせ */
   .update-bar {
     position: fixed;
@@ -1062,6 +1078,27 @@
       <p class="set-note" id="voiceNote"></p>
     </div>
     <button class="big-btn home-btn" id="settingsBack">もどる</button>
+  </section>
+
+  <!-- おうちのかた の あんしょうばんごう -->
+  <section id="pin" class="screen">
+    <h1>🔒 <span id="pinTitle">おうちのかたへ</span></h1>
+    <p class="pin-lead" id="pinLead"></p>
+    <div class="pin-q" id="pinQ" hidden></div>
+    <div class="pin-dots" id="pinDots"></div>
+    <p class="pin-msg" id="pinMsg"></p>
+    <div class="keypad pin-pad" id="pinPad">
+      <button data-key="7">7</button><button data-key="8">8</button><button data-key="9">9</button>
+      <button data-key="4">4</button><button data-key="5">5</button><button data-key="6">6</button>
+      <button data-key="1">1</button><button data-key="2">2</button><button data-key="3">3</button>
+      <button data-key="clear" class="k-del">ぜんぶ<br>けす</button>
+      <button data-key="0">0</button>
+      <button data-key="back" class="k-del">1つ<br>けす</button>
+    </div>
+    <div class="pin-foot">
+      <button class="parent-link" id="pinForgot">暗証番号をわすれた</button>
+      <button class="big-btn home-btn" id="pinBack">もどる</button>
+    </div>
   </section>
 
   <!-- バッジ いちらん -->
@@ -2325,11 +2362,15 @@
     document.body.classList.toggle("on-story", id === "quiz" && mode === "story");
     document.body.classList.toggle("on-dan", id === "finish" && !!dans);
     document.body.classList.toggle("on-quiz", id === "quiz");
+    // おうちのかた の がめん から でたら、また かぎ を かける
+    if (!PARENT_SCREENS.includes(id)) parentUnlocked = false;
+    if (id !== "pin") clearInterval(pinTimer);
     if (id === "start") { resetCalendar(); renderGrowth(); $("parentBtn").classList.toggle("due", backupDue()); }
     if (id === "dan") renderDan();
     if (id === "badges") renderBadges();
     if (id === "parent") { renderReport(); renderStorage(); renderBackup(); }
     if (id === "settings") renderSettings();
+    if (id === "pin") renderPin();
     if (id === "start") renderGreet();
     if (id === "name") { renderName(); $("nameInput").focus(); }
     window.scrollTo(0, 0);
@@ -2769,7 +2810,7 @@
       show("settings");
     }
   });
-  $("nameChange").addEventListener("click", () => openName("settings"));
+  $("nameChange").addEventListener("click", () => parentGate(() => openName("settings"), "settings"));
 
   // ---- かけざん：なんの だん？（えらんだ だん と だしかた は ブラウザ に ほぞん）----
   // えらべる の は 1つ の だん か ぜんぶ（まえ に いくつ も えらんで いたら さいしょ の 1つ に する）
@@ -2894,7 +2935,7 @@
   $("danBack").addEventListener("click", () => show("start"));
   $("retryBtn").addEventListener("click", startGame);
   $("homeBtn").addEventListener("click", () => show("start"));
-  $("parentBtn").addEventListener("click", () => show("parent"));
+  $("parentBtn").addEventListener("click", () => parentGate(() => show("parent"), "start"));
   $("parentBack").addEventListener("click", () => show("start"));
   $("settingsBtn").addEventListener("click", () => show("settings"));
   $("settingsBack").addEventListener("click", () => { stopSpeech(); show("start"); });
@@ -3025,7 +3066,10 @@
   const BACKUP_APP = "keisan-renshu";
   // ファイル の かたち を かえる とき は ふやして、upgradeBackup に ふるい かたち の よみかえ を たす
   const BACKUP_V = 1;
-  const BACKUP_KEY = STORE_PREFIX + "backup"; // さいご に ほぞん した ひ（バックアップ には いれない）
+  const BACKUP_KEY = STORE_PREFIX + "backup"; // さいご に ほぞん した ひ
+  const LOCK_KEY = STORE_PREFIX + "lock";     // おうちのかた の あんしょうばんごう
+  // この たんまつ だけ の もの は バックアップ に いれず、よみこんで も かわらない
+  const DEVICE_KEYS = [BACKUP_KEY, LOCK_KEY];
   const BACKUP_DUE_DAYS = 30; // これ いじょう たったら おしらせ
   const isObj = (v) => !!v && typeof v === "object" && !Array.isArray(v);
   // しって いる きろく の かたち（しらない キー は、あたらしい バージョン で ふえた もの と して そのまま もどす）
@@ -3077,7 +3121,7 @@
     const data = {};
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
-      if (k.startsWith(STORE_PREFIX) && k !== BACKUP_KEY) data[k] = localStorage.getItem(k);
+      if (k.startsWith(STORE_PREFIX) && !DEVICE_KEYS.includes(k)) data[k] = localStorage.getItem(k);
     }
     return JSON.stringify({ app: BACKUP_APP, v: BACKUP_V, saved: new Date().toISOString(), name: cleanName(settings.name), data });
   }
@@ -3093,7 +3137,7 @@
     if (!isObj(d.data)) return { error: "broken" };
     const entries = [];
     for (const [k, raw] of Object.entries(d.data)) {
-      if (!k.startsWith(STORE_PREFIX) || k === BACKUP_KEY) continue;
+      if (!k.startsWith(STORE_PREFIX) || DEVICE_KEYS.includes(k)) continue;
       let v;
       try { v = JSON.parse(raw); } catch (e) { return { error: "broken" }; }
       if (typeof raw !== "string" || (BACKUP_CHECK[k] && !BACKUP_CHECK[k](v))) return { error: "broken" };
@@ -3166,18 +3210,182 @@
     const about = [b.who && `${b.who}の記録`, b.saved && !isNaN(new Date(b.saved)) && `${jpDate(b.saved)}に保存`].filter(Boolean).join("・");
     if (!confirm(`いまの きろくは うわがきされます。よろしいですか？${about ? `\n\n（${about}）` : ""}`)) return;
     // しらべおわった ファイル だけ を かきこむ。かきこめなかったら もと に もどす
-    const before = Object.keys(localStorage).filter((k) => k.startsWith(STORE_PREFIX) && k !== BACKUP_KEY).map((k) => [k, localStorage.getItem(k)]);
+    const before = Object.keys(localStorage).filter((k) => k.startsWith(STORE_PREFIX) && !DEVICE_KEYS.includes(k)).map((k) => [k, localStorage.getItem(k)]);
     try {
       before.forEach(([k]) => localStorage.removeItem(k));
       b.entries.forEach(([k, v]) => localStorage.setItem(k, v));
     } catch (err) {
-      Object.keys(localStorage).filter((k) => k.startsWith(STORE_PREFIX) && k !== BACKUP_KEY).forEach((k) => localStorage.removeItem(k));
+      Object.keys(localStorage).filter((k) => k.startsWith(STORE_PREFIX) && !DEVICE_KEYS.includes(k)).forEach((k) => localStorage.removeItem(k));
       before.forEach(([k, v]) => localStorage.setItem(k, v));
       alert("読みこみに失敗しました。今の記録はそのままです。");
       return;
     }
     location.reload();
   });
+
+  // ---- おうちのかた の あんしょうばんごう ----
+  // おうちのかた が つかう ところ（レポート・なまえ の へんこう・バックアップ など）は parentGate() を とおして ひらく。
+  // こども が つかう ところ（もんだい・キャラクター・バッジ・カレンダー）には かけない。
+  const PIN_LEN = 4;
+  const PIN_TRIES = 5;          // この かいすう まちがえたら まつ
+  const PIN_WAIT_MS = 60 * 1000;
+  const PARENT_SCREENS = ["parent", "name", "pin"]; // ここ から ほか の がめん に いったら かぎ を かける
+  // ストア版 で Face ID / Touch ID を つかう とき は、ここ に「true を かえす と ひらく」関数 を たす
+  const extraUnlocks = [];
+  let parentUnlocked = false;
+  let pinMode = "enter"; // enter: いれる  new1 / new2: きめる  forgot: おとな か どうか の かくにん
+  let pinInput = "", pinFirst = "", pinAnswer = "", pinNote = "";
+  let pinNext = null, pinBackTo = "start", pinTimer = null;
+
+  function loadLock() {
+    try { const d = JSON.parse(localStorage.getItem(LOCK_KEY)); return isObj(d) ? d : {}; } catch (e) { return {}; }
+  }
+  function saveLock(d) {
+    try { localStorage.setItem(LOCK_KEY, JSON.stringify(d)); } catch (e) { /* ほぞん できなくても つづける */ }
+  }
+  // ばんごう は そのまま ほぞん しない（ハッシュ に する）
+  async function pinHash(pin, salt) {
+    const text = `${salt}:${pin}`;
+    if (window.crypto && crypto.subtle) {
+      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+      return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+    }
+    let h = 0;
+    for (const c of text) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+    return "x" + h.toString(16);
+  }
+  // おなじ すうじ・ならび（1234・4321）・くりかえし（1212・1122）など、あてられ やすい もの
+  function weakPin(p) {
+    const d = [...p].map(Number);
+    const step = d[1] - d[0];
+    if (Math.abs(step) <= 1 && d.every((x, i) => !i || x - d[i - 1] === step)) return true;
+    if ((p[0] === p[2] && p[1] === p[3]) || (p[0] === p[1] && p[2] === p[3])) return true;
+    return ["7890", "0987", "2580", "0852"].includes(p);
+  }
+
+  // おとな か どうか の かくにん：漢数字 を すうじ に する（こども の けいさん で は とけない ように 万 の くらい と 0 を まぜる）
+  const KAN = "〇一二三四五六七八九";
+  function kanjiNumber(n) {
+    const under = (x) => {
+      let t = "";
+      for (const [u, k] of [[1000, "千"], [100, "百"], [10, "十"]]) {
+        const d = Math.floor(x / u) % 10;
+        if (d) t += (d > 1 ? KAN[d] : "") + k;
+      }
+      return t + (x % 10 ? KAN[x % 10] : "");
+    };
+    return under(Math.floor(n / 10000)) + "万" + under(n % 10000);
+  }
+  function newChallenge() {
+    let low;
+    do { low = Array.from({ length: 4 }, () => rand(0, 9)); }
+    while (!low.includes(0) || low.filter((x) => x).length < 2);
+    pinAnswer = String(rand(2, 9)) + low.join("");
+    $("pinQ").textContent = kanjiNumber(Number(pinAnswer));
+  }
+
+  async function parentGate(next, backTo) {
+    if (parentUnlocked) { next(); return; }
+    for (const f of extraUnlocks) {
+      try { if (await f()) { parentUnlocked = true; next(); return; } } catch (e) { /* つかえなければ ばんごう で */ }
+    }
+    pinNext = next;
+    pinBackTo = backTo;
+    openPin(loadLock().hash ? "enter" : "new1", "");
+  }
+  function openPin(mode, note) {
+    pinMode = mode;
+    pinInput = "";
+    pinNote = note;
+    if (mode === "forgot") newChallenge();
+    $("pin").classList.contains("active") ? renderPin() : show("pin");
+  }
+
+  function renderPin() {
+    const forgot = pinMode === "forgot";
+    const len = forgot ? pinAnswer.length : PIN_LEN;
+    $("pinLead").innerHTML = {
+      enter: "保護者用の暗証番号を入力してください",
+      new1: "保護者用の暗証番号（4けた）を決めてください",
+      new2: "確認のため、もう一度入力してください",
+      forgot: "暗証番号を決め直すには、次の漢数字を<br>数字で入力してください",
+    }[pinMode];
+    $("pinQ").hidden = !forgot;
+    // ばんごう は ●● で かくす。かくにん の こたえ は みえて よい
+    $("pinDots").innerHTML = Array.from({ length: len }, (_, i) =>
+      forgot ? `<b>${pinInput[i] || ""}</b>` : `<span class="${i < pinInput.length ? "on" : ""}"></span>`).join("");
+    $("pinForgot").hidden = pinMode !== "enter";
+    const wait = (loadLock().until || 0) - Date.now();
+    const locked = pinMode === "enter" && wait > 0;
+    $("pinPad").querySelectorAll("button").forEach((b) => { b.disabled = locked; });
+    $("pinMsg").className = "pin-msg" + (pinNote && !pinNote.startsWith("⚠") && !locked ? " ok" : "");
+    $("pinMsg").textContent = locked ? `${PIN_TRIES}回まちがえたので、${Math.ceil(wait / 1000)}秒待ってから入力してください` : pinNote;
+    clearInterval(pinTimer);
+    if (locked) pinTimer = setInterval(() => { if (Date.now() >= (loadLock().until || 0)) pinNote = ""; renderPin(); }, 1000);
+  }
+
+  async function pinDone() {
+    const lock = loadLock();
+    if (pinMode === "forgot") {
+      if (pinInput === pinAnswer) openPin("new1", "新しい暗証番号を決めてください（記録はそのままです）");
+      else { openPin("forgot", "⚠ ちがいます。新しい問題にかえました"); }
+      return;
+    }
+    if (pinMode === "new1") {
+      if (weakPin(pinInput)) { openPin("new1", "⚠ かんたんすぎる番号は使えません（同じ数字や 1234 のような並び）"); return; }
+      pinFirst = pinInput;
+      openPin("new2", "");
+      return;
+    }
+    if (pinMode === "new2") {
+      if (pinInput !== pinFirst) { openPin("new1", "⚠ 1回目と2回目がちがいました。最初から入力してください"); return; }
+      const salt = Array.from(crypto.getRandomValues ? crypto.getRandomValues(new Uint8Array(8)) : [rand(0, 255)], (b) => b.toString(16)).join("");
+      saveLock({ salt, hash: await pinHash(pinInput, salt) });
+      unlockParent();
+      return;
+    }
+    // enter
+    if (lock.hash && (await pinHash(pinInput, lock.salt)) === lock.hash) {
+      saveLock({ salt: lock.salt, hash: lock.hash });
+      unlockParent();
+      return;
+    }
+    const fails = (lock.fails || 0) + 1;
+    if (fails >= PIN_TRIES) saveLock({ ...lock, fails: 0, until: Date.now() + PIN_WAIT_MS });
+    else saveLock({ ...lock, fails });
+    openPin("enter", fails >= PIN_TRIES ? "" : `⚠ 暗証番号がちがいます（あと${PIN_TRIES - fails}回まちがえると、1分待ちます）`);
+  }
+  function unlockParent() {
+    parentUnlocked = true;
+    const next = pinNext;
+    pinNext = null;
+    if (next) next();
+  }
+
+  let pinBusy = false; // さいご の けた を いれて から しらべおわる まで
+  function pinKey(key) {
+    if (pinBusy || (pinMode === "enter" && (loadLock().until || 0) > Date.now())) return;
+    const len = pinMode === "forgot" ? pinAnswer.length : PIN_LEN;
+    if (key === "back") pinInput = pinInput.slice(0, -1);
+    else if (key === "clear") pinInput = "";
+    else if (pinInput.length < len) pinInput += key;
+    renderPin();
+    if (pinInput.length === len) {
+      pinBusy = true;
+      setTimeout(() => pinDone().finally(() => { pinBusy = false; }), 150); // さいご の ● を みせて から
+    }
+  }
+  $("pinPad").addEventListener("click", (e) => {
+    const btn = e.target.closest("button");
+    if (btn && !btn.disabled) pinKey(btn.dataset.key);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (!$("pin").classList.contains("active")) return;
+    if (/^[0-9]$/.test(e.key)) pinKey(e.key);
+    else if (e.key === "Backspace") { e.preventDefault(); pinKey("back"); }
+  });
+  $("pinForgot").addEventListener("click", () => openPin("forgot", ""));
+  $("pinBack").addEventListener("click", () => { pinNext = null; show(pinBackTo); });
 
   // オフライン でも つかえる ように する。あたらしい バージョン が とどいたら おしらせ を だす
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
