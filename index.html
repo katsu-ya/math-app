@@ -369,6 +369,15 @@
   .st-install ol { margin: 0 0 8px; padding-left: 1.4em; }
   .st-install p:last-child { margin-bottom: 0; }
   .st-note { font-size: 13px; color: #777; }
+  /* バックアップ を ほぞん した けっか */
+  .st-result { border-radius: 10px; padding: 8px 12px; margin: 2px 0 10px; font-weight: bold; }
+  .st-result[hidden] { display: none; }
+  .st-result.ok { background: #ebfbee; color: #2b8a3e; }
+  .st-result.ng { background: #fff5f5; color: #c92a2a; }
+  .st-result.ask, .st-result.cancel { background: var(--bg); color: var(--text); }
+  .st-result small { display: block; font-weight: normal; font-size: 13px; margin-top: 2px; color: #555; }
+  .st-card .st-result button { margin: 8px 8px 0 0; }
+  .st-card .st-result button.st-no { background: #868e96; box-shadow: 0 3px 0 #495057; }
   .st-backup { border-top: 1px dotted #ddd; padding-top: 10px; }
   .st-backup h4 { margin: 0 0 6px; font-size: 16px; }
   .st-last b { color: #d9480f; }
@@ -1355,6 +1364,7 @@
         <p id="stLast"></p>
         <button id="backupBtn">💾 きろくを ほぞん</button><button id="restoreBtn">📂 きろくを よみこむ</button>
         <input type="file" id="restoreFile" hidden>
+        <div class="st-result" id="stResult" hidden></div>
         <p class="st-note" id="stBackupNote"></p>
       </div>
     </div>
@@ -3506,24 +3516,71 @@
       : isAndroid ? "Android：保存したファイルは「ダウンロード」フォルダなどに入ります。共有メニューが出たときは、Google ドライブなどを選べます。"
       : "パソコン：保存したファイルは「ダウンロード」フォルダに入ります。";
     $("parentBtn").classList.toggle("due", due);
+    $("stResult").hidden = true;
   }
 
+  // ほぞん の けっか を だす。ok: できた  ng: できなかった  ask: できた か きく  cancel: やめた
+  function backupResult(state, detail = "") {
+    const r = $("stResult");
+    r.hidden = false;
+    r.className = "st-result " + state;
+    r.innerHTML = {
+      ok: "✓ 保存しました。さいごに保存した日を更新しました。",
+      ng: "⚠ 保存できませんでした。今の記録はそのままです。" +
+        `<small>${detail || (isIOS || isAndroid
+          ? "もう一度「きろくを ほぞん」を押してください。共有メニューが出たら「\"ファイル\"に保存」や Google ドライブなどを選びます。"
+          : "ブラウザがダウンロードを止めていないか確かめて、もう一度「きろくを ほぞん」を押してください。")}</small>`,
+      ask: "ファイルを保存できましたか？" +
+        "<small>「ダウンロード」フォルダなどに、ファイルができているか確かめてください。</small>" +
+        '<button id="stYes">✓ 保存できた</button><button id="stNo" class="st-no">保存できなかった</button>',
+      cancel: "保存をやめました。今の記録はそのままです。",
+    }[state];
+    if (state === "ask") {
+      $("stYes").addEventListener("click", backupDone);
+      $("stNo").addEventListener("click", () => backupResult("ng"));
+    }
+  }
+  // ほんとう に ほぞん できた とき だけ「さいご に ほぞん した ひ」を かえる
+  function backupDone() {
+    try { localStorage.setItem(BACKUP_KEY, JSON.stringify({ at: new Date().toISOString() })); } catch (e) { /* つづける */ }
+    renderBackup();
+    backupResult("ok");
+  }
+  const isCancel = (e) => !!e && (e.name === "AbortError" || /cancel/i.test(String(e.message || e)));
+
   $("backupBtn").addEventListener("click", async () => {
-    const file = new File([backupText()], fileName(cleanName(settings.name)), { type: "application/json" });
-    const done = () => {
-      try { localStorage.setItem(BACKUP_KEY, JSON.stringify({ at: new Date().toISOString() })); } catch (e) { /* つづける */ }
-      renderBackup();
-    };
+    const text = backupText();
+    const file = new File([text], fileName(cleanName(settings.name)), { type: "application/json" });
+    $("stResult").hidden = true;
+    // ストア版（Capacitor）：ファイル を つくって から きょうゆう メニュー を だす
+    const cap = window.Capacitor;
+    if (cap && cap.isNativePlatform && cap.isNativePlatform()) {
+      const { Filesystem, Share } = cap.Plugins || {};
+      if (!Filesystem || !Share) { backupResult("ng", "このアプリでは、まだファイルに保存できません。"); return; }
+      try {
+        const out = await Filesystem.writeFile({ path: file.name, data: text, directory: "CACHE", encoding: "utf8" });
+        await Share.share({ title: file.name, files: [out.uri] });
+        backupDone();
+      } catch (e) {
+        if (isCancel(e)) backupResult("cancel"); else backupResult("ng");
+      }
+      return;
+    }
     // スマホ は きょうゆう メニュー を だす（iPhone は「"ファイル"に保存」で iCloud Drive に おける）
     if ((isIOS || isAndroid) && navigator.canShare && navigator.canShare({ files: [file] })) {
-      try { await navigator.share({ files: [file] }); done(); return; } catch (e) { if (e.name === "AbortError") return; }
+      try { await navigator.share({ files: [file] }); backupDone(); return; } catch (e) { if (isCancel(e)) { backupResult("cancel"); return; } }
     }
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(file);
-    a.download = file.name;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
-    done();
+    // ダウンロード は できた か どうか を しらべられない ので、おうちのかた に きく
+    try {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(file);
+      a.download = file.name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+      backupResult("ask");
+    } catch (e) {
+      backupResult("ng");
+    }
   });
   $("restoreBtn").addEventListener("click", () => $("restoreFile").click());
   $("restoreFile").addEventListener("change", async (e) => {
@@ -3567,7 +3624,9 @@
   // ストア版 で Face ID / Touch ID を つかう とき は、ここ に「true を かえす と ひらく」関数 を たす
   const extraUnlocks = [];
   let parentUnlocked = false;
-  let pinMode = "enter"; // enter: いれる  new1 / new2: きめる  forgot: おとな か どうか の かくにん
+  let pinMode = "enter"; // enter: いれる  new1 / new2: きめる  forgot / setup: おとな か どうか の かくにん
+  // おとな か どうか を たしかめる とき（わすれた とき と、はじめて きめる とき）
+  const isAsk = (mode) => mode === "forgot" || mode === "setup";
   let pinInput = "", pinFirst = "", pinAnswer = "", pinNote = "";
   let pinNext = null, pinBackTo = "start", pinTimer = null;
 
@@ -3625,24 +3684,26 @@
     }
     pinNext = next;
     pinBackTo = backTo;
-    openPin(loadLock().hash ? "enter" : "new1", "");
+    // はじめて の とき も、こども が かって に きめない ように、さき に おとな か どうか を たしかめる
+    openPin(loadLock().hash ? "enter" : "setup", "");
   }
   function openPin(mode, note) {
     pinMode = mode;
     pinInput = "";
     pinNote = note;
-    if (mode === "forgot") newChallenge();
+    if (isAsk(mode)) newChallenge();
     $("pin").classList.contains("active") ? renderPin() : show("pin");
   }
 
   function renderPin() {
-    const forgot = pinMode === "forgot";
+    const forgot = isAsk(pinMode);
     const len = forgot ? pinAnswer.length : PIN_LEN;
     $("pinLead").innerHTML = {
       enter: "保護者用の暗証番号を入力してください",
       new1: "保護者用の暗証番号（4けた）を決めてください",
       new2: "確認のため、もう一度入力してください",
       forgot: "暗証番号を決め直すには、次の漢数字を<br>数字で入力してください",
+      setup: "保護者用の暗証番号を決める前に、<br>次の漢数字を数字で入力してください",
     }[pinMode];
     $("pinQ").hidden = !forgot;
     // ばんごう は ●● で かくす。かくにん の こたえ は みえて よい
@@ -3660,9 +3721,10 @@
 
   async function pinDone() {
     const lock = loadLock();
-    if (pinMode === "forgot") {
-      if (pinInput === pinAnswer) openPin("new1", "新しい暗証番号を決めてください（記録はそのままです）");
-      else { openPin("forgot", "⚠ ちがいます。新しい問題にかえました"); }
+    if (isAsk(pinMode)) {
+      if (pinInput !== pinAnswer) openPin(pinMode, "⚠ ちがいます。新しい問題にかえました");
+      else if (pinMode === "setup") openPin("new1", "確認できました。4けたの番号を決めてください");
+      else openPin("new1", "新しい暗証番号を決めてください（記録はそのままです）");
       return;
     }
     if (pinMode === "new1") {
@@ -3699,7 +3761,7 @@
   let pinBusy = false; // さいご の けた を いれて から しらべおわる まで
   function pinKey(key) {
     if (pinBusy || (pinMode === "enter" && (loadLock().until || 0) > Date.now())) return;
-    const len = pinMode === "forgot" ? pinAnswer.length : PIN_LEN;
+    const len = isAsk(pinMode) ? pinAnswer.length : PIN_LEN;
     if (key === "back") pinInput = pinInput.slice(0, -1);
     else if (key === "clear") pinInput = "";
     else if (pinInput.length < len) pinInput += key;
