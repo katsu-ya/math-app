@@ -204,6 +204,24 @@
   }
   .review .ok { color: var(--ok); font-weight: bold; }
   .review .ng { color: var(--ng); font-weight: bold; }
+  /* せいかい は ◯、まちがい は ✕。いろ が みわけにくい ひと にも かたち で わかる ように する */
+  /* けいさん の「×」と まちがえない ように、まるい しるし に する */
+  .mk {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.3em;
+    height: 1.3em;
+    border-radius: 50%;
+    color: #fff;
+    font-size: .85em;
+    font-weight: bold;
+    line-height: 1;
+    vertical-align: .08em;
+    margin-right: .3em;
+  }
+  .mk.ok { background: var(--ok); }
+  .mk.ng { background: var(--ng); }
   .review .fix { font-size: 18px; color: #666; }
 
   .quit {
@@ -571,6 +589,7 @@
   }
   .shiki button.selected { background: var(--main); border-color: var(--main); color: #fff; box-shadow: 0 5px 0 #d9480f; }
   .shiki button.right { background: var(--ok); border-color: var(--ok); color: #fff; box-shadow: 0 5px 0 #237a32; opacity: 1; }
+  .shiki button.wrong { border-color: var(--ng); border-style: dashed; color: var(--ng); opacity: 1; }
   .question .prompt { font-size: 24px; color: #aaa; }
   .answer-box small { font-size: 22px; color: #666; margin-left: 6px; }
   .answer-box.empty small { color: #ccc; }
@@ -612,6 +631,32 @@
   .set-name-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; }
   .set-name-row .set-name { flex: 1; }
   .set-name-row .set-try { width: auto; margin: 0; padding: 8px 16px; font-size: 18px; flex: none; }
+  /* おと と もじ：オン・オフ など を えらぶ */
+  .set-row { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; padding: 6px 0; }
+  .set-row + .set-row { border-top: 1px dotted #ddd; }
+  .set-row[hidden] { display: none; }
+  .set-row > span { font-size: 18px; font-weight: bold; }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 210px; }
+  .seg button {
+    background: #fff;
+    color: #333;
+    border: 3px solid #ffd8a8;
+    box-shadow: 0 4px 0 #e0c9a6;
+    font-size: 18px;
+    padding: 6px 2px;
+    white-space: nowrap;
+  }
+  .seg button.selected { background: var(--main); border-color: var(--main); color: #fff; box-shadow: 0 4px 0 #d9480f; }
+  .seg button.selected::after { content: " ✓"; }
+  .seg .big-a { font-size: 22px; }
+  .card-off { display: none; }
+  /* ひろい パソコン：ひだり に なまえ と おと・もじ、みぎ に よみあげ の こえ */
+  @media (min-width: 860px) {
+    body.on-settings .wrap { max-width: 1000px; }
+    .set-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; align-items: start; }
+    #settings h1 { margin-bottom: 6px; }
+    #settings .big-btn { max-width: 480px; align-self: center; }
+  }
 
   /* なまえ */
   .greet { text-align: center; font-size: 20px; font-weight: bold; color: #d9480f; margin: -12px 0 12px; word-break: keep-all; overflow-wrap: anywhere; }
@@ -728,13 +773,21 @@
   .dan-foot { text-align: center; font-size: 13px; color: #999; margin: 12px 0 0; word-break: keep-all; }
   #dan .big-btn { margin-top: 12px; }
 
-  /* だん の けっか：だん ごと に ×1〜×9 の ⭕❌ を ならべる */
+  /* だん の けっか：だん ごと に ×1〜×9 の ◯✕ を ならべる */
   .review.dan-review li { display: grid; grid-template-columns: 5.4em 1fr; gap: 8px; padding: 6px 2px; font-size: 16px; }
   .dr-name { font-weight: bold; white-space: nowrap; }
   .dr-cells { display: grid; grid-template-columns: repeat(9, 1fr); gap: 3px; }
   .dr-cells span { height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: bold; color: #fff; }
   .dr-cells .c-ok { background: var(--ok); }
-  .dr-cells .c-ng { background: var(--ng); }
+  /* まちがい は しろ ぬき に ✕ を つけて、いろ が なくても わかる ように */
+  .dr-cells .c-ng {
+    color: var(--ng);
+    box-shadow: inset 0 0 0 2px var(--ng);
+    background:
+      linear-gradient(to top right, transparent calc(50% - 1px), rgba(240, 62, 62, .35) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
+      linear-gradient(to bottom right, transparent calc(50% - 1px), rgba(240, 62, 62, .35) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
+      #fff;
+  }
   .dan-miss { text-align: left; font-size: 16px; color: #666; margin: 10px 2px 0; }
 
   /* バッジ いちらん の だん マスター */
@@ -996,6 +1049,48 @@
     .review li { padding: 14px 4px; }
     .finish-btns .big-btn { margin-top: 34px; }
   }
+  /* もじ の おおきさ「おおきい」：よむ ところ の もじ を おおきく する（ボタン や レイアウト は そのまま） */
+  body.big-text .story-text { font-size: 24px; }
+  body.big-text .result .explain { font-size: 21px; }
+  body.big-text .result .explain b { font-size: 24px; }
+  body.big-text .result .hint { font-size: 19px; }
+  body.big-text .review li { font-size: 24px; }
+  body.big-text .review .fix { font-size: 20px; }
+  body.big-text .review.dan-review li, body.big-text .dan-miss { font-size: 18px; }
+  body.big-text .dr-cells span { font-size: 17px; }
+  body.big-text .shiki-label { font-size: 18px; }
+  body.big-text .buddy-name { font-size: 18px; }
+  body.big-text .buddy-next { font-size: 15px; }
+  body.big-text .cal-info { font-size: 20px; }
+  body.big-text .cal-week span, body.big-text .cal-legend { font-size: 16px; }
+  body.big-text .badge-name { font-size: 16px; }
+  body.big-text .badge-desc { font-size: 13px; }
+  body.big-text .badge-prog { font-size: 14px; }
+  body.big-text .cele-badge .cele-text { font-size: 18px; }
+  body.big-text .cele-badges.one .badge-desc { font-size: 17px; }
+  body.big-text .dan-lead { font-size: 20px; }
+  body.big-text .dan-foot, body.big-text .name-foot { font-size: 15px; }
+  body.big-text .c-order small { font-size: 18px; }
+  body.big-text .greet { font-size: 22px; }
+  body.big-text .gd-bubble { font-size: 23px; }
+  body.big-text .xp-gain small { font-size: 17px; }
+  body.big-text #settings, body.big-text #name { font-size: 18px; }
+  body.big-text .set-note { font-size: 15px; }
+  body.big-text .set-row > span { font-size: 20px; }
+  @media (min-width: 600px) {
+    body.big-text .review li { font-size: 22px; }
+    body.big-text .review .fix { font-size: 18px; }
+  }
+  @media (min-width: 860px) {
+    body.big-text.on-story .story-text { font-size: 22px; }
+    body.big-text.on-story .shiki-label { font-size: 16px; }
+    body.big-text .s2-grid .badge-name { font-size: 14px; }
+    body.big-text .badge-name { font-size: 15px; }
+    body.big-text .badge-desc { font-size: 12px; }
+  }
+  @media (max-width: 420px) {
+    body.big-text .gd-bubble { font-size: 21px; }
+  }
 </style>
 </head>
 <body class="on-start">
@@ -1141,6 +1236,8 @@
   <!-- せってい -->
   <section id="settings" class="screen">
     <h1>⚙️ せってい</h1>
+    <div class="set-layout">
+    <div>
     <div class="rp-card set-card">
       <h3>なまえ</h3>
       <div class="set-name-row">
@@ -1149,10 +1246,27 @@
       </div>
     </div>
     <div class="rp-card set-card">
+      <h3>おと と もじ</h3>
+      <div class="set-row">
+        <span>🔔 こうかおん</span>
+        <div class="seg" id="soundChoices"><button data-v="on">オン</button><button data-v="off">オフ</button></div>
+      </div>
+      <div class="set-row" id="speechRow">
+        <span>🔊 よみあげ</span>
+        <div class="seg" id="speechChoices"><button data-v="on">オン</button><button data-v="off">オフ</button></div>
+      </div>
+      <div class="set-row">
+        <span>🔤 もじ の おおきさ</span>
+        <div class="seg" id="sizeChoices"><button data-v="normal">ふつう</button><button data-v="big" class="big-a">おおきい</button></div>
+      </div>
+    </div>
+    </div>
+    <div class="rp-card set-card" id="voiceCard">
       <h3>よみあげ の こえ</h3>
       <select class="voice-select" id="voiceSelect" aria-label="よみあげ の こえ"></select>
       <button class="set-try" id="voiceTry">🔊 ためしに きく</button>
       <p class="set-note" id="voiceNote"></p>
+    </div>
     </div>
     <button class="big-btn home-btn" id="settingsBack">もどる</button>
   </section>
@@ -2442,6 +2556,7 @@
     $(id).classList.add("active");
     document.body.classList.toggle("on-start", id === "start");
     document.body.classList.toggle("on-badges", id === "badges");
+    document.body.classList.toggle("on-settings", id === "settings");
     document.body.classList.toggle("on-story", id === "quiz" && mode === "story");
     document.body.classList.toggle("on-dan", id === "finish" && !!dans);
     document.body.classList.toggle("on-quiz", id === "quiz");
@@ -2483,6 +2598,7 @@
 
   // がめん を けしたり ほか の アプリ に いったり して とまって いたら、ならす まえ に さいかい する
   function readyAudio() {
+    if (!soundOn()) return null; // せってい で こうかおん を オフ に して いる
     if (audioCtx && audioCtx.state !== "running") audioCtx.resume().catch(() => {});
     return audioCtx;
   }
@@ -2632,6 +2748,10 @@
     renderInput();
   }
 
+  // せいかい・まちがい の しるし（いろ だけ で なく かたち でも わかる ように）
+  const MARK_OK = '<span class="mk ok" aria-label="せいかい">◯</span>';
+  const MARK_NG = '<span class="mk ng" aria-label="まちがい">✕</span>';
+
   function check() {
     if (answered || input === "") return;
     const p = problems[index];
@@ -2663,27 +2783,32 @@
     if (p.correct) {
       const c = esc(callName());
       const PRAISES = ["すごい！", "せいかい！", "やったね！", "さすが！"];
-      r.innerHTML = p.weak ? (c ? `⭕ ${c}、にがて を こくふく！💪` : "⭕ せいかい！ にがて を こくふく！💪")
-        : c ? `⭕ ${c}、${PRAISES[rand(0, PRAISES.length - 1)]}` : "⭕ せいかい！";
+      r.innerHTML = MARK_OK + (p.weak ? (c ? `${c}、にがて を こくふく！💪` : "せいかい！ にがて を こくふく！💪")
+        : c ? `${c}、${PRAISES[rand(0, PRAISES.length - 1)]}` : "せいかい！");
       r.className = "result ok pop";
       playPinpon();
     } else if (p.story) {
       // ただしい しき と かんがえかた を みせる
       const right = `${p.options.find((o) => o.op === op).text} ＝ ${p.ans}${unitWord(p.unit)}`;
-      r.innerHTML = `❌ ざんねん…<div class="explain">` +
+      r.innerHTML = `${MARK_NG}ざんねん…<div class="explain">` +
         (p.shikiOk ? "しき は あってるよ！ けいさん を たしかめよう。" : `<div class="hint">💡 ${p.hint}</div>`) +
         `<div>ただしい しき：<b>${right}</b></div></div>`;
       r.className = "result ng pop";
       playBubu();
     } else {
-      r.innerHTML = `❌ ざんねん…<small>こたえ は <b>${p.ans}</b></small>`;
+      r.innerHTML = `${MARK_NG}ざんねん…<small>こたえ は <b>${p.ans}</b></small>`;
       r.className = "result ng pop";
       playBubu();
     }
     if (p.story) {
       $("shikiChoices").querySelectorAll("button").forEach((b) => {
         b.disabled = true;
-        b.classList.toggle("right", !p.correct && b.dataset.op === op);
+        // ただしい しき に ◯、えらんだ まちがい の しき に ✕ を つける
+        const right = !p.correct && b.dataset.op === op;
+        const wrong = !p.shikiOk && b.dataset.op === p.userOp;
+        b.classList.toggle("right", right);
+        b.classList.toggle("wrong", wrong);
+        if (right || wrong) b.innerHTML = (right ? MARK_OK : MARK_NG) + b.innerHTML;
       });
     }
     $("bar").style.width = `${((index + 1) / problems.length) * 100}%`;
@@ -2768,13 +2893,14 @@
   }
   function speakProblem() {
     const p = problems[index];
-    if (!canSpeak || !p || !p.story) return;
+    if (!speechOn() || !p || !p.story) return;
     if ($("speakBtn").classList.contains("speaking")) return stopSpeech(); // よんで いる とき に おすと とまる
     const c = speechCall();
     speakText((c ? `${c}、もんだい だよ。` : "") + p.speech, () => $("speakBtn").classList.remove("speaking"));
     $("speakBtn").classList.add("speaking");
   }
-  if (!canSpeak) $("speakBtn").hidden = true;
+  // せってい で よみあげ を オフ に したら 🔊 ボタン を ださない
+  const speechOn = () => canSpeak && settings.speech !== false;
 
   // ---- せってい（ブラウザ に ほぞん）----
   const SETTINGS_KEY = "keisan-renshu-settings";
@@ -2794,7 +2920,42 @@
   const voiceLabel = (v) => v.name.replace(/^Microsoft\s+/i, "").replace(/\s*[-–]\s*Japanese.*$/i, "");
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
+  // ---- おと と もじ（こうかおん・よみあげ の オン/オフ、もじ の おおきさ）----
+  const soundOn = () => settings.sound !== false;
+  function applyPrefs() {
+    document.body.classList.toggle("big-text", settings.textSize === "big");
+    $("speakBtn").hidden = !speechOn();
+  }
+  function renderPrefs() {
+    const pick = (id, v) => $(id).querySelectorAll("button").forEach((b) => b.classList.toggle("selected", b.dataset.v === v));
+    pick("soundChoices", soundOn() ? "on" : "off");
+    pick("speechChoices", speechOn() ? "on" : "off");
+    pick("sizeChoices", settings.textSize === "big" ? "big" : "normal");
+    $("speechRow").hidden = !canSpeak;
+    $("voiceCard").classList.toggle("card-off", canSpeak && !speechOn()); // よまない とき は こえ を えらばなくて よい
+  }
+  function setPref(id, fn) {
+    $(id).addEventListener("click", (e) => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      fn(btn.dataset.v);
+      saveSettings();
+      applyPrefs();
+      renderPrefs();
+    });
+  }
+  setPref("soundChoices", (v) => {
+    settings.sound = v === "on" ? undefined : false;
+    if (v === "on") playPinpon(); // オン に したら ためし に ならす
+  });
+  setPref("speechChoices", (v) => {
+    settings.speech = v === "on" ? undefined : false;
+    if (v === "off") stopSpeech();
+  });
+  setPref("sizeChoices", (v) => { settings.textSize = v === "big" ? "big" : undefined; });
+
   function renderSettings() {
+    renderPrefs();
     const c = callName();
     $("setName").innerHTML = c ? esc(c) : '<small style="margin:0">まだ ありません</small>';
     const sel = $("voiceSelect");
@@ -2943,7 +3104,7 @@
     $("guideNext").textContent = !last ? "つぎ ▶" : guideFrom === "first" ? "はじめる！" : "おわる";
     $("guideSkip").hidden = last;
     $("guideSkip").textContent = guideFrom === "first" ? "とばす ▶▶" : "おわる";
-    $("guideSpeak").hidden = !canSpeak;
+    $("guideSpeak").hidden = !speechOn();
     if (guideSpeaking) stopSpeech();
   }
   function endGuide() {
@@ -3017,7 +3178,7 @@
     saveSettings();
   });
 
-  // だん の けっか：だん ごと に ×1〜×9 の ⭕❌ と、まちがえた もんだい
+  // だん の けっか：だん ごと に ×1〜×9 の ◯✕ と、まちがえた もんだい
   const MISS_MAX = 12; // まちがえた もんだい を ならべる かず
   function renderDanReview() {
     $("review").innerHTML = dans.map((d) => {
@@ -3027,7 +3188,7 @@
     }).join("");
     const miss = problems.filter((p) => !p.correct);
     $("danMiss").hidden = !miss.length;
-    $("danMiss").textContent = "❌ まちがえた もんだい：" +
+    $("danMiss").innerHTML = MARK_NG + "まちがえた もんだい：" +
       miss.slice(0, MISS_MAX).map((p) => `${p.a}×${p.b}＝${p.ans}`).join("　") +
       (miss.length > MISS_MAX ? `　ほか ${miss.length - MISS_MAX}もん` : "");
   }
@@ -3092,8 +3253,8 @@
       <li>
         <span>${mine}</span>
         ${p.correct
-          ? '<span class="ok">⭕</span>'
-          : `<span class="ng">❌ <span class="fix">${fix}</span></span>`}
+          ? `<span class="ok">${MARK_OK}</span>`
+          : `<span class="ng">${MARK_NG}<span class="fix">${fix}</span></span>`}
       </li>`;
     }).join("");
     show("finish");
@@ -3586,6 +3747,7 @@
   // ひらいた とき：これまで の きろく で もらえる バッジ が あれば ここ で わたす
   updateGrowth(() => {});
   renderGrowth();
+  applyPrefs();
   renderGreet();
   $("parentBtn").classList.toggle("due", backupDue());
   // はじめて ひらいた とき は ガイド を みせて から なまえ を きく（おいわい は はじめ の がめん に もどって から）。
