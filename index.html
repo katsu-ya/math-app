@@ -18,12 +18,14 @@
     --bg: #fff8e7;
     --card: #ffffff;
     --text: #333;
-    --plus: #ff7b7b;
-    --minus: #4dabf7;
-    --times: #51cf66;
+    /* しろい もじ を のせる いろ は、はっきり よめる こさ（コントラスト 3:1 いじょう）に する */
+    --plus: #fa5252;
+    --minus: #228be6;
+    --times: #2f9e44;
     --divide: #fcc419;
-    --main: #ff922b;
-    --ok: #2fb344;
+    --main: #f76707;
+    --main-text: #d9480f; /* もじ に つかう オレンジ（うすい はいけい でも よめる こさ） */
+    --ok: #2f9e44;
     --ng: #f03e3e;
   }
   * { box-sizing: border-box; }
@@ -48,7 +50,7 @@
     text-align: center;
     font-size: 32px;
     margin: 12px 0 20px;
-    color: var(--main);
+    color: var(--main-text);
   }
   h2 { font-size: 22px; margin: 18px 0 10px; }
   .screen { display: none; flex: 1; flex-direction: column; }
@@ -78,10 +80,10 @@
   .choice {
     font-size: 24px;
     padding: 18px 8px;
-    opacity: .45;
+    filter: saturate(.5);
   }
   .choice .mark { display: block; font-size: 44px; line-height: 1.1; }
-  .choice.selected { opacity: 1; outline: 5px solid #333; outline-offset: -5px; }
+  .choice.selected { filter: none; outline: 5px solid #333; outline-offset: -5px; }
   .c-plus { background: var(--plus); }
   .c-minus { background: var(--minus); }
   .c-times { background: var(--times); }
@@ -102,6 +104,7 @@
   /* もんだい がめん */
   .topbar {
     display: flex;
+    gap: 8px;
     justify-content: space-between;
     align-items: center;
     font-size: 20px;
@@ -186,7 +189,7 @@
   .score {
     font-size: 72px;
     font-weight: bold;
-    color: var(--main);
+    color: var(--main-text);
     margin: 4px 0;
   }
   .score small { font-size: 32px; }
@@ -226,10 +229,12 @@
 
   .quit {
     background: none;
-    color: #888;
+    color: #666;
     box-shadow: none;
     font-size: 18px;
     padding: 4px 8px;
+    min-height: 44px;
+    white-space: nowrap;
     text-decoration: underline;
   }
 
@@ -250,7 +255,7 @@
   .cal-nav { width: 52px; height: 40px; padding: 0; font-size: 18px; border-radius: 14px; background: var(--main); }
   .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; text-align: center; }
   .cal-week { margin-bottom: 3px; }
-  .cal-week span { font-size: 14px; font-weight: bold; color: #888; }
+  .cal-week span { font-size: 14px; font-weight: bold; color: #666; }
   .cal-week .sun, .cal-day.sun .cal-num { color: #e03131; }
   .cal-week .sat, .cal-day.sat .cal-num { color: #1c7ed6; }
   .cal-day {
@@ -275,7 +280,7 @@
   .cal-mark { position: absolute; inset: 1px; display: flex; align-items: center; justify-content: center; pointer-events: none; }
   .cal-mark svg { height: 100%; width: 100%; }
   .cal-info { margin-top: 8px; min-height: 1.4em; font-size: 18px; font-weight: bold; text-align: center; color: #d9480f; }
-  .cal-legend { margin-top: 4px; display: flex; justify-content: center; align-items: center; gap: 14px; font-size: 14px; color: #777; }
+  .cal-legend { margin-top: 4px; display: flex; justify-content: center; align-items: center; gap: 14px; font-size: 14px; color: #666; }
   .cal-legend span { display: inline-flex; align-items: center; gap: 4px; }
   .cal-legend svg { width: 22px; height: 22px; }
 
@@ -289,17 +294,18 @@
   .start-links { align-self: center; display: flex; gap: 8px; margin-top: 20px; }
   .parent-link {
     background: none;
-    color: #888;
+    color: #666;
     box-shadow: none;
     font-size: 15px;
     font-weight: normal;
     padding: 6px 10px;
+    min-height: 44px;
     text-decoration: underline;
   }
   .parent-link:active { transform: none; box-shadow: none; }
   #parent { font-size: 16px; line-height: 1.5; }
   #parent h1 { margin-bottom: 6px; }
-  #parent h1 small { display: block; font-size: 16px; color: #888; font-weight: normal; }
+  #parent h1 small { display: block; font-size: 16px; color: #666; font-weight: normal; }
   .rp-card {
     background: var(--card);
     border-radius: 18px;
@@ -308,13 +314,13 @@
     margin-top: 14px;
   }
   .rp-card h3 { margin: 0 0 10px; font-size: 18px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-  .rp-note { font-size: 13px; color: #888; font-weight: normal; }
+  .rp-note { font-size: 13px; color: #666; font-weight: normal; }
   .rp-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .rp-stat { background: var(--bg); border-radius: 12px; padding: 8px 10px; }
-  .rp-stat .label { font-size: 13px; color: #777; }
+  .rp-stat .label { font-size: 13px; color: #666; }
   .rp-stat .val { font-size: 26px; font-weight: bold; color: #d9480f; line-height: 1.25; }
   .rp-stat .val small { font-size: 14px; color: var(--text); margin-left: 2px; }
-  .rp-stat .sub { font-size: 12px; color: #888; min-height: 1.5em; }
+  .rp-stat .sub { font-size: 12px; color: #666; min-height: 1.5em; }
   .rp-op {
     display: grid;
     grid-template-columns: 4.6em 1fr 3.6em 3.6em;
@@ -325,17 +331,17 @@
   }
   .rp-op:last-child { border-bottom: none; }
   .rp-op > span:nth-child(n+3) { text-align: right; }
-  .rp-op-head { font-size: 12px; color: #888; padding: 0 0 4px; }
+  .rp-op-head { font-size: 12px; color: #666; padding: 0 0 4px; }
   .rp-op-name { font-weight: bold; display: flex; align-items: center; gap: 6px; }
   .rp-op-name i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
   .rp-op-bar { display: flex; align-items: center; gap: 8px; }
   .rp-op-bar b { width: 2.8em; text-align: right; flex: none; }
   .rp-op-bar .bar { flex: 1; height: 8px; background: #f1f3f5; border-radius: 4px; overflow: hidden; }
   .rp-op-bar .bar span { display: block; height: 100%; }
-  .rp-op-sub { grid-column: 1 / -1; font-size: 12px; color: #888; text-align: left !important; }
+  .rp-op-sub { grid-column: 1 / -1; font-size: 12px; color: #666; text-align: left !important; }
   .rp-op .up { color: var(--ok); font-weight: bold; }
   .rp-op .down { color: var(--ng); font-weight: bold; }
-  .rp-op .flat { color: #888; }
+  .rp-op .flat { color: #666; }
   .rp-weak { list-style: none; margin: 0; padding: 0; }
   .rp-weak li { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-bottom: 1px dotted #ddd; }
   .rp-weak li:last-child { border-bottom: none; }
@@ -349,26 +355,26 @@
     display: flex; align-items: center; justify-content: center;
   }
   .rp-weak li:first-child .rank { background: var(--main); color: #fff; }
-  .rp-weak-sub { font-size: 13px; color: #777; }
-  .rp-empty { color: #888; }
+  .rp-weak-sub { font-size: 13px; color: #666; }
+  .rp-empty { color: #666; }
   .rp-advice { margin: 0 0 10px; }
   .rp-advice:last-child { margin-bottom: 0; }
   .rp-advice span { display: inline-block; font-size: 12px; font-weight: bold; color: #fff; border-radius: 6px; padding: 1px 8px; margin-right: 6px; }
   .rp-advice.good span { background: var(--ok); }
   .rp-advice.next span { background: var(--minus); }
-  .rp-foot { font-size: 12px; color: #888; margin: 12px 2px 0; }
+  .rp-foot { font-size: 12px; color: #666; margin: 12px 2px 0; }
   /* きろく の ほぞん */
   .st-card p { margin: 0 0 8px; }
   .st-card .st-ok, .st-card .st-warn { font-size: 18px; font-weight: bold; margin-bottom: 4px; }
   .st-ok { color: var(--ok); }
   .st-warn { color: #e8590c; }
-  .st-card button { background: var(--minus); font-size: 15px; padding: 8px 14px; border-radius: 12px; box-shadow: 0 3px 0 #1c7ed6; margin: 0 8px 8px 0; }
+  .st-card button { background: var(--minus); font-size: 15px; padding: 8px 14px; border-radius: 12px; box-shadow: 0 3px 0 #1864ab; margin: 0 8px 8px 0; }
   .st-install { background: var(--bg); border-radius: 12px; padding: 10px 12px; margin: 4px 0 12px; }
   .st-install[hidden] { display: none; }
   .st-install h4 { margin: 0 0 6px; font-size: 16px; color: #d9480f; }
   .st-install ol { margin: 0 0 8px; padding-left: 1.4em; }
   .st-install p:last-child { margin-bottom: 0; }
-  .st-note { font-size: 13px; color: #777; }
+  .st-note { font-size: 13px; color: #666; }
   /* バックアップ を ほぞん した けっか */
   .st-result { border-radius: 10px; padding: 8px 12px; margin: 2px 0 10px; font-weight: bold; }
   .st-result[hidden] { display: none; }
@@ -452,7 +458,7 @@
   .buddy-lv { color: #fff; background: var(--main); border-radius: 8px; padding: 0 6px; font-size: 15px; margin-right: 4px; }
   .xp-bar { height: 12px; background: #ffe3bf; border-radius: 6px; overflow: hidden; margin: 5px 0 3px; }
   .xp-bar > div { height: 100%; width: 0; background: linear-gradient(90deg, #ffd43b, var(--main)); border-radius: 6px; transition: width .6s; }
-  .buddy-next { font-size: 13px; color: #888; line-height: 1.3; }
+  .buddy-next { font-size: 13px; color: #666; line-height: 1.3; }
   .badge-btn {
     flex: none;
     background: #fff3bf;
@@ -487,9 +493,9 @@
   .badge-card.locked { background: #f8f9fa; box-shadow: none; }
   .badge-name, .badge-desc, .cele-text { word-break: keep-all; } /* ことば の とちゅう で おりかえさない */
   .badge-name { font-size: 14px; font-weight: bold; margin-top: 6px; line-height: 1.3; }
-  .badge-card.locked .badge-name { color: #999; }
-  .badge-desc { font-size: 11px; color: #888; line-height: 1.35; margin-top: 2px; }
-  .badge-prog { font-size: 12px; color: var(--main); font-weight: bold; margin-top: 2px; }
+  .badge-card.locked .badge-name { color: #666; }
+  .badge-desc { font-size: 11px; color: #666; line-height: 1.35; margin-top: 2px; }
+  .badge-prog { font-size: 12px; color: var(--main-text); font-weight: bold; margin-top: 2px; }
 
   /* おいわい（レベルアップ・バッジ ゲット） */
   .celebrate {
@@ -504,6 +510,18 @@
     overflow: hidden;
   }
   .celebrate[hidden] { display: none; }
+  /* かくにん の まど（ブラウザ の confirm・alert の かわり） */
+  .dialog { position: fixed; inset: 0; z-index: 11; background: rgba(0, 0, 0, .35); display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .dialog[hidden] { display: none; }
+  .dialog-box { width: 100%; max-width: 400px; background: var(--card); border-radius: 24px; padding: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+  .dialog-text { font-size: 20px; font-weight: bold; line-height: 1.5; margin: 4px 0 0; white-space: pre-line; word-break: keep-all; overflow-wrap: anywhere; }
+  .dialog-sub { font-size: 15px; color: #555; line-height: 1.6; margin: 8px 0 0; white-space: pre-line; word-break: keep-all; overflow-wrap: anywhere; }
+  .dialog-sub:empty { display: none; }
+  .dialog-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+  .dialog-btns.one { grid-template-columns: 1fr; }
+  .dialog-btns button { font-size: 20px; padding: 12px 6px; background: var(--main); box-shadow: 0 4px 0 #d9480f; }
+  .dialog-btns .dialog-cancel { background: #868e96; box-shadow: 0 4px 0 #495057; }
+  .dialog-btns .dialog-cancel[hidden] { display: none; }
   .confetti span { position: absolute; top: -20px; width: 10px; height: 14px; border-radius: 2px; animation: fall linear forwards; }
   @keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
   .cele-box {
@@ -518,7 +536,7 @@
     text-align: center;
     box-shadow: 0 10px 30px rgba(0,0,0,0.15);
   }
-  .cele-title { font-size: 34px; font-weight: bold; color: var(--main); text-shadow: 0 3px 0 #ffe066; white-space: nowrap; }
+  .cele-title { font-size: 34px; font-weight: bold; color: var(--main-text); text-shadow: 0 3px 0 #ffe066; white-space: nowrap; }
   .cele-pic { width: 180px; height: 180px; margin: 6px auto; }
   .cele-pic svg { width: 100%; height: 100%; transform-origin: 50% 95%; animation: jump .8s .35s ease-out 2; }
   .cele-text { font-size: 20px; font-weight: bold; }
@@ -544,7 +562,7 @@
     white-space: nowrap;
   }
   .mode-switch button:active { transform: none; box-shadow: none; }
-  .mode-switch button.selected { background: #fff; color: var(--main); box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+  .mode-switch button.selected { background: #fff; color: var(--main-text); box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
 
   /* もんだい がめん の ならび（スマホ では 1れつ。ぶんしょうだい の パソコン では 2れつ） */
   .quiz-body { display: flex; flex-direction: column; }
@@ -577,15 +595,15 @@
     border-radius: 50%;
     background: var(--minus);
     font-size: 22px;
-    box-shadow: 0 4px 0 #1c7ed6;
+    box-shadow: 0 4px 0 #1864ab;
   }
   .speak.speaking { animation: pulse 1s ease-in-out infinite; }
   @keyframes pulse { 50% { transform: scale(1.12); } }
   .story-pic { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; margin-top: 4px; font-size: 22px; line-height: 1.3; }
   .story-pic:empty { display: none; }
   .story-pic .grp { border: 2px dashed #ffc078; border-radius: 10px; padding: 0 4px; }
-  .story-pic .sym { font-weight: bold; color: #999; }
-  .shiki-label { font-size: 16px; font-weight: bold; color: #888; margin: 0 0 6px; }
+  .story-pic .sym { font-weight: bold; color: #666; }
+  .shiki-label { font-size: 16px; font-weight: bold; color: #666; margin: 0 0 6px; }
   .shiki { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
   .shiki button {
     background: #fff;
@@ -599,7 +617,7 @@
   .shiki button.selected { background: var(--main); border-color: var(--main); color: #fff; box-shadow: 0 5px 0 #d9480f; }
   .shiki button.right { background: var(--ok); border-color: var(--ok); color: #fff; box-shadow: 0 5px 0 #237a32; opacity: 1; }
   .shiki button.wrong { border-color: var(--ng); border-style: dashed; color: var(--ng); opacity: 1; }
-  .question .prompt { font-size: 24px; color: #aaa; }
+  .question .prompt { font-size: 24px; color: #888; }
   .answer-box small { font-size: 22px; color: #666; margin-left: 6px; }
   .answer-box.empty small { color: #ccc; }
   .result .explain { font-size: 18px; color: var(--text); line-height: 1.45; margin-top: 2px; }
@@ -634,9 +652,9 @@
     color: var(--text);
   }
   .set-try { margin-top: 12px; width: 100%; font-size: 20px; padding: 10px; background: var(--minus); }
-  .set-note { font-size: 13px; color: #777; margin: 12px 0 0; }
+  .set-note { font-size: 13px; color: #666; margin: 12px 0 0; }
   .set-name { font-size: 22px; font-weight: bold; word-break: keep-all; overflow-wrap: anywhere; }
-  .set-name small { font-size: 15px; color: #888; font-weight: normal; margin-left: 6px; }
+  .set-name small { font-size: 15px; color: #666; font-weight: normal; margin-left: 6px; }
   .set-name-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; }
   .set-name-row .set-name { flex: 1; }
   .set-name-row .set-try { width: auto; margin: 0; padding: 8px 16px; font-size: 18px; flex: none; }
@@ -670,7 +688,7 @@
   /* なまえ */
   .greet { text-align: center; font-size: 20px; font-weight: bold; color: #d9480f; margin: -12px 0 12px; word-break: keep-all; overflow-wrap: anywhere; }
   #name { font-size: 16px; }
-  .name-label { display: block; font-weight: bold; color: #888; margin: 0 0 6px; }
+  .name-label { display: block; font-weight: bold; color: #666; margin: 0 0 6px; }
   .name-label.second { margin-top: 18px; }
   .name-input {
     width: 100%;
@@ -696,7 +714,7 @@
   }
   .honor button.selected { background: var(--main); border-color: var(--main); color: #fff; box-shadow: 0 5px 0 #d9480f; }
   .name-preview { margin-top: 18px; text-align: center; font-size: 22px; font-weight: bold; color: #d9480f; min-height: 1.5em; word-break: keep-all; overflow-wrap: anywhere; }
-  .name-foot { text-align: center; font-size: 13px; color: #999; margin: 12px 0 0; word-break: keep-all; }
+  .name-foot { text-align: center; font-size: 13px; color: #666; margin: 12px 0 0; word-break: keep-all; }
   /* はじめて ガイド（キャラクター が つかいかた を あんない する） */
   #guide { max-width: 560px; margin: 0 auto; }
   .gd-skip { display: block; margin: 0 0 0 auto; font-size: 14px; }
@@ -752,10 +770,10 @@
   .gd-btns { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; }
   .gd-btns .big-btn { margin-top: 14px; font-size: 22px; }
   .gd-btns .big-btn:disabled { opacity: .4; }
-  .gd-speak { display: block; margin: 10px auto 0; background: var(--minus); font-size: 16px; padding: 6px 16px; border-radius: 12px; box-shadow: 0 3px 0 #1c7ed6; }
+  .gd-speak { display: block; margin: 10px auto 0; background: var(--minus); font-size: 16px; padding: 6px 16px; border-radius: 12px; box-shadow: 0 3px 0 #1864ab; }
   .gd-speak.speaking { background: #fa5252; box-shadow: 0 3px 0 #c92a2a; }
   .gd-speak[hidden] { display: none; }
-  .gd-parent { font-size: 13px; color: #777; line-height: 1.6; margin: 12px 0 0; }
+  .gd-parent { font-size: 13px; color: #666; line-height: 1.6; margin: 12px 0 0; }
   .gd-parent[hidden] { display: none; }
   .cele-name { font-size: 22px; font-weight: bold; color: #d9480f; margin-top: 4px; word-break: keep-all; overflow-wrap: anywhere; }
 
@@ -764,12 +782,12 @@
   .xp-gain small { font-size: 15px; margin-left: 4px; }
 
   /* かけざん：なんの だん？ */
-  .dan-lead { text-align: center; font-size: 18px; font-weight: bold; color: #888; margin: -8px 0 10px; }
+  .dan-lead { text-align: center; font-size: 18px; font-weight: bold; color: #666; margin: -8px 0 10px; }
   .dan-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-  .dan-grid button { background: var(--times); font-size: 15px; line-height: 1.2; padding: 8px 2px; opacity: .45; }
+  .dan-grid button { background: var(--times); font-size: 15px; line-height: 1.2; padding: 8px 2px; filter: saturate(.5); }
   .dan-grid button b { display: block; font-size: 34px; }
   /* えらんで いる だん は、くっきり おおきく して ✔ を つける */
-  .dan-grid button.selected { opacity: 1; outline: 5px solid #333; outline-offset: -5px; transform: scale(1.08); z-index: 1; box-shadow: 0 5px 0 rgba(0,0,0,0.25), 0 0 0 4px #ffe066; }
+  .dan-grid button.selected { filter: none; outline: 5px solid #333; outline-offset: -5px; transform: scale(1.08); z-index: 1; box-shadow: 0 5px 0 rgba(0,0,0,0.25), 0 0 0 4px #ffe066; }
   .dan-grid button.selected::after {
     content: "✔"; position: absolute; top: -8px; right: -8px; width: 26px; height: 26px; border-radius: 50%;
     background: #333; color: #ffe066; font-size: 15px; line-height: 26px; text-align: center;
@@ -779,7 +797,7 @@
   .c-order { background: var(--minus); }
   .c-order small { display: block; font-size: 16px; }
   .dan-info { text-align: center; font-size: 20px; font-weight: bold; color: #d9480f; margin-top: 16px; min-height: 1.4em; }
-  .dan-foot { text-align: center; font-size: 13px; color: #999; margin: 12px 0 0; word-break: keep-all; }
+  .dan-foot { text-align: center; font-size: 13px; color: #666; margin: 12px 0 0; word-break: keep-all; }
   #dan .big-btn { margin-top: 12px; }
 
   /* だん の けっか：だん ごと に ×1〜×9 の ◯✕ を ならべる */
@@ -802,11 +820,11 @@
   /* バッジ いちらん の だん マスター */
   .dan-badges { margin-top: 10px; background: var(--card); border-radius: 18px; padding: 6px 6px 4px; box-shadow: 0 3px 10px rgba(0,0,0,0.06); }
   .dan-badges-title { text-align: center; font-size: 15px; font-weight: bold; color: #2b8a3e; margin-bottom: 4px; }
-  .dan-badges-title small { font-size: 12px; font-weight: normal; color: #888; margin-left: 6px; }
+  .dan-badges-title small { font-size: 12px; font-weight: normal; color: #666; margin-left: 6px; }
   .dan-badge-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px 4px; text-align: center; }
   .dan-badge .medal { width: 40px; height: 40px; font-size: 22px; }
   .dan-badge .badge-name { margin-top: 2px; }
-  .dan-badge.locked .badge-name { color: #999; }
+  .dan-badge.locked .badge-name { color: #666; }
   .medal.dan span { font-weight: bold; color: #2b8a3e; }
 
   /* ステージ2：きんいろ の バッジ と、こん いろ の カード */
@@ -824,7 +842,7 @@
   .badge-card.s2 .badge-prog { color: #ffd43b; }
   .badge-card.s2.locked { background: #f1f0f8; box-shadow: none; }
   .badge-card.s2.locked .badge-name { color: #8f8aa8; }
-  .badge-card.s2.locked .badge-desc { color: #888; }
+  .badge-card.s2.locked .badge-desc { color: #666; }
   .badge-card.s2.locked .badge-prog { color: #6c5fc7; }
   .badge-tabs { display: flex; justify-content: center; gap: 12px; margin: -8px 0 12px; }
   .badge-tabs button { font-size: 17px; padding: 6px 18px; border-radius: 999px; background: #fff3bf; color: #8a5a00; box-shadow: 0 3px 0 #f0d58a; opacity: .5; }
@@ -853,7 +871,7 @@
   .rp-dan-val.low { color: var(--ng); }
   .rp-dan .bar { height: 6px; background: #e9ecef; border-radius: 3px; overflow: hidden; }
   .rp-dan .bar span { display: block; height: 100%; background: var(--times); }
-  .rp-dan-sub { font-size: 12px; color: #888; margin-top: 2px; }
+  .rp-dan-sub { font-size: 12px; color: #666; margin-top: 2px; }
 
   @media (min-width: 600px) {
     .review.dan-review { grid-template-columns: 1fr; }
@@ -1058,6 +1076,42 @@
     .review li { padding: 14px 4px; }
     .finish-btns .big-btn { margin-top: 34px; }
   }
+  /* はば の せまい スマホ（320px など）：もんだい がめん の うえ の おび を 1ぎょう に おさめる */
+  @media (max-width: 360px) {
+    .topbar { font-size: 16px; gap: 4px; }
+    .quit { font-size: 16px; padding: 4px 4px; }
+    .wrap { padding: 12px; }
+  }
+  /* スマホ の よこむき：もんだい と すうじ ボタン を よこ に ならべて、スクロール しなくて よい ように */
+  @media (orientation: landscape) and (max-height: 500px) {
+    .wrap { padding: 6px 16px; }
+    body.on-quiz .wrap { max-width: 960px; }
+    body.on-quiz .quiz-body { display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; align-items: start; }
+    body.on-quiz .quiz-main, body.on-quiz .quiz-pad { display: block; }
+    body.on-quiz .wrap { padding-top: 2px; padding-bottom: 2px; }
+    body.on-quiz .progress { margin: 2px 0 6px; height: 10px; }
+    body.on-quiz .topbar { font-size: 17px; }
+    body.on-quiz .card { padding: 6px 10px 4px; }
+    body.on-quiz .question { font-size: 32px; }
+    body.on-quiz .answer-box { min-height: 42px; font-size: 28px; margin-top: 4px; }
+    body.on-quiz .result { min-height: 36px; font-size: 20px; }
+    body.on-quiz .result .explain { font-size: 15px; line-height: 1.35; }
+    body.on-quiz .result .explain b { font-size: 17px; }
+    body.on-quiz .result .hint { font-size: 14px; }
+    body.on-quiz .story-card { padding-top: 8px; padding-bottom: 6px; margin-bottom: 8px; }
+    body.on-quiz .result small { font-size: 20px; }
+    body.on-quiz .result small b { font-size: 30px; }
+    body.on-quiz .story-text { font-size: 16px; line-height: 1.45; }
+    body.on-quiz .story-pic { font-size: 14px; }
+    body.on-quiz .shiki-label { font-size: 13px; margin-bottom: 2px; }
+    body.on-quiz .shiki { margin-bottom: 6px; }
+    body.on-quiz .shiki button { font-size: 18px; padding: 5px 2px; }
+    body.on-quiz .keypad { margin-top: 0; gap: 6px; }
+    body.on-quiz .keypad button { height: 40px; font-size: 26px; }
+    body.on-quiz .keypad .k-del { font-size: 14px; }
+    body.on-quiz .action { margin-top: 8px; padding: 8px; font-size: 22px; }
+  }
+
   /* もじ の おおきさ「おおきい」：よむ ところ の もじ を おおきく する（ボタン や レイアウト は そのまま） */
   body.big-text .story-text { font-size: 24px; }
   body.big-text .result .explain { font-size: 21px; }
@@ -1100,6 +1154,14 @@
   @media (max-width: 420px) {
     body.big-text .gd-bubble { font-size: 21px; }
   }
+  /* スマホ の よこむき では、おおきい もじ も すこし ひかえめ に（すうじ ボタン が みえる ように） */
+  @media (orientation: landscape) and (max-height: 500px) {
+    body.big-text.on-quiz .story-text { font-size: 19px; line-height: 1.4; }
+    body.big-text.on-quiz .result .explain { font-size: 17px; }
+    body.big-text.on-quiz .result .explain b { font-size: 19px; }
+    body.big-text.on-quiz .result .hint { font-size: 16px; }
+    body.big-text.on-quiz .shiki-label { font-size: 15px; }
+  }
 </style>
 </head>
 <body class="on-start">
@@ -1140,13 +1202,13 @@
     <div class="start-side">
     <!-- そだつ なかま -->
     <div class="buddy">
-      <div class="buddy-pic" id="buddyPic"></div>
+      <div class="buddy-pic" id="buddyPic" role="img" aria-label="そだつ なかま"></div>
       <div class="buddy-info">
         <div class="buddy-name"><span class="buddy-lv" id="buddyLv">Lv.1</span><span id="buddyName"></span></div>
         <div class="xp-bar"><div id="xpBar"></div></div>
         <div class="buddy-next" id="buddyNext"></div>
       </div>
-      <button class="badge-btn" id="badgeBtn">🏅<small>バッジ</small><b id="badgeCount"></b></button>
+      <button class="badge-btn" id="badgeBtn" aria-label="バッジ を みる">🏅<small>バッジ</small><b id="badgeCount"></b></button>
     </div>
 
     <!-- カレンダー -->
@@ -1399,8 +1461,8 @@
 
       <div class="card">
         <div class="question" id="question"></div>
-        <div class="answer-box empty" id="answerBox">？</div>
-        <div class="result" id="result"></div>
+        <div class="answer-box empty" id="answerBox" aria-live="polite">？</div>
+        <div class="result" id="result" aria-live="polite"></div>
       </div>
     </div>
 
@@ -1447,6 +1509,17 @@
 </div>
 
 <!-- おいわい（レベルアップ・バッジ ゲット） -->
+<div class="dialog" id="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogText" hidden>
+  <div class="dialog-box">
+    <p class="dialog-text" id="dialogText"></p>
+    <p class="dialog-sub" id="dialogSub"></p>
+    <div class="dialog-btns">
+      <button class="dialog-cancel" id="dialogCancel"></button>
+      <button id="dialogOk"></button>
+    </div>
+  </div>
+</div>
+
 <div class="celebrate" id="celebrate" hidden>
   <div class="confetti" id="confetti"></div>
   <div class="cele-box" id="celeBox">
@@ -2560,6 +2633,30 @@
     if ($("celebrate").hidden) nextCelebration();
   }
 
+  // ---- かくにん の まど（ブラウザ の confirm・alert は アプリ の なか で うく ので つかわない）----
+  // ok を おしたら true、cancel を おしたら false。cancel が "" なら ボタン は 1つ
+  let dialogDone = null;
+  function askDialog(text, { sub = "", ok = "OK", cancel = "キャンセル" } = {}) {
+    if (dialogDone) dialogDone(false);
+    $("dialogText").textContent = text;
+    $("dialogSub").textContent = sub;
+    $("dialogOk").textContent = ok;
+    $("dialogCancel").textContent = cancel;
+    $("dialogCancel").hidden = !cancel;
+    $("dialog").querySelector(".dialog-btns").classList.toggle("one", !cancel);
+    $("dialog").hidden = false;
+    $(cancel ? "dialogCancel" : "dialogOk").focus();
+    return new Promise((resolve) => {
+      dialogDone = (v) => { dialogDone = null; $("dialog").hidden = true; resolve(v); };
+    });
+  }
+  const dialogOpen = () => !$("dialog").hidden;
+  $("dialogOk").addEventListener("click", () => dialogDone && dialogDone(true));
+  $("dialogCancel").addEventListener("click", () => dialogDone && dialogDone(false));
+  document.addEventListener("keydown", (e) => {
+    if (dialogOpen() && e.key === "Escape") dialogDone && dialogDone(false);
+  });
+
   // ---- がめん きりかえ ----
   function show(id) {
     document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
@@ -2676,6 +2773,18 @@
       $("timer").textContent = "⏱ " + formatTime(Date.now() - startTime);
     }, 250);
   }
+  // アプリ を うら に まわした あいだ は じかん に いれない
+  let hiddenAt = 0;
+  document.addEventListener("visibilitychange", () => {
+    if (!$("quiz").classList.contains("active")) { hiddenAt = 0; return; }
+    if (document.hidden) { hiddenAt = Date.now(); return; }
+    if (hiddenAt) {
+      const away = Date.now() - hiddenAt;
+      startTime += away;
+      shownAt += away;
+      hiddenAt = 0;
+    }
+  });
   function stopTimer() {
     clearInterval(timerId);
     clearTimeout(autoNextId);
@@ -2834,7 +2943,7 @@
     // せいかい は 1.5びょう、まちがい は 3びょう で じどう で つぎ へ すすむ
     btn.textContent = index + 1 < problems.length ? "つぎ に すすむよ…" : "けっか を だすよ…";
     btn.disabled = true;
-    autoNextId = setTimeout(next, p.correct ? AUTO_NEXT_OK_MS : AUTO_NEXT_NG_MS);
+    autoNextId = setTimeout(() => { autoNextId = null; next(); }, p.correct ? AUTO_NEXT_OK_MS : AUTO_NEXT_NG_MS);
   }
 
   // こたえあわせ ボタン（Enter キー）：まちがえた ぶんしょうだい の あと は「つぎ へ」
@@ -3295,8 +3404,16 @@
     pic.classList.add("jump");
   });
   $("buddyPic").addEventListener("animationend", () => $("buddyPic").classList.remove("jump"));
-  $("quitBtn").addEventListener("click", () => {
-    if (confirm("とちゅう で やめる？")) { stopTimer(); stopSpeech(); show("start"); }
+  $("quitBtn").addEventListener("click", async () => {
+    // きいて いる あいだ に つぎ の もんだい へ すすまない ように とめて おく
+    const resume = autoNextId !== null && answered && !waitingNext;
+    clearTimeout(autoNextId);
+    autoNextId = null;
+    if (await askDialog("とちゅう で やめる？", { sub: "ここまで といた もんだい は きろく に のこるよ", ok: "やめる", cancel: "つづける" })) {
+      stopTimer(); stopSpeech(); show("start");
+    } else if (resume && $("quiz").classList.contains("active")) {
+      autoNextId = setTimeout(next, 800);
+    }
   });
   $("checkBtn").addEventListener("click", onAction);
   $("speakBtn").addEventListener("click", speakProblem);
@@ -3338,7 +3455,7 @@
 
   // パソコン の キーボード でも つかえる
   document.addEventListener("keydown", (e) => {
-    if (!$("quiz").classList.contains("active")) return;
+    if (!$("quiz").classList.contains("active") || dialogOpen()) return;
     if (/^[0-9]$/.test(e.key)) pressKey(e.key);
     else if (e.key === "Backspace") { e.preventDefault(); pressKey("back"); }
     else if (e.key === "Enter") {
@@ -3589,14 +3706,14 @@
     if (!f) return;
     const b = f.size > 20 * 1024 * 1024 ? { error: "other" } : readBackup(await f.text().catch(() => ""));
     if (b.error) {
-      alert({
+      await askDialog("読みこめませんでした", { cancel: "", sub: {
         other: "けいさん れんしゅう の記録ファイルではないため、読みこめませんでした。\n「きろくを ほぞん」で作ったファイルを選んでください。",
         newer: "新しいバージョンのアプリで保存したファイルです。\nアプリを最新にしてから読みこんでください。",
-      }[b.error] || "このファイルは読みこめませんでした（けいさん れんしゅう の記録ファイルではないか、こわれています）。\n今の記録はそのままです。");
+      }[b.error] || "このファイルは読みこめませんでした（けいさん れんしゅう の記録ファイルではないか、こわれています）。\n今の記録はそのままです。" });
       return;
     }
     const about = [b.who && `${b.who}の記録`, b.saved && !isNaN(new Date(b.saved)) && `${jpDate(b.saved)}に保存`].filter(Boolean).join("・");
-    if (!confirm(`いまの きろくは うわがきされます。よろしいですか？${about ? `\n\n（${about}）` : ""}`)) return;
+    if (!(await askDialog("いまの きろくは うわがきされます。よろしいですか？", { sub: about ? `（${about}）` : "", ok: "よみこむ", cancel: "やめる" }))) return;
     // しらべおわった ファイル だけ を かきこむ。かきこめなかったら もと に もどす
     const before = Object.keys(localStorage).filter((k) => k.startsWith(STORE_PREFIX) && !DEVICE_KEYS.includes(k)).map((k) => [k, localStorage.getItem(k)]);
     try {
@@ -3605,7 +3722,7 @@
     } catch (err) {
       Object.keys(localStorage).filter((k) => k.startsWith(STORE_PREFIX) && !DEVICE_KEYS.includes(k)).forEach((k) => localStorage.removeItem(k));
       before.forEach(([k, v]) => localStorage.setItem(k, v));
-      alert("読みこみに失敗しました。今の記録はそのままです。");
+      await askDialog("読みこみに失敗しました", { sub: "今の記録はそのままです。", cancel: "" });
       return;
     }
     location.reload();
