@@ -8,35 +8,45 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<meta name="theme-color" content="#fff8e7">
+<meta name="theme-color" content="#fffbe6">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="けいさん">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
   :root {
-    --bg: #fff8e7;
+    --bg: #fffbe6; /* やさしい クリーム いろ */
     --card: #ffffff;
     --text: #333;
     /* ボタン は あかるい いろ に して、うえ の もじ は こい いろ（--on-…）に する。
        しろ では なく こい もじ に する と、あかるい まま でも はっきり よめる（コントラスト 4.5:1 いじょう） */
-    --plus: #ff8787;
-    --minus: #4dabf7;
-    --times: #51cf66;
-    --divide: #fcc419;
-    --main: #ff922b;
-    --level: #b197fc;
-    --level2: #f783ac;
-    --ok: #51cf66;
-    --ng: #ff6b6b;
-    --on-plus: #5c0f12;   /* こい あか（こげちゃ よりの あか） */
-    --on-minus: #0b2a4a;  /* こん */
-    --on-times: #0b3d17;  /* こい みどり */
+    /* キャンディ の ような パステル */
+    --plus: #ff9ec4;   /* ピンク */
+    --minus: #8fd8ff;  /* みずいろ */
+    --times: #b5ec7a;  /* きみどり */
+    --divide: #ffe270; /* きいろ */
+    --main: #ffb057;   /* オレンジ */
+    --level: #cbb8ff;  /* ラベンダー */
+    --level2: #ffb8d9; /* さくら */
+    --ok: #9cf0b0;
+    --ng: #ff8a8a;
+    --on-plus: #6b1238;   /* こい ピンク */
+    --on-minus: #0b3355;  /* こん */
+    --on-times: #24420c;  /* こい みどり */
     --on-divide: #5c3d00; /* こげちゃ */
-    --on-main: #4a2200;   /* こげちゃ */
-    --on-level: #2b1466;  /* こい むらさき */
-    --on-level2: #5c0b2e; /* こい ピンク */
+    --on-main: #5a2a00;   /* こげちゃ */
+    --on-level: #2f1a73;  /* こい むらさき */
+    --on-level2: #6b1238;
     --on-ok: #0b3d17;
+    /* ボタン の した の かげ（ぷっくり みえる ように、すこし こい おなじ いろ） */
+    --sh-plus: #f07aa8;
+    --sh-minus: #5bbcf0;
+    --sh-times: #8fcf52;
+    --sh-divide: #f0c53c;
+    --sh-main: #f08c2a;
+    --sh-level: #a991f0;
+    --sh-level2: #f08fbc;
+    --sh-ok: #6fd88a;
     /* しろ や クリーム の はいけい に のせる もじ の いろ */
     --main-text: #d9480f;
     --ok-text: #2b8a3e;
@@ -48,7 +58,11 @@
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    background: var(--bg);
+    background-color: var(--bg);
+    /* うすい みずたま と ほし（もじ の じゃま に ならない くらい うすく） */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg opacity='.5'%3E%3Ccircle cx='22' cy='26' r='5' fill='%23bfe6ff'/%3E%3Ccircle cx='122' cy='62' r='4' fill='%23c9f0a8'/%3E%3Ccircle cx='72' cy='142' r='6' fill='%23ffd8a8'/%3E%3Ccircle cx='160' cy='152' r='4' fill='%23bfe6ff'/%3E%3Ccircle cx='96' cy='18' r='3' fill='%23ddd2ff'/%3E%3Cpath d='M150 14l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z' fill='%23ffc94d'/%3E%3Cpath d='M48 78l2.4 5.6 5.6.8-4 4 .8 5.6-4.8-2.4-4.8 2.4.8-5.6-4-4 5.6-.8z' fill='%23a5dcff'/%3E%3Cpath d='M14 120l2 4.5 4.5.6-3.3 3.2.7 4.5-3.9-2-3.9 2 .7-4.5-3.3-3.2 4.5-.6z' fill='%23b5e48c'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 180px 180px;
+    background-attachment: fixed;
     color: var(--text);
     font-family: "Hiragino Maru Gothic ProN", "Rounded Mplus 1c", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
     font-size: 20px;
@@ -68,6 +82,7 @@
     font-size: 32px;
     margin: 12px 0 20px;
     color: var(--main-text);
+    text-shadow: 0 3px 0 #ffd99a;
   }
   h2 { font-size: 22px; margin: 18px 0 10px; }
   .screen { display: none; flex: 1; flex-direction: column; }
@@ -84,7 +99,8 @@
     font-weight: bold;
     color: #fff;
     box-shadow: 0 5px 0 rgba(0,0,0,0.18);
-    transition: transform .08s, box-shadow .08s, opacity .2s;
+    /* はなした とき に「ぽよん」と もどる（すこし いきすぎて から もどる） */
+    transition: transform .35s cubic-bezier(.34, 1.9, .5, 1), box-shadow .2s, opacity .2s;
     position: relative;
     touch-action: manipulation;
     -webkit-user-select: none;
@@ -92,22 +108,31 @@
   }
   /* おせる はんい を まわり に すこし ひろげる（おした とき したに うごいても はずれない） */
   button::before { content: ""; position: absolute; inset: -6px; }
-  button:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,0.18); }
+  button:active { transform: translateY(4px) scale(.96); box-shadow: 0 1px 0 rgba(0,0,0,0.18); transition-duration: .06s; }
+
+  /* ぷっくり した ボタン：まるく、した に おなじ いろ の かげ、うえ に ひかり */
+  .choice, .big-btn, .action, .dan-grid button, .dialog-btns button, .set-try, .cal-nav {
+    border-radius: 28px;
+    box-shadow: 0 6px 0 var(--sh, rgba(0,0,0,.15)), inset 0 -5px 0 rgba(0,0,0,.06), inset 0 4px 0 rgba(255,255,255,.6);
+  }
+  .choice:active, .big-btn:active, .action:active, .dan-grid button:active, .dialog-btns button:active, .set-try:active, .cal-nav:active {
+    box-shadow: 0 2px 0 var(--sh, rgba(0,0,0,.15)), inset 0 -3px 0 rgba(0,0,0,.06), inset 0 4px 0 rgba(255,255,255,.6);
+  }
 
   .choice {
     font-size: 24px;
     padding: 18px 8px;
   }
   /* えらんで いない ボタン は しろ を かさねて パステル に（もじ は こい まま なので よめる） */
-  .choice:not(.selected), .dan-grid button:not(.selected) { background-image: linear-gradient(rgba(255,255,255,.55), rgba(255,255,255,.55)); }
+  .choice:not(.selected), .dan-grid button:not(.selected) { background-image: linear-gradient(rgba(255,255,255,.45), rgba(255,255,255,.45)); }
   .choice .mark { display: block; font-size: 44px; line-height: 1.1; }
   .choice.selected { outline: 5px solid #333; outline-offset: -5px; }
-  .c-plus { background-color: var(--plus); color: var(--on-plus); }
-  .c-minus { background-color: var(--minus); color: var(--on-minus); }
-  .c-times { background-color: var(--times); color: var(--on-times); }
-  .c-divide { background-color: var(--divide); color: var(--on-divide); }
-  .c-level { background-color: var(--level); color: var(--on-level); padding: 10px 6px; }
-  .c-level2 { background-color: var(--level2); color: var(--on-level2); }
+  .c-plus { background-color: var(--plus); color: var(--on-plus); --sh: var(--sh-plus); }
+  .c-minus { background-color: var(--minus); color: var(--on-minus); --sh: var(--sh-minus); }
+  .c-times { background-color: var(--times); color: var(--on-times); --sh: var(--sh-times); }
+  .c-divide { background-color: var(--divide); color: var(--on-divide); --sh: var(--sh-divide); }
+  .c-level { background-color: var(--level); color: var(--on-level); --sh: var(--sh-level); padding: 10px 6px; }
+  .c-level2 { background-color: var(--level2); color: var(--on-level2); --sh: var(--sh-level2); }
   .c-level .stars { display: block; font-size: 18px; line-height: 1.4; }
   .c-level small { display: block; font-size: 18px; }
 
@@ -118,6 +143,7 @@
     margin-top: 28px;
     background: var(--main);
     color: var(--on-main);
+    --sh: var(--sh-main);
   }
 
   /* もんだい がめん */
@@ -131,18 +157,18 @@
   }
   .progress {
     height: 14px;
-    background: #ffe3bf;
+    background: #ffecc2;
     border-radius: 7px;
     overflow: hidden;
     margin: 8px 0 10px;
   }
-  .progress > div { height: 100%; width: 0; background: var(--main); transition: width .3s; }
+  .progress > div { height: 100%; width: 0; background: repeating-linear-gradient(-45deg, #ffb057 0 10px, #ffd38f 10px 20px); transition: width .3s; }
 
   .card {
     background: var(--card);
-    border-radius: 24px;
+    border-radius: 30px;
     padding: 10px 12px 6px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    box-shadow: 0 6px 18px rgba(200, 150, 40, .16);
     text-align: center;
   }
   .question {
@@ -189,11 +215,12 @@
     height: 56px;
     background: #fff;
     color: #333;
-    box-shadow: 0 5px 0 #e0c9a6;
-    border: 3px solid #ffd8a8;
+    border-radius: 22px;
+    box-shadow: 0 5px 0 #f0cf8f, inset 0 -4px 0 rgba(0,0,0,.04);
+    border: 3px solid #ffe0a3;
   }
-  .keypad .k-del { background: #ffe3e3; border-color: #ffc9c9; font-size: 18px; line-height: 1.2; }
-  .keypad button.pressed { transform: translateY(4px); box-shadow: 0 1px 0 #e0c9a6; background: #fff3bf; }
+  .keypad .k-del { background: #ffe9e3; border-color: #ffc9b8; font-size: 18px; line-height: 1.2; }
+  .keypad button.pressed { transform: translateY(4px) scale(.94); box-shadow: 0 1px 0 #f0cf8f; background: #fff3bf; transition-duration: .06s; }
   .action {
     width: 100%;
     font-size: 26px;
@@ -201,8 +228,9 @@
     margin-top: 12px;
     background: var(--ok);
     color: var(--on-ok);
+    --sh: var(--sh-ok);
   }
-  .action.next { background: var(--minus); color: var(--on-minus); }
+  .action.next { background: var(--minus); color: var(--on-minus); --sh: var(--sh-minus); }
   button:disabled { opacity: .4; }
 
   /* けっか がめん */
@@ -265,14 +293,15 @@
   .calendar {
     margin-top: 28px;
     background: var(--card);
-    border-radius: 24px;
+    border-radius: 30px;
     padding: 12px 12px 10px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    box-shadow: 0 6px 18px rgba(200, 150, 40, .16);
     --cell: 42px;
   }
   .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
   .cal-title { font-size: 22px; font-weight: bold; }
-  .cal-nav { width: 52px; height: 40px; padding: 0; font-size: 18px; border-radius: 14px; background: var(--main); color: var(--on-main); }
+  .cal-nav { width: 52px; height: 40px; padding: 0; font-size: 18px; background: var(--main); color: var(--on-main); --sh: var(--sh-main); }
+  .cal-nav, .cal-nav:active { border-radius: 16px; }
   .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; text-align: center; }
   .cal-week { margin-bottom: 3px; }
   .cal-week span { font-size: 14px; font-weight: bold; color: #666; }
@@ -308,7 +337,7 @@
     .question { font-size: 42px; }
     .choice { font-size: 20px; }
   }
-  .home-btn { background: var(--level); color: var(--on-level); margin-top: 14px; font-size: 24px; }
+  .home-btn { background: var(--level); color: var(--on-level); --sh: var(--sh-level); margin-top: 14px; font-size: 24px; }
 
   /* おうちのかたへ（ほごしゃ むけ の がくしゅう レポート） */
   .start-links { align-self: center; display: flex; gap: 8px; margin-top: 20px; }
@@ -328,9 +357,9 @@
   #parent h1 small { display: block; font-size: 16px; color: #666; font-weight: normal; }
   .rp-card {
     background: var(--card);
-    border-radius: 18px;
+    border-radius: 24px;
     padding: 14px 16px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    box-shadow: 0 6px 18px rgba(200, 150, 40, .16);
     margin-top: 14px;
   }
   .rp-card h3 { margin: 0 0 10px; font-size: 18px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
@@ -388,7 +417,7 @@
   .st-card .st-ok, .st-card .st-warn { font-size: 18px; font-weight: bold; margin-bottom: 4px; }
   .st-ok { color: var(--ok-text); }
   .st-warn { color: #e8590c; }
-  .st-card button { background: var(--minus); color: var(--on-minus); font-size: 15px; padding: 8px 14px; border-radius: 12px; box-shadow: 0 3px 0 #1864ab; margin: 0 8px 8px 0; }
+  .st-card button { background: var(--minus); color: var(--on-minus); font-size: 15px; padding: 8px 14px; border-radius: 12px; box-shadow: 0 3px 0 var(--sh-minus); margin: 0 8px 8px 0; }
   .st-install { background: var(--bg); border-radius: 12px; padding: 10px 12px; margin: 4px 0 12px; }
   .st-install[hidden] { display: none; }
   .st-install h4 { margin: 0 0 6px; font-size: 16px; color: #d9480f; }
@@ -440,7 +469,7 @@
     line-height: 1.3;
     padding: 8px 22px;
     border-radius: 999px;
-    box-shadow: 0 4px 0 #d9480f, 0 6px 20px rgba(0,0,0,.2);
+    box-shadow: 0 4px 0 var(--sh-main), 0 6px 20px rgba(0,0,0,.2);
     white-space: nowrap;
   }
   .update-bar small { display: block; font-size: 12px; }
@@ -459,9 +488,9 @@
     align-items: center;
     gap: 10px;
     background: var(--card);
-    border-radius: 24px;
+    border-radius: 30px;
     padding: 6px 12px 6px 6px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    box-shadow: 0 6px 18px rgba(200, 150, 40, .16);
     margin-bottom: 2px;
   }
   .buddy-pic { width: 64px; height: 64px; flex: none; cursor: pointer; -webkit-user-select: none; user-select: none; }
@@ -510,7 +539,7 @@
   .medal.locked span { filter: brightness(0); opacity: .2; } /* まだ の バッジ は シルエット */
   .badge-summary { text-align: center; font-size: 20px; font-weight: bold; color: #8a5a00; margin: -10px 0 12px; }
   .badge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .badge-card { background: var(--card); border-radius: 18px; padding: 10px 6px 8px; text-align: center; box-shadow: 0 3px 10px rgba(0,0,0,0.06); }
+  .badge-card { background: var(--card); border-radius: 22px; padding: 10px 6px 8px; text-align: center; box-shadow: 0 4px 12px rgba(200, 150, 40, .14); }
   .badge-card.locked { background: #f8f9fa; box-shadow: none; }
   .badge-name, .badge-desc, .cele-text { word-break: keep-all; } /* ことば の とちゅう で おりかえさない */
   .badge-name { font-size: 14px; font-weight: bold; margin-top: 6px; line-height: 1.3; }
@@ -531,17 +560,37 @@
     overflow: hidden;
   }
   .celebrate[hidden] { display: none; }
+  /* せいかい の キラキラ（みじかく、もんだい の じゃま を しない） */
+  .sparkle { position: fixed; z-index: 8; pointer-events: none; font-size: 22px; line-height: 1; animation: sparkle .7s ease-out forwards; }
+  @keyframes sparkle {
+    0% { transform: translate(-50%, -50%) scale(.3); opacity: 1; }
+    70% { opacity: 1; }
+    100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1) rotate(var(--rot)); opacity: 0; }
+  }
+  /* キャラクター が ときどき うごく（くび を かしげる） */
+  .buddy-pic.wiggle svg { animation: wiggle .7s ease-in-out; }
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(0); }
+    25% { transform: rotate(-8deg); }
+    60% { transform: rotate(6deg); }
+  }
+  /* うごき を へらす せってい の ひと には、うごき を とめる */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .sparkle { display: none; }
+  }
+
   /* かくにん の まど（ブラウザ の confirm・alert の かわり） */
   .dialog { position: fixed; inset: 0; z-index: 11; background: rgba(0, 0, 0, .35); display: flex; align-items: center; justify-content: center; padding: 16px; }
   .dialog[hidden] { display: none; }
-  .dialog-box { width: 100%; max-width: 400px; background: var(--card); border-radius: 24px; padding: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+  .dialog-box { width: 100%; max-width: 400px; background: var(--card); border-radius: 30px; padding: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
   .dialog-text { font-size: 20px; font-weight: bold; line-height: 1.5; margin: 4px 0 0; white-space: pre-line; word-break: keep-all; overflow-wrap: anywhere; }
   .dialog-sub { font-size: 15px; color: #555; line-height: 1.6; margin: 8px 0 0; white-space: pre-line; word-break: keep-all; overflow-wrap: anywhere; }
   .dialog-sub:empty { display: none; }
   .dialog-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
   .dialog-btns.one { grid-template-columns: 1fr; }
-  .dialog-btns button { font-size: 20px; padding: 12px 6px; background: var(--main); color: var(--on-main); box-shadow: 0 4px 0 #d9480f; }
-  .dialog-btns .dialog-cancel { background: #868e96; box-shadow: 0 4px 0 #495057; }
+  .dialog-btns button { font-size: 20px; padding: 12px 6px; background: var(--main); color: var(--on-main); --sh: var(--sh-main); }
+  .dialog-btns .dialog-cancel { background: #e9ecef; color: #343a40; --sh: #ced4da; }
   .dialog-btns .dialog-cancel[hidden] { display: none; }
   .confetti span { position: absolute; top: -20px; width: 10px; height: 14px; border-radius: 2px; animation: fall linear forwards; }
   @keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
@@ -598,10 +647,10 @@
   .story-card {
     position: relative;
     background: var(--card);
-    border-radius: 24px;
+    border-radius: 30px;
     padding: 10px 14px;
     margin-bottom: 10px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    box-shadow: 0 6px 18px rgba(200, 150, 40, .16);
   }
   .story-card[hidden], .shiki-box[hidden] { display: none; }
   .story-text { margin: 0; padding-right: 50px; font-size: 21px; line-height: 1.8; word-break: keep-all; overflow-wrap: anywhere; }
@@ -616,7 +665,7 @@
     border-radius: 50%;
     background: var(--minus);
     font-size: 22px;
-    box-shadow: 0 4px 0 #1864ab;
+    box-shadow: 0 4px 0 var(--sh-minus);
   }
   .speak.speaking { animation: pulse 1s ease-in-out infinite; }
   @keyframes pulse { 50% { transform: scale(1.12); } }
@@ -629,14 +678,14 @@
   .shiki button {
     background: #fff;
     color: #333;
-    border: 3px solid #ffd8a8;
-    box-shadow: 0 5px 0 #e0c9a6;
+    border: 3px solid #ffe0a3;
+    box-shadow: 0 5px 0 #f0cf8f;
     font-size: 22px;
     padding: 9px 2px;
     white-space: nowrap;
   }
-  .shiki button.selected { background: var(--main); border-color: var(--main); color: var(--on-main); box-shadow: 0 5px 0 #d9480f; }
-  .shiki button.right { background: var(--ok); border-color: var(--ok); color: var(--on-ok); box-shadow: 0 5px 0 #237a32; opacity: 1; }
+  .shiki button.selected { background: var(--main); border-color: var(--main); color: var(--on-main); box-shadow: 0 5px 0 var(--sh-main); }
+  .shiki button.right { background: var(--ok); border-color: var(--ok); color: var(--on-ok); box-shadow: 0 5px 0 var(--sh-ok); opacity: 1; }
   .shiki button.wrong { background: #fff5f5; border-color: var(--ng-text); border-style: dashed; color: var(--ng-text); box-shadow: 0 5px 0 #ffc9c9; opacity: 1; }
   .question .prompt { font-size: 24px; color: #888; }
   .answer-box small { font-size: 22px; color: #666; margin-left: 6px; }
@@ -667,12 +716,12 @@
     font: inherit;
     font-size: 18px;
     padding: 10px 12px;
-    border: 3px solid #ffd8a8;
+    border: 3px solid #ffe0a3;
     border-radius: 14px;
     background: #fff;
     color: var(--text);
   }
-  .set-try { margin-top: 12px; width: 100%; font-size: 20px; padding: 10px; background: var(--minus); color: var(--on-minus); }
+  .set-try { margin-top: 12px; width: 100%; font-size: 20px; padding: 10px; background: var(--minus); color: var(--on-minus); --sh: var(--sh-minus); }
   .set-note { font-size: 13px; color: #666; margin: 12px 0 0; }
   .set-name { font-size: 22px; font-weight: bold; word-break: keep-all; overflow-wrap: anywhere; }
   .set-name small { font-size: 15px; color: #666; font-weight: normal; margin-left: 6px; }
@@ -688,13 +737,13 @@
   .seg button {
     background: #fff;
     color: #333;
-    border: 3px solid #ffd8a8;
-    box-shadow: 0 4px 0 #e0c9a6;
+    border: 3px solid #ffe0a3;
+    box-shadow: 0 4px 0 #f0cf8f;
     font-size: 18px;
     padding: 6px 2px;
     white-space: nowrap;
   }
-  .seg button.selected { background: var(--main); border-color: var(--main); color: var(--on-main); box-shadow: 0 4px 0 #d9480f; }
+  .seg button.selected { background: var(--main); border-color: var(--main); color: var(--on-main); box-shadow: 0 4px 0 var(--sh-main); }
   .seg button.selected::after { content: " ✓"; }
   .seg .big-a { font-size: 22px; }
   .card-off { display: none; }
@@ -717,7 +766,7 @@
     font-size: 28px;
     font-weight: bold;
     padding: 8px 14px;
-    border: 3px solid #ffd8a8;
+    border: 3px solid #ffe0a3;
     border-radius: 14px;
     background: #fff;
     color: var(--text);
@@ -727,13 +776,13 @@
   .honor button {
     background: #fff;
     color: #333;
-    border: 3px solid #ffd8a8;
-    box-shadow: 0 5px 0 #e0c9a6;
+    border: 3px solid #ffe0a3;
+    box-shadow: 0 5px 0 #f0cf8f;
     font-size: 20px;
     padding: 10px 2px;
     white-space: nowrap;
   }
-  .honor button.selected { background: var(--main); border-color: var(--main); color: var(--on-main); box-shadow: 0 5px 0 #d9480f; }
+  .honor button.selected { background: var(--main); border-color: var(--main); color: var(--on-main); box-shadow: 0 5px 0 var(--sh-main); }
   .name-preview { margin-top: 18px; text-align: center; font-size: 22px; font-weight: bold; color: #d9480f; min-height: 1.5em; word-break: keep-all; overflow-wrap: anywhere; }
   .name-foot { text-align: center; font-size: 13px; color: #666; margin: 12px 0 0; word-break: keep-all; }
   /* はじめて ガイド（キャラクター が つかいかた を あんない する） */
@@ -750,7 +799,7 @@
     background: var(--card);
     border-radius: 20px;
     padding: 12px 16px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    box-shadow: 0 6px 18px rgba(200, 150, 40, .16);
     font-size: 20px;
     font-weight: bold;
     line-height: 1.55;
@@ -767,7 +816,7 @@
     align-items: center;
     gap: 8px;
     background: #fff9f0;
-    border: 3px dashed #ffd8a8;
+    border: 3px dashed #ffe0a3;
     border-radius: 20px;
     padding: 12px;
     font-size: 18px;
@@ -791,7 +840,7 @@
   .gd-btns { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; }
   .gd-btns .big-btn { margin-top: 14px; font-size: 22px; }
   .gd-btns .big-btn:disabled { opacity: .4; }
-  .gd-speak { display: block; margin: 10px auto 0; background: var(--minus); color: var(--on-minus); font-size: 16px; padding: 6px 16px; border-radius: 12px; box-shadow: 0 3px 0 #1864ab; }
+  .gd-speak { display: block; margin: 10px auto 0; background: var(--minus); color: var(--on-minus); font-size: 16px; padding: 6px 16px; border-radius: 12px; box-shadow: 0 3px 0 var(--sh-minus); }
   .gd-speak.speaking { background: #fa5252; box-shadow: 0 3px 0 #c92a2a; }
   .gd-speak[hidden] { display: none; }
   .gd-parent { font-size: 13px; color: #666; line-height: 1.6; margin: 12px 0 0; }
@@ -805,7 +854,7 @@
   /* かけざん：なんの だん？ */
   .dan-lead { text-align: center; font-size: 18px; font-weight: bold; color: #666; margin: -8px 0 10px; }
   .dan-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-  .dan-grid button { background-color: var(--times); color: var(--on-times); font-size: 15px; line-height: 1.2; padding: 8px 2px; }
+  .dan-grid button { background-color: var(--times); color: var(--on-times); --sh: var(--sh-times); font-size: 15px; line-height: 1.2; padding: 8px 2px; }
   .dan-grid button b { display: block; font-size: 34px; }
   /* えらんで いる だん は、くっきり おおきく して ✔ を つける */
   .dan-grid button.selected { outline: 5px solid #333; outline-offset: -5px; transform: scale(1.08); z-index: 1; box-shadow: 0 5px 0 rgba(0,0,0,0.25), 0 0 0 4px #ffe066; }
@@ -813,9 +862,9 @@
     content: "✔"; position: absolute; top: -8px; right: -8px; width: 26px; height: 26px; border-radius: 50%;
     background: #333; color: #ffe066; font-size: 15px; line-height: 26px; text-align: center;
   }
-  .dan-grid .dan-all { background-color: var(--main); color: var(--on-main); }
+  .dan-grid .dan-all { background-color: var(--main); color: var(--on-main); --sh: var(--sh-main); }
   .dan-grid .dan-all b { font-size: 26px; line-height: 1.3; }
-  .c-order { background-color: var(--minus); color: var(--on-minus); }
+  .c-order { background-color: var(--minus); color: var(--on-minus); --sh: var(--sh-minus); }
   .c-order small { display: block; font-size: 16px; }
   .dan-info { text-align: center; font-size: 20px; font-weight: bold; color: #d9480f; margin-top: 16px; min-height: 1.4em; }
   .dan-foot { text-align: center; font-size: 13px; color: #666; margin: 12px 0 0; word-break: keep-all; }
@@ -839,7 +888,7 @@
   .dan-miss { text-align: left; font-size: 16px; color: #666; margin: 10px 2px 0; }
 
   /* バッジ いちらん の だん マスター */
-  .dan-badges { margin-top: 10px; background: var(--card); border-radius: 18px; padding: 6px 6px 4px; box-shadow: 0 3px 10px rgba(0,0,0,0.06); }
+  .dan-badges { margin-top: 10px; background: var(--card); border-radius: 18px; padding: 6px 6px 4px; box-shadow: 0 4px 12px rgba(200, 150, 40, .14); }
   .dan-badges-title { text-align: center; font-size: 15px; font-weight: bold; color: #2b8a3e; margin-bottom: 4px; }
   .dan-badges-title small { font-size: 12px; font-weight: normal; color: #666; margin-left: 6px; }
   .dan-badge-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px 4px; text-align: center; }
@@ -2888,6 +2937,24 @@
     renderInput();
   }
 
+  // せいかい の とき に ほし や キラキラ を とばす（0.7びょう で きえる）
+  const SPARKS = ["⭐", "✨", "🌟", "💫", "⭐", "✨"];
+  function sparkle(el) {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const r = el.getBoundingClientRect();
+    const x = r.left + r.width / 2, y = r.top + Math.min(r.height, 40) / 2;
+    for (let i = 0; i < 10; i++) {
+      const sp = document.createElement("span");
+      sp.className = "sparkle";
+      sp.textContent = SPARKS[i % SPARKS.length];
+      const a = (i / 10) * Math.PI * 2 + Math.random() * 0.5;
+      const d = 60 + Math.random() * 50;
+      sp.style.cssText = `left:${x}px;top:${y}px;--dx:${Math.cos(a) * d * 1.6}px;--dy:${Math.sin(a) * d}px;--rot:${rand(-90, 90)}deg;font-size:${rand(16, 26)}px`;
+      sp.addEventListener("animationend", () => sp.remove());
+      document.body.appendChild(sp);
+    }
+  }
+
   // せいかい・まちがい の しるし（いろ だけ で なく かたち でも わかる ように）
   const MARK_OK = '<span class="mk ok" aria-label="せいかい">◯</span>';
   const MARK_NG = '<span class="mk ng" aria-label="まちがい">✕</span>';
@@ -2927,6 +2994,7 @@
         : c ? `${c}、${PRAISES[rand(0, PRAISES.length - 1)]}` : "せいかい！");
       r.className = "result ok pop";
       playPinpon();
+      sparkle(r);
     } else if (p.story) {
       // ただしい しき と かんがえかた を みせる
       const right = `${p.options.find((o) => o.op === op).text} ＝ ${p.ans}${unitWord(p.unit)}`;
@@ -3424,7 +3492,13 @@
     void pic.offsetWidth;
     pic.classList.add("jump");
   });
-  $("buddyPic").addEventListener("animationend", () => $("buddyPic").classList.remove("jump"));
+  $("buddyPic").addEventListener("animationend", () => $("buddyPic").classList.remove("jump", "wiggle"));
+  // はじめ の がめん で、ときどき くび を かしげたり はねたり する（もんだい ちゅう は うごかない）
+  setInterval(() => {
+    const pic = $("buddyPic");
+    if (!$("start").classList.contains("active") || document.hidden || pic.classList.contains("jump") || Math.random() < 0.4) return;
+    pic.classList.add(Math.random() < 0.5 ? "wiggle" : "jump");
+  }, 6000);
   $("quitBtn").addEventListener("click", async () => {
     // きいて いる あいだ に つぎ の もんだい へ すすまない ように とめて おく
     const resume = autoNextId !== null && answered && !waitingNext;
