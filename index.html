@@ -84,6 +84,12 @@
     color: var(--main-text);
     text-shadow: 0 3px 0 #ffd99a;
   }
+  /* はじめ の がめん の タイトル は とちゅう で おりかえさない */
+  #start h1 { white-space: nowrap; }
+  /* せまい スマホ では、がめん の はば に あわせて すこし ちいさく して 1ぎょう に おさめる */
+  @media (max-width: 440px) {
+    #start h1 { font-size: min(32px, 7.2vw); } /* iPhone の もじ は すこし はば が ひろい ので よゆう を もつ */
+  }
   h2 { font-size: 22px; margin: 18px 0 10px; }
   .screen { display: none; flex: 1; flex-direction: column; }
   .screen.active { display: flex; }
