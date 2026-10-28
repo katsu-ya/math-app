@@ -315,10 +315,10 @@
   .mk.ok { background: #20c997; } /* あかるい エメラルド */
   .mk.ng { background: var(--mark-ng); color: #fff; } /* ふりかえり の「.review .ng」の あかい もじ に しない */
   .review .fix { font-size: 18px; color: #666; }
-  /* とけい の じこく は ながい ので、すこし ちいさく して 1ぎょう に おさめる */
-  .review.clock-review li { font-size: 19px; padding: 7px 6px; }
-  .review.clock-review span { white-space: nowrap; }
-  .review.clock-review .fix { font-size: 15px; }
+  /* とけい の じこく や 3けた の ひっさん は ながい ので、すこし ちいさく して 1ぎょう に おさめる */
+  .review.unit-review li { font-size: 18px; padding: 7px 4px; gap: 4px; }
+  .review.unit-review span { white-space: nowrap; }
+  .review.unit-review .fix { font-size: 15px; }
 
   .quit {
     background: none;
@@ -762,9 +762,9 @@
   }
   .mode-switch button:active { transform: none; box-shadow: none; }
   .mode-switch button.selected { background: #fff; color: var(--main-text); box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
-  /* スマホ：えもじ を うえ に して、3つ を 1れつ に おさめる */
+  /* スマホ：えもじ を うえ に して、4つ を 1れつ に おさめる（ながい なまえ は 2ぎょう） */
   @media (max-width: 599px) {
-    .mode-switch button { font-size: 15px; padding: 6px 2px; }
+    .mode-switch button { font-size: 14px; padding: 6px 2px; white-space: normal; word-break: keep-all; line-height: 1.2; }
     .mode-ico { display: block; font-size: 20px; line-height: 1.25; }
   }
 
@@ -843,7 +843,7 @@
   }
 
   /* とけい */
-  #opChoices[hidden], #levelChoices[hidden], #clockKindChoices[hidden], #clockLevelChoices[hidden], .clock-card[hidden], .clock-pad[hidden], #answerCard[hidden],
+  #opChoices[hidden], #levelChoices[hidden], #clockKindChoices[hidden], #clockLevelChoices[hidden], #hsOpChoices[hidden], #hsLevelChoices[hidden], .hs-card[hidden], .rp-places[hidden], .clock-card[hidden], .clock-pad[hidden], #answerCard[hidden],
   .clock-choices[hidden], .clock-input[hidden], .clock-steps[hidden], .clock-result[hidden], .keypad[hidden], .action[hidden] { display: none; }
   #clockKindChoices small { display: block; font-size: 15px; font-weight: normal; }
   .clock-card {
@@ -917,6 +917,66 @@
     body.on-clock .keypad button { height: 44px; }
     body.on-clock .action { margin-top: 10px; }
   }
+
+  /* ひっさん：くらい が そろった マス目 */
+  #hsOpChoices { grid-template-columns: repeat(3, 1fr); }
+  #hsLevelChoices small { font-size: 15px; }
+  .hs-card {
+    order: 1;
+    background: var(--card);
+    border-radius: 30px;
+    padding: 10px 12px 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 6px 18px rgba(200, 150, 40, .16);
+    --cell: 54px;
+  }
+  .hs-grid { display: flex; flex-direction: column; align-items: center; }
+  .hs-row { display: flex; }
+  .hs-row > * { width: var(--cell); flex: none; }
+  .hs-d { position: relative; height: calc(var(--cell) * .92); display: flex; align-items: center; justify-content: center; font-size: calc(var(--cell) * .66); font-weight: bold; }
+  .hs-sign { color: #555; }
+  /* ひきざん で くりさがり を メモ したら、もと の かず に ななめ の せん */
+  .hs-d.cut::after { content: ""; position: absolute; left: 22%; right: 22%; top: 50%; border-top: 3px solid var(--ng-text); transform: rotate(-35deg); }
+  .hs-m { height: 36px; display: flex; align-items: center; justify-content: center; }
+  .hs-memo {
+    width: 40px;
+    height: 32px;
+    padding: 0;
+    border-radius: 10px;
+    background: #fff;
+    border: 2px dashed #ffc078;
+    box-shadow: none;
+    color: #e8590c;
+    font-size: 19px;
+  }
+  .hs-memo:active { transform: none; box-shadow: none; }
+  .hs-memo.cur { border-style: solid; border-color: var(--sh-main); background: #fff8e7; }
+  .hs-line { height: 4px; margin: 2px 0 6px; background: #444; border-radius: 2px; }
+  .hs-ans {
+    width: calc(var(--cell) - 6px);
+    height: calc(var(--cell) * .98);
+    margin: 0 3px;
+    padding: 0;
+    border-radius: 14px;
+    background: #fff;
+    border: 3px dashed #ffd8a8;
+    box-shadow: none;
+    color: #333;
+    font-size: calc(var(--cell) * .64);
+  }
+  .hs-ans:active { transform: none; box-shadow: none; }
+  .hs-ans.cur { border-style: solid; border-color: var(--sh-main); background: #fff8e7; }
+  .hs-ans.ok { border-style: solid; border-color: var(--sh-ok); background: #ebfbee; color: var(--ok-text); }
+  .hs-ans.ng { border-style: solid; border-color: var(--ng-text); background: #fff5f5; color: var(--ng-text); }
+  .hs-fix { height: 28px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: bold; color: var(--ok-text); }
+  .hs-result { margin-top: 6px; text-align: center; min-height: 34px; }
+  .hs-result:empty { min-height: 0; margin: 0; }
+  .hs-result .hs-ok { font-size: 26px; font-weight: bold; color: var(--ok-text); }
+  .hs-result .hs-ng { font-size: 22px; font-weight: bold; color: var(--ng-text); }
+  .hs-result .hs-ng b { color: var(--ok-text); font-size: 26px; margin-left: 4px; }
+  .hs-hint { margin: 4px 0 0; font-size: 16px; line-height: 1.5; color: #555; word-break: keep-all; overflow-wrap: anywhere; }
+  .rp-places { margin: 8px 0 0; }
+  @media (max-width: 380px) { .hs-card { --cell: 48px; } }
 
   /* せってい */
   #settings { font-size: 16px; line-height: 1.5; }
@@ -1213,7 +1273,7 @@
 
     /* はじめ がめん：けいさん の しゅるい を 4つ ならべる */
     #opChoices { grid-template-columns: repeat(4, 1fr); }
-    #levelChoices, #clockKindChoices, #clockLevelChoices { grid-template-columns: repeat(4, 1fr); }
+    #levelChoices, #clockKindChoices, #clockLevelChoices, #hsLevelChoices { grid-template-columns: repeat(4, 1fr); }
     .choice { font-size: 20px; padding: 14px 6px; }
     .choice .mark { font-size: 36px; }
     .big-btn { font-size: 26px; padding: 14px; margin-top: 26px; }
@@ -1265,7 +1325,7 @@
 
     /* はじめ がめん：けいさん / ぶんしょうだい / とけい の きりかえ は ① の うえ に 1れつ で ならべる */
     .mode-switch { margin-top: 0; padding: 3px; }
-    .mode-switch button { font-size: 15px; padding: 6px 10px; }
+    .mode-switch button { font-size: 14px; padding: 6px 4px; }
 
     /* ぶんしょうだい：ひだり に もんだい と こたえ、みぎ に しき と すうじ ボタン */
     body.on-story .wrap { max-width: 1080px; }
@@ -1280,6 +1340,16 @@
     body.on-clock .clock-face { width: min(100%, calc(100vh - 175px), 540px); }
     body.on-clock .clock-steps button { padding: 14px 4px; }
     #clockKindChoices small { font-size: 13px; white-space: nowrap; }
+    /* ひっさん：ひだり に マス目、みぎ に すうじ ボタン */
+    body.on-hissan .wrap { max-width: 1080px; }
+    body.on-hissan .quiz-body { display: grid; grid-template-columns: 1.15fr 1fr; gap: 28px; align-items: start; }
+    body.on-hissan .quiz-main, body.on-hissan .quiz-pad { display: block; }
+    body.on-hissan .keypad { margin-top: 0; }
+    body.on-hissan .hs-card { margin-bottom: 0; padding: 14px 16px; --cell: min(84px, calc((100vh - 250px) / 4)); }
+    body.on-hissan .hs-memo { width: 46px; height: 34px; font-size: 21px; }
+    #hsLevelChoices { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    #hsLevelChoices .hl-a { font-size: 17px; white-space: nowrap; }
+    #hsLevelChoices small { font-size: 14px; white-space: nowrap; }
     #clockKindChoices .mark { font-size: 26px; }
 
     body.on-badges .wrap { max-width: 1080px; }
@@ -1497,7 +1567,8 @@
     <div class="mode-row">
       <div class="mode-switch" id="modeChoices">
         <button class="selected" data-mode="calc"><span class="mode-ico">🔢</span> けいさん</button>
-        <button data-mode="story"><span class="mode-ico">📖</span> ぶんしょうだい</button>
+        <button data-mode="story"><span class="mode-ico">📖</span> ぶんしょう<wbr>だい</button>
+        <button data-mode="hissan"><span class="mode-ico">✏️</span> ひっさん</button>
         <button data-mode="clock"><span class="mode-ico">🕐</span> とけい</button>
       </div>
       <h2 id="step1Title">① どの けいさん を する？</h2>
@@ -1507,6 +1578,11 @@
       <button class="choice c-minus" data-op="-"><span class="mark">－</span>ひきざん</button>
       <button class="choice c-times" data-op="×"><span class="mark">×</span>かけざん</button>
       <button class="choice c-divide" data-op="÷"><span class="mark">÷</span>わりざん</button>
+    </div>
+    <div class="grid grid-2" id="hsOpChoices" hidden>
+      <button class="choice c-plus selected" data-hop="+"><span class="mark">＋</span>たしざん</button>
+      <button class="choice c-minus" data-hop="-"><span class="mark">－</span>ひきざん</button>
+      <button class="choice c-times" data-hop="×"><span class="mark">×</span>かけざん</button>
     </div>
     <div class="grid grid-2" id="clockKindChoices" hidden>
       <button class="choice c-plus selected" data-kind="choose"><span class="mark">👉</span>えらぶ<small>4つ から</small></button>
@@ -1521,6 +1597,12 @@
       <button class="choice c-level" data-level="1h"><span class="stars">⭐⭐</span>1けた<small>むずかしい</small></button>
       <button class="choice c-level c-level2" data-level="2e"><span class="stars">⭐⭐⭐</span>2けた<small>やさしい</small></button>
       <button class="choice c-level c-level2" data-level="2h"><span class="stars">⭐⭐⭐⭐</span>2けた<small>むずかしい</small></button>
+    </div>
+    <div class="grid grid-2" id="hsLevelChoices" hidden>
+      <button class="choice c-level selected" data-hlv="1"><span class="stars">⭐</span><span class="hl-a"></span><small class="hl-b"></small></button>
+      <button class="choice c-level" data-hlv="2"><span class="stars">⭐⭐</span><span class="hl-a"></span><small class="hl-b"></small></button>
+      <button class="choice c-level c-level2" data-hlv="3"><span class="stars">⭐⭐⭐</span><span class="hl-a"></span><small class="hl-b"></small></button>
+      <button class="choice c-level c-level2" data-hlv="4"><span class="stars">⭐⭐⭐⭐</span><span class="hl-a"></span><small class="hl-b"></small></button>
     </div>
     <div class="grid grid-2" id="clockLevelChoices" hidden>
       <button class="choice c-level selected" data-clv="1"><span class="stars">⭐</span>ちょうど<small>はん</small></button>
@@ -1725,7 +1807,7 @@
       <div class="badge-head">
         <div class="badge-tabs" id="badgeTabs">
           <button data-tab="1">ステージ1 <small id="tab1Count"></small></button>
-          <button data-tab="3" class="u">🕐 とけい <small id="tab3Count"></small></button>
+          <button data-tab="3" class="u">🕐 とけい・✏️ ひっさん <small id="tab3Count"></small></button>
           <button data-tab="2" class="s2" id="tab2Btn">✨ ステージ2 <small id="tab2Count"></small></button>
         </div>
         <div class="badge-secret" id="badgeSecret">？？？ ひみつの バッジが あるかも…</div>
@@ -1770,6 +1852,7 @@
     <div class="rp-card">
       <h3>よく間違える問題 <span class="rp-note">直近30日</span></h3>
       <ol class="rp-weak" id="rpWeak"></ol>
+      <p class="rp-note rp-places" id="rpPlaces" hidden></p>
     </div>
 
     <div class="rp-card">
@@ -1838,6 +1921,12 @@
         <button class="speak" id="speakBtn" aria-label="よみあげる">🔊</button>
         <p class="story-text" id="storyText"></p>
         <div class="story-pic" id="storyPic"></div>
+      </div>
+
+      <!-- ひっさん の マス目 -->
+      <div class="hs-card" id="hsCard" hidden>
+        <div class="hs-grid" id="hsGrid"></div>
+        <div class="hs-result" id="hsResult" aria-live="polite"></div>
       </div>
 
       <!-- とけい の え -->
@@ -2006,12 +2095,14 @@
 
   let op = "+";
   let level = "1e";
-  let mode = "calc"; // calc: けいさん  story: ぶんしょうだい  clock: とけい
+  let mode = "calc"; // calc: けいさん  story: ぶんしょうだい  hissan: ひっさん  clock: とけい
+  // とけい・ひっさん は「たんげん」。＋ − × ÷ の けいさん の きろく（ops・perfOps など）には いれない
+  const unitMode = () => mode === "clock" || mode === "hissan";
   const DANS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   let dans = null;   // かけざん の だん を えらんで とく とき（[3, 7] など）。null なら むずかしさ で だす
   let danOrder = "seq"; // seq: じゅんばん  rand: ばらばら
   // きろく に のこす むずかしさ（だん を えらんだ とき は "1k"：1けた の くく。とけい は "c1"〜"c4"）
-  const playLevel = () => mode === "clock" ? `c${clockLevel}` : dans ? "1k" : level;
+  const playLevel = () => mode === "clock" ? `c${clockLevel}` : mode === "hissan" ? `h${hsLevel}` : dans ? "1k" : level;
   let problems = [];
   let index = 0;
   let input = "";
@@ -2046,14 +2137,17 @@
   setupChoices("levelChoices", (d) => { level = d.level; });
   setupChoices("clockKindChoices", (d) => { clockKind = d.kind; });
   setupChoices("clockLevelChoices", (d) => { clockLevel = Number(d.clv); });
-  // けいさん / ぶんしょうだい / とけい
+  setupChoices("hsOpChoices", (d) => { hsOp = d.hop; renderHsLevels(); });
+  setupChoices("hsLevelChoices", (d) => { hsLevel = Number(d.hlv); });
+  // けいさん / ぶんしょうだい / ひっさん / とけい
   $("modeChoices").querySelectorAll("button").forEach((btn) => {
     btn.addEventListener("click", () => {
       $("modeChoices").querySelectorAll("button").forEach((b) => b.classList.toggle("selected", b === btn));
       mode = btn.dataset.mode;
-      const clock = mode === "clock";
-      $("opChoices").hidden = $("levelChoices").hidden = clock;
+      const clock = mode === "clock", hissan = mode === "hissan";
+      $("opChoices").hidden = $("levelChoices").hidden = clock || hissan;
       $("clockKindChoices").hidden = $("clockLevelChoices").hidden = !clock;
+      $("hsOpChoices").hidden = $("hsLevelChoices").hidden = !hissan;
       $("step1Title").textContent = clock ? "① どう こたえる？" : "① どの けいさん を する？";
     });
   });
@@ -2295,6 +2389,86 @@
     };
   }
 
+  // ---- ひっさん（くらい が そろった マス目 で、みぎ の くらい から こたえ を いれる）----
+  let hsOp = "+";  // ＋ − ×
+  let hsLevel = 1; // 1〜4（② の むずかしさ）
+  // ② の ボタン の もじ（えらんだ けいさん で かわる）
+  const HS_LEVELS = {
+    "+": [["2けた", "くりあがり なし"], ["2けた", "くりあがり あり"], ["3けた", "くりあがり なし"], ["3けた", "くりあがり あり"]],
+    "-": [["2けた", "くりさがり なし"], ["2けた", "くりさがり あり"], ["3けた", "くりさがり なし"], ["3けた", "くりさがり あり"]],
+    "×": [["2けた×1けた", "くりあがり なし"], ["2けた×1けた", "くりあがり あり"], ["3けた×1けた", "くりあがり すこし"], ["3けた×1けた", "くりあがり あり"]],
+  };
+  function renderHsLevels() {
+    $("hsLevelChoices").querySelectorAll(".choice").forEach((b, i) => {
+      b.querySelector(".hl-a").textContent = HS_LEVELS[hsOp][i][0];
+      b.querySelector(".hl-b").textContent = HS_LEVELS[hsOp][i][1];
+    });
+  }
+  renderHsLevels();
+
+  const digit = (n, k) => Math.floor(n / 10 ** k) % 10; // k ばんめ の くらい（0：いち の くらい）
+  const keta = (n) => String(n).length;
+  // くらい ごと の くりあがり（たしざん・かけざん）・くりさがり（ひきざん）。cin[k]：k の くらい に くる かず
+  function hsSteps(op, a, b) {
+    const n = keta(op === "-" ? a : Math.max(a, b)) + 1;
+    const cin = [0];
+    let c = 0;
+    for (let k = 0; k < n; k++) {
+      if (op === "+") c = Math.floor((digit(a, k) + digit(b, k) + c) / 10);
+      else if (op === "-") c = digit(a, k) - c < digit(b, k) ? 1 : 0;
+      else c = Math.floor((digit(a, k) * b + c) / 10);
+      cin.push(c);
+    }
+    // くりあがり・くりさがり が あった くらい の かず（いちばん うえ の くらい から あふれる ぶん も かぞえる）
+    return { cin, count: cin.slice(1).filter((x) => x > 0).length };
+  }
+  // ひきざん で、0 の くらい を こえて くりさがる（403 − 127 など）
+  const hsZero = (a, b) => {
+    const { cin } = hsSteps("-", a, b);
+    return cin.some((c, k) => k > 0 && c && digit(a, k) === 0 && k < keta(a) - 1);
+  };
+
+  // むずかしさ に あう 2つ の かず
+  function makeHissanBase(op = hsOp, lv = hsLevel) {
+    const two = lv <= 2;
+    const lo = two ? 10 : 100, hi = two ? 99 : 999;
+    const want = Math.random(); // ⭐⭐⭐⭐ で「2かい いじょう」や「0 の ある」もんだい を まぜる
+    const over = Math.random() < 0.3; // こたえ の けた が ふえる もんだい（85＋27＝112 など）は 3わり くらい
+    const ok = ({ a, b }) => {
+      const { count } = hsSteps(op, a, b);
+      if (op === "+") {
+        if (lv === 1 || lv === 3) return count === 0;
+        if ((a + b >= 10 ** keta(a)) !== over) return false;
+        return count >= (lv === 4 && want < 0.5 ? 2 : 1);
+      }
+      if (op === "-") {
+        if (a <= b || b < lo) return false;
+        if (a - b < (two ? 10 : 100)) return false; // こたえ が ちいさすぎない ように
+        if (lv === 1 || lv === 3) return count === 0;
+        if (lv === 4 && want < 0.3) return hsZero(a, b);
+        return count >= (lv === 4 && want < 0.6 ? 2 : 1);
+      }
+      if (a % 10 === 0) return false; // 30×2 の ような かんたん すぎる もの は ださない
+      if (lv === 1) return count === 0;
+      if (lv === 2) return count >= 1;
+      if (lv === 3) return count <= 1 && a * b < 1000;
+      return count >= 2;
+    };
+    const make = () => {
+      if (op === "-" && lv === 4 && want < 0.3) {
+        // 0 の ある ひかれる かず（403・500 など）
+        return { a: rand(1, 9) * 100 + rand(0, 9), b: rand(100, 999) };
+      }
+      return { a: rand(lo, hi), b: op === "×" ? rand(2, 9) : rand(lo, hi) };
+    };
+    return pick(make, ok);
+  }
+  function makeHissanProblem(base = makeHissanBase(), op = hsOp) {
+    const { a, b } = base;
+    const ans = op === "+" ? a + b : op === "-" ? a - b : a * b;
+    return { hs: true, op, a, b, ans, text: `${a} ${op} ${b}` };
+  }
+
   // ---- とけい（とけい れんしゅう ../tokei-app と おなじ しくみ）----
   let clockKind = "choose"; // choose: 4つ から えらぶ  input: じ と ふん を いれる  set: はり を うごかす  mix: まぜる
   let clockLevel = 1;       // 1: ちょうど・はん  2: 5ふん きざみ  3: 1ぷん きざみ  4: なんぷんご・なんぷんまえ
@@ -2443,7 +2617,7 @@
   function weakTargets() {
     const since = addDays(startOfDay(new Date()), -(WEAK_DAYS - 1)).getTime();
     // だん を えらんだ とき は、1けた の かけざん の きろく を ぜんぶ つかう
-    const same = mode === "clock" ? (e) => e.op === "clock" && e.lv === playLevel()
+    const same = unitMode() ? (e) => e.op === logOp() && e.lv === playLevel()
       : dans ? (e) => e.op === "×" && e.lv[0] === "1" : (e) => e.op === op && e.lv === level;
     const list = loadLog().filter((e) => e.t >= since && same(e));
     return weakRanking(list)
@@ -2455,6 +2629,7 @@
   // まちがえた こと の ある もんだい を もういちど だす（とけい は じ・ふん・なんぷんご だけ）
   function problemFromEntry(e) {
     if (mode === "clock") return { h: e.a, m: e.b, d: e.d || 0 };
+    if (mode === "hissan") return { a: e.a, b: e.b };
     const { a, b } = e;
     const ans = op === "+" ? a + b : op === "-" ? a - b : op === "×" ? a * b : a / b;
     return { a, b, ans, text: `${a} ${op} ${b}` };
@@ -2462,7 +2637,7 @@
   // にがて の なかま わけ（レポート と おなじ）
   const tagKeyOf = (q) => mode === "clock"
     ? weakTag({ op: "clock", lv: playLevel(), a: q.h, b: q.m, d: q.d }).key
-    : weakTag({ op, lv: level, a: q.a, b: q.b }).key;
+    : weakTag({ op: logOp(), lv: playLevel(), a: q.a, b: q.b }).key;
 
   // にがて の なかま（「7の段」「くり上がり あり」など）の もんだい を 1つ つくる
   function makeWeakProblem(targets) {
@@ -2476,11 +2651,12 @@
       if (mode !== "story" || storyOk(again)) base = again;
     }
     for (let i = 0; !base && i < 300; i++) {
-      const q = mode === "clock" ? makeClockBase() : makeProblem();
+      const q = mode === "clock" ? makeClockBase() : mode === "hissan" ? makeHissanBase() : makeProblem();
       if (tagKeyOf(q) === target.key && (mode !== "story" || storyOk(q))) base = q;
     }
     if (!base) return null;
-    const p = mode === "clock" ? makeClockProblem(base) : mode === "story" ? makeStoryProblem(base) : base;
+    const p = mode === "clock" ? makeClockProblem(base) : mode === "hissan" ? makeHissanProblem(base)
+      : mode === "story" ? makeStoryProblem(base) : base;
     return { ...p, weak: true };
   }
 
@@ -2519,7 +2695,8 @@
       }
     }
     while (list.length < TOTAL) {
-      const p = mode === "clock" ? makeClockProblem() : mode === "story" ? makeStoryProblem() : makeProblem();
+      const p = mode === "clock" ? makeClockProblem() : mode === "hissan" ? makeHissanProblem()
+        : mode === "story" ? makeStoryProblem() : makeProblem();
       if (!seen.has(p.text) || tries++ > 200) add(p);
     }
     // にがて もんだい が はじめ に かたまらない ように まぜる
@@ -2558,7 +2735,10 @@
   const LOG_KEY = "keisan-renshu-log";
   const LOG_KEEP_DAYS = 100; // これ より ふるい きろく は けす
   const DAY_MS = 24 * 60 * 60 * 1000;
-  const LOG_OPS = ["+", "-", "×", "÷", "clock"];
+  // ひっさん は "h+"・"h-"・"h×"（ふつう の けいさん の せいとうりつ に まぜない）
+  const LOG_OPS = ["+", "-", "×", "÷", "clock", "h+", "h-", "h×"];
+  // きろく に のこす けいさん の しゅるい
+  const logOp = () => mode === "clock" ? "clock" : mode === "hissan" ? `h${hsOp}` : op;
 
   function loadLog() {
     try {
@@ -2575,9 +2755,11 @@
     const now = Date.now();
     const log = loadLog().filter((e) => e.t >= now - LOG_KEEP_DAYS * DAY_MS);
     // とけい は a に じ、b に ふん、d に なんぷんご（まえ は マイナス）、k に こたえかた を のこす
+    // ひっさん は まちがえた くらい（0：いち の くらい）を pl に のこす
     const e = p.clock
       ? { t: now, op: "clock", lv: playLevel(), a: p.h, b: p.m, d: p.d, k: p.kind, ok: p.correct ? 1 : 0, ms }
-      : { t: now, op, lv: playLevel(), a: p.a, b: p.b, ok: p.correct ? 1 : 0, ms };
+      : { t: now, op: logOp(), lv: playLevel(), a: p.a, b: p.b, ok: p.correct ? 1 : 0, ms };
+    if (p.hs && !p.correct) e.pl = p.places;
     if (p.story) { e.st = 1; e.sk = p.shikiOk ? 1 : 0; } // ぶんしょうだい と、しき が あって いた か
     log.push(e);
     try { localStorage.setItem(LOG_KEY, JSON.stringify(log)); } catch (e) { /* ほぞん できなくても つづける */ }
@@ -2699,8 +2881,11 @@
     { op: "-", name: "ひき算", color: "var(--minus)" },
     { op: "×", name: "かけ算", color: "var(--times)" },
     { op: "÷", name: "わり算", color: "var(--divide)" },
+    { op: "h", name: "筆算", color: "var(--level2)" },
     { op: "clock", name: "時計", color: "var(--level)" },
   ];
+  // レポート の しゅるい（ひっさん の ＋ − × は まとめて「筆算」）
+  const opKey = (e) => e.op[0] === "h" ? "h" : e.op;
   const AWAY_MS = 3 * 60 * 1000; // これ より ながく かかった もの は、せき を はなれた と みなして へいきん から のぞく
   const WEAK_DAYS = 30;          // よく まちがえる もんだい を しらべる きかん
 
@@ -2770,12 +2955,38 @@
          : lv === 3 ? "5分ごとの目もりから、小さい目もりを1つずつ数える練習がおすすめです。"
          : "長い針が指す数字×5が「分」になることを、一緒に確かめましょう。" };
   }
+  // ひっさん の まちがい の なかま わけ
+  const PLACE = ["一の位", "十の位", "百の位", "千の位"];
+  function hissanTag(e) {
+    const o = e.op[1], lv = Number(e.lv[1]);
+    const k = o === "×" ? (lv <= 2 ? "2けた×1けた" : "3けた×1けた") : lv <= 2 ? "2けた" : "3けた";
+    const { count } = hsSteps(o, e.a, e.b);
+    if (o === "+") {
+      const c = Math.min(count, 2);
+      return { key: `h+${lv}${c}`, label: `筆算 たし算 くり上がり${["なし", "1回", "2回以上"][c]}（${k}）`,
+        tip: c ? "くり上がった1を小さく書いておき、上の位で忘れずにたす練習をしてみましょう。"
+               : "位をそろえて書き、一の位から順にたしていく流れを確かめましょう。" };
+    }
+    if (o === "-") {
+      if (hsZero(e.a, e.b)) return { key: `h-${lv}z`, label: `筆算 ひき算 0のあるくり下がり（${k}）`,
+        tip: "0の位からは借りられないので、さらに上の位から借りて「0が9になる」流れを、紙に書いて一緒に確かめましょう。" };
+      const c = Math.min(count, 2);
+      return { key: `h-${lv}${c}`, label: `筆算 ひき算 くり下がり${["なし", "1回", "2回以上"][c]}（${k}）`,
+        tip: c ? "借りた位の数字に斜線を引き、1減らした数を小さく書く習慣をつけると、まちがいが減ります。"
+               : "上の数から下の数をひく（下から上をひかない）ことを、一緒に確かめましょう。" };
+    }
+    const c = count > 0;
+    return { key: `h×${lv}${c}`, label: `筆算 かけ算 くり上がり${c ? "あり" : "なし"}（${k}）`,
+      tip: c ? "くり上がった数を小さく書き、次の位のかけ算の答えにたす順番を確かめましょう。"
+             : "一の位、十の位…の順に、それぞれ九九でかけていく流れを確かめましょう。" };
+  }
   // レポート に だす もんだい の かきかた
-  const entryText = (e) => e.op !== "clock" ? `${e.a} ${e.op} ${e.b}`
+  const entryText = (e) => e.op[0] === "h" ? `${e.a} ${e.op[1]} ${e.b}` : e.op !== "clock" ? `${e.a} ${e.op} ${e.b}`
     : e.d ? `${timeText(e.a, e.b)}の${minText(Math.abs(e.d))}${e.d > 0 ? "後" : "前"}` : timeText(e.a, e.b, e.lv === "c1");
 
   function weakTag(e) {
     if (e.op === "clock") return clockTag(e);
+    if (e.op[0] === "h") return hissanTag(e);
     const two = e.lv[0] === "2";
     const keta = two ? "2けた" : "1けた";
     switch (e.op) {
@@ -2881,8 +3092,8 @@
     // けいさん ごと の せいとうりつ
     const opRows = OPS.map((o) => ({
       ...o,
-      cur: summarize(thisWeekLog.filter((e) => e.op === o.op)),
-      prev: summarize(lastWeekLog.filter((e) => e.op === o.op)),
+      cur: summarize(thisWeekLog.filter((e) => opKey(e) === o.op)),
+      prev: summarize(lastWeekLog.filter((e) => opKey(e) === o.op)),
     }));
     $("rpOps").innerHTML =
       '<div class="rp-op rp-op-head"><span></span><span>今週</span><span>先週</span><span>先週比</span></div>' +
@@ -2903,6 +3114,14 @@
         <li><span class="rank">${i + 1}</span><div><b>${g.label}</b>
           <div class="rp-weak-sub">まちがい ${g.miss}回 ／ ${g.n}問中（正答率 ${pct(1 - g.miss / g.n)}）・ 例：${g.example}</div></div></li>`).join("")
       : `<li class="rp-empty">${weakLog.length ? `直近${WEAK_DAYS}日で間違えた問題はありません。すばらしい！` : "まだ記録がありません。"}</li>`;
+
+    // ひっさん で まちがえた くらい（おおい じゅん）
+    const places = [0, 0, 0, 0];
+    weakLog.forEach((e) => (e.pl || []).forEach((k) => { if (places[k] != null) places[k]++; }));
+    const placeText = places.map((n, k) => [n, k]).filter(([n]) => n > 0).sort((x, y) => y[0] - x[0])
+      .map(([n, k]) => `${PLACE[k]} ${n}回`).join("・");
+    $("rpPlaces").hidden = !placeText;
+    $("rpPlaces").textContent = placeText ? `筆算でまちがえた位（直近${WEAK_DAYS}日）：${placeText}` : "";
 
     // かけざん の だん ごと の せいとうりつ（1けた の かけざん。ぶんしょうだい は しき が あって いた もの）
     const badges = loadGrowth().badges;
@@ -2990,11 +3209,14 @@
           // とけい を といた かず（まだ かぞえて いなければ のこって いる きろく から）
           clockN: d.clockN != null ? Number(d.clockN) || 0 : loadLog().filter((e) => e.op === "clock").length,
           clockLv: Array.isArray(d.clockLv) ? d.clockLv : [],     // ぜんもん せいかい した とけい の むずかしさ（1〜4）
+          // ひっさん を といた かず と、⭐⭐⭐⭐ で ぜんもん せいかい した けいさん（"+" "-" "×"）
+          hsN: d.hsN != null ? Number(d.hsN) || 0 : loadLog().filter((e) => e.op[0] === "h").length,
+          hsTop: Array.isArray(d.hsTop) ? d.hsTop : [],
         };
       }
     } catch (e) { /* よめなければ さいしょ から */ }
     return { xp: 0, perfect: 0, ops: [], kuku: [], badges: {}, stage2: "", story: 0, fixes: 0, hard: 0,
-      perfRow: 0, perfRowBest: 0, perfOps: [], perfLv: [], randDans: [], storyOps: [], clockN: 0, clockLv: [] };
+      perfRow: 0, perfRowBest: 0, perfOps: [], perfLv: [], randDans: [], storyOps: [], clockN: 0, clockLv: [], hsN: 0, hsTop: [] };
   }
   function saveGrowth(g) {
     try { localStorage.setItem(GROWTH_KEY, JSON.stringify(g)); } catch (e) { /* ほぞん できなくても つづける */ }
@@ -3081,7 +3303,7 @@
     ...DANS.map((d) => ({ id: `dan${d}`, dan: d, icon: String(d), name: `${d}のだん マスター`, desc: `${d}のだん の 9もん を ぜんぶ せいかい`,
       check: (s) => s.session && s.session.dans.includes(d) })),
 
-    // ---- たんげん の バッジ（とけい）：ステージ1・2 とは べつ の らん。ステージ2 や でんせつ の じょうけん には いれない ----
+    // ---- たんげん の バッジ（とけい・ひっさん）：ステージ1・2 とは べつ の らん。ステージ2 や でんせつ の じょうけん には いれない ----
     { u: 1, id: "clock10",     icon: "🕐", name: "はじめての とけい", desc: "とけい の もんだい を 10もん とく", goal: (s) => [s.clockN, 10] },
     { u: 1, id: "clockhands",  icon: "🎯", name: "はり あわせ めいじん", desc: "「あわせる」で ぜんもん せいかい",
       check: (s) => s.session && s.session.perfect && s.session.clock && s.session.kind === "set" },
@@ -3089,6 +3311,15 @@
       check: (s) => s.session && s.session.perfect && s.session.level === "c3" },
     { u: 1, id: "clockmaster", icon: "⏰", name: "とけい マスター", desc: "とけい の ⭐ 〜 ⭐⭐⭐⭐ それぞれ で ぜんもん せいかい",
       goal: (s) => [s.clockLv, 4] },
+    { u: 1, id: "hs10",     icon: "✏️", name: "はじめての ひっさん", desc: "ひっさん の もんだい を 10もん とく", goal: (s) => [s.hsN, 10] },
+    { u: 1, id: "hsplus",   icon: "➕", name: "たしざん ひっさん めいじん", desc: "ひっさん たしざん ⭐⭐⭐⭐ で ぜんもん せいかい",
+      check: (s) => s.hsTop.includes("+") },
+    { u: 1, id: "hsminus",  icon: "➖", name: "ひきざん ひっさん めいじん", desc: "ひっさん ひきざん ⭐⭐⭐⭐ で ぜんもん せいかい",
+      check: (s) => s.hsTop.includes("-") },
+    { u: 1, id: "hstimes",  icon: "✖️", name: "かけざん ひっさん めいじん", desc: "ひっさん かけざん ⭐⭐⭐⭐ で ぜんもん せいかい",
+      check: (s) => s.hsTop.includes("×") },
+    { u: 1, id: "hsmaster", icon: "📝", name: "ひっさん マスター", desc: "ひっさん の めいじん を 3つ ぜんぶ ゲット",
+      goal: (s) => [s.hsTop.length, 3] },
 
     // ---- ステージ2：ステージ1 を ぜんぶ あつめる と あらわれる、すこし むずかしい バッジ ----
     // おなじ こと の くりかえし だけ で なく、いろいろ な モード を つかう と とれる ように する
@@ -3141,7 +3372,7 @@
     const kinds = {};
     loadLog().forEach((e) => {
       const k = dateKey(new Date(e.t));
-      if (e.op === "clock") return; // ＋ − × ÷ と ぶんしょうだい だけ を かぞえる
+      if (!"+-×÷".includes(e.op) || e.op.length !== 1) return; // ＋ − × ÷ と ぶんしょうだい だけ を かぞえる
       (kinds[k] = kinds[k] || new Set()).add(e.st ? "story" : e.op);
     });
     return {
@@ -3166,6 +3397,8 @@
       s2got: s2Count(g),
       clockN: g.clockN,
       clockLv: g.clockLv.length,
+      hsN: g.hsN,
+      hsTop: g.hsTop,
       session,
     };
   }
@@ -3221,7 +3454,7 @@
     $("badgeCount").textContent = `${list.filter((b) => g.badges[b.id]).length}/${list.length}`;
   }
 
-  let badgeTab = 0; // 1: ステージ1  2: ステージ2  3: たんげん（とけい）  0: ひらいた とき に きめる
+  let badgeTab = 0; // 1: ステージ1  2: ステージ2  3: たんげん（とけい・ひっさん）  0: ひらいた とき に きめる
   function renderBadges() {
     const g = loadGrowth();
     const s = badgeStats(g, null);
@@ -3353,6 +3586,7 @@
     document.body.classList.toggle("on-settings", id === "settings");
     document.body.classList.toggle("on-story", id === "quiz" && mode === "story");
     document.body.classList.toggle("on-clock", id === "quiz" && mode === "clock");
+    document.body.classList.toggle("on-hissan", id === "quiz" && mode === "hissan");
     document.body.classList.toggle("on-dan", id === "finish" && !!dans);
     document.body.classList.toggle("on-quiz", id === "quiz");
     // おうちのかた の がめん から でたら、また かぎ を かける
@@ -3492,7 +3726,8 @@
     $("storyCard").hidden = mode !== "story";
     $("shikiBox").hidden = mode !== "story";
     $("clockCard").hidden = $("clockPad").hidden = mode !== "clock";
-    $("answerCard").hidden = mode === "clock";
+    $("hsCard").hidden = mode !== "hissan";
+    $("answerCard").hidden = unitMode();
     show("quiz");
     showProblem();
     startTimer();
@@ -3515,6 +3750,11 @@
     $("checkBtn").hidden = p.clock && p.kind === "choose"; // えらぶ もんだい は おした とき に こたえあわせ
     if (p.clock) {
       showClockProblem(p);
+      shownAt = Date.now();
+      return;
+    }
+    if (p.hs) {
+      showHissanProblem(p);
       shownAt = Date.now();
       return;
     }
@@ -3563,6 +3803,7 @@
 
   function pressKey(key) {
     if (problems[index].clock) return clockKey(key);
+    if (problems[index].hs) return hsKey(key);
     if (answered || (problems[index].story && !pickedOp)) return;
     if (key === "back") input = input.slice(0, -1);
     else if (key === "clear") input = "";
@@ -3595,6 +3836,7 @@
 
   function check() {
     if (problems[index].clock) return checkClock();
+    if (problems[index].hs) return checkHissan();
     if (answered || input === "") return;
     const p = problems[index];
     if (p.story && !pickedOp) return;
@@ -3674,6 +3916,168 @@
   function onAction() {
     if (waitingNext) { waitingNext = false; next(); }
     else check();
+  }
+
+  // ---- ひっさん の もんだい ----
+  // W：こたえ の マス の かず（うえ の かず の けた ＋ 1。マス の かず で こたえ の けた が わからない ように）
+  // ans・memo：ひだり から じゅん の マス。cur：いま いれる こたえ の マス。memoAt：えらんだ メモ の マス（-1 は なし）
+  let hs = { W: 0, ans: [], memo: [], cur: 0, memoAt: -1 };
+  const PLACE_KANA = ["いち の くらい", "じゅう の くらい", "ひゃく の くらい", "せん の くらい"];
+  const hsCol = (k) => hs.W - 1 - k; // くらい k の マス の ばしょ
+
+  function showHissanProblem(p) {
+    const W = keta(Math.max(p.a, p.b)) + 1;
+    hs = { W, ans: Array(W).fill(""), memo: Array(W).fill(""), cur: W - 1, memoAt: -1 };
+    $("hsResult").innerHTML = "";
+    setKeypadEnabled(true);
+    renderHissan();
+  }
+
+  // メモ が かける マス：うえ の かず の けた が ある くらい（たしざん・かけざん は いち の くらい には くりあがって こない）
+  const hsMemoOk = (p, k) => k < keta(p.a) && (p.op === "-" || k > 0);
+
+  function renderHissan() {
+    const p = problems[index];
+    const { W } = hs;
+    const cells = (f) => Array.from({ length: W }, (_, i) => f(i, W - 1 - i)).join("");
+    const num = (n, i, k) => k < keta(n) ? String(digit(n, k)) : "";
+    const ansDigits = String(p.ans).padStart(W, " ");
+    let html =
+      '<div class="hs-row"><span></span>' + cells((i, k) => `<span class="hs-m">${hsMemoOk(p, k)
+        ? `<button class="hs-memo${hs.memoAt === i ? " cur" : ""}" data-m="${i}" aria-label="${PLACE_KANA[k]} の メモ"${answered ? " disabled" : ""}>${hs.memo[i]}</button>` : ""}</span>`) + "</div>" +
+      '<div class="hs-row"><span></span>' + cells((i, k) => `<span class="hs-d${p.op === "-" && hs.memo[i] ? " cut" : ""}">${num(p.a, i, k)}</span>`) + "</div>" +
+      `<div class="hs-row"><span class="hs-d hs-sign">${p.op === "-" ? "−" : p.op === "+" ? "＋" : "×"}</span>` + cells((i, k) => `<span class="hs-d">${num(p.b, i, k)}</span>`) + "</div>" +
+      `<div class="hs-line" style="width:calc(var(--cell) * ${W + 1})"></div>` +
+      '<div class="hs-row"><span></span>' + cells((i) => {
+        const want = ansDigits[i].trim();
+        const mark = !answered ? (hs.memoAt < 0 && hs.cur === i ? " cur" : "") : (hs.ans[i] || "") === want ? (want ? " ok" : "") : " ng";
+        return `<button class="hs-ans${mark}" data-a="${i}" aria-label="${PLACE_KANA[W - 1 - i]}"${answered ? " disabled" : ""}>${hs.ans[i]}</button>`;
+      }) + "</div>";
+    // まちがえた とき は、ただしい かず を した に ならべる
+    if (answered && !p.correct) {
+      html += '<div class="hs-row"><span></span>' + cells((i) => {
+        const want = ansDigits[i].trim();
+        return `<span class="hs-fix">${(hs.ans[i] || "") !== want ? want : ""}</span>`;
+      }) + "</div>";
+    }
+    $("hsGrid").innerHTML = html;
+    if (!answered) $("checkBtn").disabled = !hs.ans.some((x) => x !== "");
+  }
+
+  // すうじ ボタン：こたえ は いれたら ひだり の くらい へ すすむ。メモ は 2けた まで かいて、こたえ の マス に もどる
+  function hsKey(key) {
+    if (answered) return;
+    const { W } = hs;
+    if (key === "clear") {
+      hs = { W, ans: Array(W).fill(""), memo: Array(W).fill(""), cur: W - 1, memoAt: -1 };
+    } else if (hs.memoAt >= 0) {
+      const m = hs.memo[hs.memoAt];
+      if (key === "back") {
+        hs.memo[hs.memoAt] = m.slice(0, -1);
+        if (!m) hs.memoAt = -1;
+      } else {
+        hs.memo[hs.memoAt] = m.length < 2 ? m + key : key;
+        hs.memoAt = -1;
+      }
+    } else if (key === "back") {
+      // いま の マス が からっぽ なら、ひとつ みぎ（まえ に いれた マス）を けす
+      if (hs.ans[hs.cur] === "" && hs.cur < W - 1) hs.cur++;
+      hs.ans[hs.cur] = "";
+    } else {
+      hs.ans[hs.cur] = key;
+      if (hs.cur > 0) hs.cur--;
+    }
+    renderHissan();
+  }
+  // ← → で こたえ の マス を うごかす
+  function moveHissan(d) {
+    if (answered) return;
+    hs.memoAt = -1;
+    hs.cur = Math.min(hs.W - 1, Math.max(0, hs.cur + d));
+    renderHissan();
+  }
+
+  // まちがえた くらい の ヒント（いちばん みぎ の まちがい について 1つ）
+  function hissanHint(p, k) {
+    const { cin } = hsSteps(p.op, p.a, p.b);
+    const pn = PLACE_KANA[k];
+    const ak = digit(p.a, k), bk = p.op === "×" ? p.b : digit(p.b, k), c = cin[k];
+    const want = digit(p.ans, k);
+    const mine = Number(hs.ans[hsCol(k)]);
+    if (p.op === "+") {
+      if (k >= keta(Math.max(p.a, p.b))) return `${pn} に、くりあがった 1 を かこう。`;
+      if (c && mine === (ak + bk) % 10) return `${pn}：くりあがった 1 を たした かな？ ${ak} ＋ ${bk} ＋ 1 ＝ ${ak + bk + 1}`;
+      return `${pn}：${ak} ＋ ${bk}${c ? " ＋ 1（くりあがり）" : ""} ＝ ${ak + bk + c}` +
+        (ak + bk + c >= 10 ? `。${want} を かいて、1 を となり に くりあげよう。` : "");
+    }
+    if (p.op === "-") {
+      const top = ak - c; // となり に かした ぶん へった かず
+      if (top < bk) {
+        if (ak === 0 && c) return `${pn}：0 から は かせない ので、となり から 10 を かりて、1 かした のこり は 9。9 − ${bk} ＝ ${want}`;
+        if (mine === Math.abs(top - bk)) return `${pn}：${top} から ${bk} は ひけない ね。となり の くらい から 10 を かりて、${top + 10} − ${bk} ＝ ${want}`;
+        return `${pn}：となり から 10 を かりて、${top + 10} − ${bk} ＝ ${want}`;
+      }
+      if (c && mine === ak - bk) return `${pn}：となり に 10 を かした ので、${ak} は ${top} に なって いる よ。${top} − ${bk} ＝ ${want}`;
+      return `${pn}：${top} − ${bk} ＝ ${want}`;
+    }
+    if (k >= keta(p.a)) return `${pn} に、くりあがった ${c} を かこう。`;
+    if (c && mine === (ak * bk) % 10) return `${pn}：くりあがった ${c} を たした かな？ ${ak} × ${bk} ＋ ${c} ＝ ${ak * bk + c}`;
+    return `${pn}：${ak} × ${bk}${c ? ` ＋ ${c}（くりあがり）` : ""} ＝ ${ak * bk + c}` +
+      (ak * bk + c >= 10 && k < keta(p.a) - 1 ? `。${want} を かいて、${Math.floor((ak * bk + c) / 10)} を くりあげよう。` : "");
+  }
+
+  function checkHissan() {
+    const p = problems[index];
+    if (answered || !hs.ans.some((x) => x !== "")) return;
+    const { W } = hs;
+    const want = String(p.ans).padStart(W, " ").split("").map((x) => x.trim());
+    // ひだり の あいた ところ に かいた 0 は、ない もの と する（0834 → 834）
+    for (let i = 0; i < W && want[i] === "" && (hs.ans[i] === "0" || hs.ans[i] === ""); i++) hs.ans[i] = "";
+    p.places = [];
+    for (let i = W - 1; i >= 0; i--) if (hs.ans[i] !== want[i]) p.places.push(W - 1 - i);
+    p.correct = p.places.length === 0;
+    p.user = hs.ans.join("") || "0";
+    answered = true;
+    hs.memoAt = -1;
+    stopSpeech();
+    addRecord();
+    addLog(p, Date.now() - shownAt);
+    if (p.correct) sessionXp += XP_PER_CORRECT;
+    updateGrowth((g) => {
+      g.hsN++;
+      if (!p.correct) return;
+      g.xp += XP_PER_CORRECT;
+      if (p.weak) g.fixes++;
+    });
+    setKeypadEnabled(false);
+    renderHissan();
+
+    const r = $("hsResult");
+    if (p.correct) {
+      const c = esc(callName());
+      r.innerHTML = `<div class="hs-ok pop">${MARK_OK}` + (p.weak ? (c ? `${c}、にがて を こくふく！💪` : "せいかい！ にがて を こくふく！💪")
+        : c ? `${c}、せいかい！` : "せいかい！") + "</div>";
+      playPinpon();
+      sparkle(r);
+    } else {
+      r.innerHTML = `<div class="hs-ng pop">${MARK_NG}ざんねん… こたえ は<b>${p.ans}</b></div>` +
+        `<p class="hs-hint">💡 ${hissanHint(p, p.places[0])}</p>`;
+      playBubu();
+    }
+
+    $("bar").style.width = `${((index + 1) / problems.length) * 100}%`;
+    const btn = $("checkBtn");
+    btn.className = "action next";
+    if (!p.correct) {
+      // まちがえた ときは、どの くらい か を みて から じぶん で すすむ
+      btn.textContent = index + 1 < problems.length ? "つぎ の もんだい へ ▶" : "けっか を みる ▶";
+      btn.disabled = false;
+      waitingNext = true;
+      return;
+    }
+    btn.textContent = index + 1 < problems.length ? "つぎ に すすむよ…" : "けっか を だすよ…";
+    btn.disabled = true;
+    autoNextId = setTimeout(() => { autoNextId = null; next(); }, AUTO_NEXT_OK_MS);
   }
 
   // ---- とけい の もんだい ----
@@ -4124,7 +4528,7 @@
     { say: "まず、① で けいさん を えらんで、② で むずかしさ を えらんでね。 さいご に「スタート！」を おしてね。",
       show: () => `<div class="gd-row">${chip("＋", "plus")}${chip("－", "minus")}${chip("×", "times")}${chip("÷", "divide")}</div>` +
         `<div class="gd-row">⭐ ${arrow} ⭐⭐⭐⭐ ${arrow} ${chip("スタート！", "main").replace('"chip"', '"chip wide"')}</div>` },
-    { say: "もんだい は 10もん。 こたえ は すうじ の ボタン で いれて、「こたえあわせ」を おしてね。 📖 ぶんしょうだい や 🕐 とけい も あるよ。",
+    { say: "もんだい は 10もん。 こたえ は すうじ の ボタン で いれて、「こたえあわせ」を おしてね。 📖 ぶんしょうだい・✏️ ひっさん・🕐 とけい も あるよ。",
       show: () => `<div class="gd-row">${chip("7", "minus")}${chip("8", "minus")}${chip("9", "minus")}</div><div class="gd-row">${chip("こたえあわせ", "ok").replace('"chip"', '"chip wide"')}</div>` },
     { say: "せいかい する と けいけんち が たまって、ぼく が そだつ よ。 たまご から なに が うまれる かな？",
       show: () => [0, 1].map((st) => buddySvg(st)).join(arrow) + arrow + '<span style="font-size:40px">❓</span>' },
@@ -4295,13 +4699,13 @@
     const perfect = score === total;
     if (perfect) sessionXp += PERFECT_BONUS;
     // ×1〜×9 が ぜんぶ でて、ぜんぶ せいかい した だん（だん マスター の バッジ）
-    const kuku = mode !== "clock" && op === "×" && playLevel()[0] === "1";
+    const kuku = !unitMode() && op === "×" && playLevel()[0] === "1";
     const masters = kuku ? DANS.filter((d) => {
       const ps = problems.filter((p) => !p.story && p.a === d);
       return new Set(ps.map((p) => p.b)).size === DANS.length && ps.every((p) => p.correct);
     }) : [];
     const story = mode === "story";
-    const clock = mode === "clock";
+    const clock = mode === "clock", hissan = mode === "hissan";
     updateGrowth((g) => {
       if (!perfect) { g.perfRow = 0; return; }
       g.xp += PERFECT_BONUS;
@@ -4310,6 +4714,7 @@
       g.perfRowBest = Math.max(g.perfRowBest, g.perfRow);
       const add = (list, v) => { if (!list.includes(v)) list.push(v); };
       if (clock) { add(g.clockLv, clockLevel); return; }
+      if (hissan) { if (hsLevel === 4) add(g.hsTop, hsOp); return; }
       add(story ? g.storyOps : g.perfOps, op);
       if (dans && danOrder === "rand") masters.forEach((d) => add(g.randDans, d));
       if (LEVELS.includes(playLevel())) add(g.perfLv, playLevel());
@@ -4326,7 +4731,7 @@
     $("praise").textContent = who ? `${icon} ${who}、${score === total ? "ぜんもん せいかい！" : msg}` : `${icon} ${msg}`;
     $("praise").classList.toggle("long", $("praise").textContent.length > 18);
 
-    $("review").className = dans ? "review dan-review" : mode === "clock" ? "review clock-review" : "review";
+    $("review").className = dans ? "review dan-review" : unitMode() ? "review unit-review" : "review";
     $("danMiss").hidden = true;
     if (dans) {
       renderDanReview();
@@ -4439,6 +4844,13 @@
     if (btn) stepClock(Number(btn.dataset.d));
   });
   setupClockDrag();
+  $("hsGrid").addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b || answered) return;
+    if (b.dataset.m != null) hs.memoAt = Number(b.dataset.m);
+    else { hs.memoAt = -1; hs.cur = Number(b.dataset.a); }
+    renderHissan();
+  });
   $("shikiChoices").addEventListener("click", (e) => {
     const btn = e.target.closest("button");
     if (btn && !btn.disabled) pickShiki(btn.dataset.op);
@@ -4480,6 +4892,7 @@
     if (!$("quiz").classList.contains("active") || dialogOpen()) return;
     const p = problems[index];
     if (p.clock && p.kind === "choose" && /^[1-4]$/.test(e.key)) checkClock(Number(e.key) - 1); // 1〜4 で えらぶ
+    else if (p.hs && (e.key === "ArrowLeft" || e.key === "ArrowRight")) { e.preventDefault(); moveHissan(e.key === "ArrowLeft" ? -1 : 1); }
     else if (p.clock && p.kind === "set" && /^Arrow/.test(e.key)) {
       // あわせる もんだい：← → で ながい はり、↑ ↓ で 1じかん うごかす
       e.preventDefault();
@@ -4489,7 +4902,7 @@
     else if (e.key === "Backspace") { e.preventDefault(); pressKey("back"); }
     else if (e.key === "Enter") {
       if (document.activeElement && document.activeElement.closest("#keypad")) return; // Tab で えらんだ すうじ ボタン を おす
-      if (document.activeElement && document.activeElement.closest("#shikiChoices, #speakBtn, #clockChoices, #clockSteps, #clockInput, #clockSpeak")) return; // Tab で えらんだ ボタン を おす
+      if (document.activeElement && document.activeElement.closest("#shikiChoices, #speakBtn, #clockChoices, #clockSteps, #clockInput, #clockSpeak, #hsGrid")) return; // Tab で えらんだ ボタン を おす
       e.preventDefault(); onAction();
     }
   });
@@ -4773,7 +5186,7 @@
       const tail = log.filter((e) => e.t >= lastStart.getTime());
       const rate = (list) => list.length ? Math.round((list.filter((e) => e.ok).length / list.length) * 100) : null;
       const rows = OPS.map(({ op, name }) => {
-        const h = head.filter((e) => e.op === op && !e.st), t = tail.filter((e) => e.op === op && !e.st);
+        const h = head.filter((e) => opKey(e) === op && !e.st), t = tail.filter((e) => opKey(e) === op && !e.st);
         if (h.length < 5 || t.length < 5) return "";
         const r1 = rate(h), r2 = rate(t), diff = r2 - r1;
         const mark = diff > 0 ? `<span class="review-up">▲${diff}</span>` : diff < 0 ? `<span class="review-down">（次のめあて）</span>` : "";
