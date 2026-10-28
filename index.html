@@ -3201,8 +3201,10 @@
     if (/eloquence|compact/i.test(n)) s -= 30;                  // きかい っぽい こえ
     return s;
   }
+  // アプリ では インターネット を つかう こえ は つかわない（もんだいぶん も そと に おくらない）
   const jaVoices = () => canSpeak
-    ? speechSynthesis.getVoices().filter((v) => /^ja([-_]|$)/i.test(v.lang)).sort((x, y) => voiceScore(y) - voiceScore(x))
+    ? speechSynthesis.getVoices().filter((v) => /^ja([-_]|$)/i.test(v.lang) && (!isNativeApp || v.localService))
+      .sort((x, y) => voiceScore(y) - voiceScore(x))
     : [];
   // せってい で えらんだ こえ。なければ いちばん しぜん な こえ
   function pickVoice() {
@@ -3312,6 +3314,11 @@
     sel.disabled = $("voiceTry").disabled = !voices.length;
     if (!canSpeak || !voices.length) {
       sel.innerHTML = "<option>—</option>";
+      // こえ が まだ とどいて いない かも しれない ので、すこし まって から つくりなおす（10びょう まで）
+      if (canSpeak && voiceRetry < 20) {
+        voiceRetry++;
+        setTimeout(() => { if ($("settings").classList.contains("active")) renderSettings(); }, 500);
+      }
       $("voiceNote").textContent = canSpeak
         ? "日本語の声が見つかりません。端末の設定で日本語の読み上げ音声を追加すると使えるようになります。"
         : isNativeApp ? "この端末では読み上げが使えません。" : "このブラウザでは読み上げが使えません。";
@@ -3328,7 +3335,7 @@
     const v = pickVoice();
     $("voiceNote").textContent =
       "★ は自然に聞こえやすい声です。「おまかせ」では、この端末でいちばん自然な声を自動で選びます。" +
-      "🌐 はインターネットを使う声です。名前を外部に送らないため、🌐 の声では名前を読み上げません。" +
+      (isNativeApp ? "" : "🌐 はインターネットを使う声です。名前を外部に送らないため、🌐 の声では名前を読み上げません。") +
       (callName() && v && !v.localService ? "（いま選んでいる声では名前を読み上げません。名前を呼んでほしいときは 🌐 のない声を選んでください）" : "") +
       `使える声は${isNativeApp ? "端末" : "端末やブラウザ"}によって違います。iPhone・iPad では「設定 → アクセシビリティ → 読み上げコンテンツ → 声 → 日本語」から、高品質な声をダウンロードできます。`;
   }
@@ -3344,6 +3351,10 @@
   });
   // こえ の いちらん は あと から とどく ブラウザ が ある（Chrome など）
   if (canSpeak) speechSynthesis.onvoiceschanged = () => { if ($("settings").classList.contains("active")) renderSettings(); };
+  // iPhone・iPad の WebView では、いちど よぶ まで こえ を よみこまず、voiceschanged も こない こと が ある。
+  // ひらいた とき に よみこみ を はじめて おく
+  let voiceRetry = 0;
+  if (canSpeak) speechSynthesis.getVoices();
 
   // ---- なまえ（この たんまつ の localStorage だけ に ほぞん して、そと には おくらない）----
   const HONORS = ["さん", "くん", "ちゃん", ""]; // "" は よびすて
