@@ -136,6 +136,7 @@ https://katsu-ya.github.io/math-app/ をホーム画面に追加すると、ア�
 
 - 記録はブラウザ・端末ごとに別々です（パソコンとスマホの記録は合算されません）。
 - ブラウザの履歴やサイトデータを消すと、記録も消えます。
+- アプリ版（App Store）では、記録を iPhone・iPad の設定の保存場所（UserDefaults）にも写しておくので、iOS が空き容量を作るために WebView のデータを消しても、記録は消えません（「アプリ版の記録の保存」を見てください）。
 - 「今日」の日付は、使っている端末の日付で決まります。
 
 ## キャラクターの成長
@@ -475,7 +476,22 @@ npm run ios       # www/ を つくり、ios/ に うつして、Xcode を ひ�
 - `index.html` を直したら、もう一度 `npm run ios`（または `npm run build && npx cap sync ios`）をしてから Xcode で実行します。
 - Xcode で、上のデバイスの選択からシミュレーター（例：iPhone 17）を選んで ▶ を押します。
 - シミュレーターで Face ID を試すときは、メニューの「Features → Face ID → Enrolled」をオンにし、Face ID の画面が出たら「Matching Face」（通る）か「Non-matching Face」（通らない）を選びます。
-- 入れている部品：`@aparajita/capacitor-biometric-auth`（Face ID・Touch ID）、`@capacitor/filesystem` と `@capacitor/share`（バックアップの保存）、`@capacitor/app`（Face ID の部品が使う）。
+- 入れている部品：`@aparajita/capacitor-biometric-auth`（Face ID・Touch ID）、`@capacitor/filesystem` と `@capacitor/share`（バックアップの保存）、`@capacitor/app`（Face ID の部品が使う）、`@capacitor/preferences`（記録の控え）。
+
+### アプリ版の記録の保存
+
+iOS の WebView の localStorage は、端末の空き容量が少ないときに OS が消すことがあります。そのためアプリ版では、記録を `@capacitor/preferences`（iOS は UserDefaults）にも写しています。
+
+- アプリはこれまでどおり localStorage を読み書きします。`keisan-renshu-` で始まるキーを書いたり消したりすると、同じものを Preferences にも書いたり消したりします（`index.html` のいちばん最初の `<script>`）。
+- アプリを開いたときに、localStorage の記録と Preferences をそろえます。この機能を入れる前から使っている人の記録も、最初に開いたときにそのまま Preferences に写ります。
+- 開いたときに localStorage の記録が1つもなく、Preferences に記録があるときは、Preferences から戻してから開き直します（戻すかどうか決まるまで、画面は出しません）。
+- バックアップの保存・読みこみ、記録のリセットは今までどおり使えます（読みこんだ記録も Preferences に写ります）。
+- Web 版では何もしません。
+- シミュレーターで確かめるときは、アプリを完全に終了してから、`Library/WebKit` を消して開き直します（iOS に消されたときと同じ状態になります。アプリの場所が見つからないときは何も消しません）：
+  ```
+  xcrun simctl terminate booted jp.katsuya.keisanrenshu
+  C=$(xcrun simctl get_app_container booted jp.katsuya.keisanrenshu data) && rm -rf "$C/Library/WebKit"
+  ```
 - `www/` と `node_modules/` は作り直せるので、GitHub には上げません（`.gitignore`）。`ios/` は上げます。
 - アイコンは、明るい黄色に、たまごから顔を出したひよこ（アプリのキャラクター）と＋×の絵です。起動画面は、アプリの背景と同じクリーム色に同じ絵です。絵を直すときは `icons/icon.svg`（起動画面は `icons/splash.svg`）を直して、`python3 tools/make-icons.py` を実行します。Web 版のアイコンと iOS のアイコン・起動画面がまとめて作り直されます。
 

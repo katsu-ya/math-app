@@ -1657,6 +1657,70 @@
 <button class="update-bar" id="updateBar" hidden>✨ あたらしい バージョン が あります<small>タップ で こうしん</small></button>
 
 <script>
+// ---- ストア版：きろく を Preferences（iOS は UserDefaults）にも うつす ----
+// iOS の WebView の localStorage は、たんまつ の あき が すくない とき に OS が けす こと が ある。
+// アプリ は いままで どおり localStorage を よみかき し、keisan-renshu- の キー だけ Preferences にも うつして おく。
+// ひらいた とき に localStorage が からっぽ で Preferences に きろく が あれば、もどして から ひらきなおす。
+// Web 版 では なにも しない。
+(() => {
+  const cap = window.Capacitor;
+  const prefs = cap && cap.isNativePlatform && cap.isNativePlatform() && cap.Plugins && cap.Plugins.Preferences;
+  if (!prefs) return;
+  const PREFIX = "keisan-renshu-";
+  const TRIED = "keisan-restore-tried"; // sessionStorage：もどして ひらきなおす のは 1かい だけ
+  const ours = () => Object.keys(localStorage).filter((k) => k.startsWith(PREFIX));
+  const set = Storage.prototype.setItem, remove = Storage.prototype.removeItem;
+  let ready = false;
+  let chain = Promise.resolve(); // かきこみ の じゅんばん を まもる
+  const send = (f) => { chain = chain.then(f).catch(() => { /* うつせなくても localStorage は のこる */ }); };
+
+  // localStorage に かいた もの を Preferences にも かく（じゅんび が できる まで は あと で まとめて うつす）
+  Storage.prototype.setItem = function (k, v) {
+    set.call(this, k, v);
+    if (ready && this === localStorage && String(k).startsWith(PREFIX)) { const val = String(v); send(() => prefs.set({ key: String(k), value: val })); }
+  };
+  Storage.prototype.removeItem = function (k) {
+    remove.call(this, k);
+    if (ready && this === localStorage && String(k).startsWith(PREFIX)) send(() => prefs.remove({ key: String(k) }));
+  };
+
+  // いま の localStorage を そのまま Preferences に うつす（ない キー は けす）
+  async function syncAll() {
+    const mine = ours();
+    if (!mine.length) return; // からっぽ の とき は けさない（もどせなかった とき に Preferences の きろく を まもる）
+    const { keys } = await prefs.keys();
+    for (const k of mine) await prefs.set({ key: k, value: localStorage.getItem(k) });
+    for (const k of keys) if (k.startsWith(PREFIX) && localStorage.getItem(k) === null) await prefs.remove({ key: k });
+  }
+
+  // アプリ の プログラム が うごく まえ に、きろく が ある か を みて おく
+  const hadData = ours().length > 0;
+  const root = document.documentElement;
+  if (!hadData) root.style.visibility = "hidden"; // もどす かも しれない ので、きまる まで みせない
+  // こたえ が おそくても がめん は だす（うつす のは もどす か どうか きまって から）
+  setTimeout(() => { root.style.visibility = ""; }, 3000);
+
+  (async () => {
+    try {
+      if (!hadData && !sessionStorage.getItem(TRIED)) {
+        const { keys } = await prefs.keys();
+        const saved = keys.filter((k) => k.startsWith(PREFIX));
+        if (saved.length) {
+          for (const k of saved) { const { value } = await prefs.get({ key: k }); if (value !== null) set.call(localStorage, k, value); }
+          sessionStorage.setItem(TRIED, "1");
+          location.reload();
+          return;
+        }
+      }
+    } catch (e) { /* よめなければ いま の まま */ }
+    root.style.visibility = "";
+    ready = true;
+    send(syncAll);
+  })();
+})();
+</script>
+
+<script>
 (() => {
   const TOTAL = 10;
   const MAX_DIGITS = 4;
