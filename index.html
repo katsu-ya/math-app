@@ -965,6 +965,7 @@
     font-size: calc(var(--cell) * .64);
   }
   .hs-ans:active { transform: none; box-shadow: none; }
+  .hs-ans:disabled, .hs-memo:disabled { opacity: 1; } /* こたえあわせ の あと も いろ を はっきり みせる */
   .hs-ans.cur { border-style: solid; border-color: var(--sh-main); background: #fff8e7; }
   .hs-ans.ok { border-style: solid; border-color: var(--sh-ok); background: #ebfbee; color: var(--ok-text); }
   .hs-ans.ng { border-style: solid; border-color: var(--ng-text); background: #fff5f5; color: var(--ng-text); }
@@ -1364,6 +1365,10 @@
     .medal { width: 56px; height: 56px; font-size: 30px; }
     /* ステージ2 は 10こ ずつ 2れつ */
     .badge-grid.s2-grid { grid-template-columns: repeat(10, 1fr); gap: 8px 6px; }
+    /* とけい・ひっさん は 9こ を 1れつ */
+    .badge-grid.u-grid { grid-template-columns: repeat(9, 1fr); gap: 8px 6px; }
+    .u-grid .badge-card { padding: 8px 2px 6px; }
+    .u-grid .badge-name { font-size: 13px; overflow-wrap: anywhere; }
     .s2-grid .badge-card { padding: 8px 2px 6px; }
     .s2-grid .badge-name { font-size: 13px; }
   }
@@ -1500,6 +1505,12 @@
   body.big-text .result .hint { font-size: 19px; }
   body.big-text .review li { font-size: 24px; }
   body.big-text .review .fix { font-size: 20px; }
+  body.big-text .review.unit-review li { font-size: 19px; }
+  body.big-text .review.unit-review .fix { font-size: 14px; }
+  body.big-text .clock-q p { font-size: 23px; }
+  body.big-text .clock-legend { font-size: 16px; }
+  body.big-text .cr-hints { font-size: 17px; }
+  body.big-text .hs-hint { font-size: 19px; }
   body.big-text .review.dan-review li, body.big-text .dan-miss { font-size: 18px; }
   body.big-text .dr-cells span { font-size: 17px; }
   body.big-text .shiki-label { font-size: 18px; }
@@ -4061,7 +4072,8 @@
       sparkle(r);
     } else {
       r.innerHTML = `<div class="hs-ng pop">${MARK_NG}ざんねん… こたえ は<b>${p.ans}</b></div>` +
-        `<p class="hs-hint">💡 ${hissanHint(p, p.places[0])}</p>`;
+        // しき（12 − 7 ＝ 5 など）は とちゅう で おりかえさない
+        `<p class="hs-hint">💡 ${hissanHint(p, p.places[0]).replace(/\d+(?: [＋−×] \d+)+ ＝ \d+/g, '<span class="nowrap">$&</span>')}</p>`;
       playBubu();
     }
 
@@ -4741,7 +4753,7 @@
     $("review").innerHTML = problems.map((p) => {
       // ぶんしょうだい は えらんだ しき と、まちがい の とき は ただしい しき を だす
       // とけい は こたえた じこく と、まちがい の とき は ただしい じこく
-      const mine = p.clock ? p.mine : p.story ? `${p.options.find((o) => o.op === p.userOp).text} ＝ ${p.user}` : `${p.text} ＝ ${p.user}`;
+      const mine = p.clock ? p.mine : p.hs ? `${p.a} ${p.op} ${p.b}＝${p.user}` : p.story ? `${p.options.find((o) => o.op === p.userOp).text} ＝ ${p.user}` : `${p.text} ＝ ${p.user}`;
       const fix = p.clock ? `こたえ ${p.ans}` : p.story ? `${p.options.find((o) => o.op === op).text} ＝ ${p.ans}` : `こたえ ${p.ans}`;
       return `
       <li>
