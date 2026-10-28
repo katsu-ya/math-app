@@ -913,6 +913,22 @@
   .name-foot { text-align: center; font-size: 13px; color: #666; margin: 12px 0 0; word-break: keep-all; }
   /* はじめて ガイド（キャラクター が つかいかた を あんない する） */
   #guide { max-width: 560px; margin: 0 auto; }
+  /* さいしょ の おうちのかた むけ の せつめい */
+  #welcome { max-width: 600px; margin: 0 auto; text-align: center; }
+  .wl-pic { width: 96px; height: 96px; margin: 4px auto 0; animation: rest-sway 3.2s ease-in-out infinite; transform-origin: 50% 90%; }
+  .wl-pic svg { width: 100%; height: 100%; }
+  #welcome h1 { margin: 2px 0 10px; }
+  .wl-card { background: var(--card); border-radius: 24px; padding: 14px 18px; text-align: left; box-shadow: 0 6px 18px rgba(200, 150, 40, .16); font-size: 15px; line-height: 1.6; }
+  .wl-lead { margin: 0 0 8px; }
+  .wl-list { list-style: none; margin: 0; padding: 0; }
+  .wl-list li { display: flex; gap: 10px; align-items: flex-start; padding: 7px 0; border-top: 1px dashed #f0e2b6; }
+  .wl-list li > span { font-size: 22px; line-height: 1.2; }
+  .wl-note { margin: 8px 0 0; font-size: 13px; color: #666; }
+  .wl-btns { display: flex; gap: 12px; margin-top: 14px; }
+  .wl-btns .big-btn { margin: 0; }
+  .wl-btns #welcomeTrial { flex: 2; }
+  .wl-btns #welcomeLater { flex: 1; }
+  @media (max-width: 600px) { .wl-btns { flex-direction: column; gap: 10px; } }
   .gd-skip { display: block; margin: 0 0 0 auto; font-size: 14px; }
   .gd-skip[hidden] { display: none; }
   .gd-talk { display: flex; align-items: flex-start; gap: 12px; margin-top: 4px; }
@@ -1508,6 +1524,26 @@
     <div class="gd-btns">
       <button class="big-btn home-btn" id="guidePrev">◀ まえ</button>
       <button class="big-btn" id="guideNext">つぎ ▶</button>
+    </div>
+  </section>
+
+  <!-- さいしょ に ひらいた とき の、おうちのかた むけ の せつめい（ストア版 の おためし の まえ に 1かい だけ。かう ボタン は おかない） -->
+  <section id="welcome" class="screen">
+    <div class="wl-pic" id="welcomePic" aria-hidden="true"></div>
+    <h1>おうちのかたへ</h1>
+    <div class="wl-card">
+      <p class="wl-lead">ダウンロードいただき、ありがとうございます。<br>お子さまと一緒に、計算の練習を楽しく続けるアプリです。</p>
+      <ul class="wl-list">
+        <li><span>🎁</span><div><b>30日間 無料でお試しできます</b>（0円）。<br>お試しが終わっても、自動で課金されることはありません。</div></li>
+        <li><span>🗓️</span><div>続けて使うときは <b>月額300円（税込）</b>。いつでも解約できます（iPhone・iPad の「設定」→ 自分の名前 →「サブスクリプション」）。</div></li>
+        <li><span>🔒</span><div>広告はありません。記録や名前は、この端末の中だけに保存します。</div></li>
+        <li><span>✏️</span><div>お試しを始める前でも、お子さまは<b>1回（10問）</b>だけ練習を体験できます。</div></li>
+      </ul>
+      <p class="wl-note">お試しは「おうちのかたへ」（保護者用の暗証番号の先）から始めます。</p>
+    </div>
+    <div class="wl-btns">
+      <button class="big-btn" id="welcomeTrial">お試しの準備をする</button>
+      <button class="big-btn home-btn" id="welcomeLater">あとで</button>
     </div>
   </section>
 
@@ -2998,6 +3034,7 @@
     if (id === "start") renderGreet();
     if (id === "name") { renderName(); $("nameInput").focus(); }
     if (id === "guide") renderGuide();
+    if (id === "welcome") $("welcomePic").innerHTML = buddySvg(1);
     if (id === "privacy") renderPrivacy();
     else if (guideSpeaking) stopSpeech();
     window.scrollTo(0, 0);
@@ -3594,6 +3631,39 @@
     guidePage = next;
     renderGuide();
   }
+  // ---- さいしょ に ひらいた とき の ながれ ----
+  // ① おうちのかた むけ の せつめい（ストア版 の おためし の まえ に 1かい だけ）→ ② はじめて ガイド → ③ なまえ → はじめ の がめん
+  // ① で「お試しの準備をする」を おすと、ほごしゃ の かくにん の あと で プラン の らん を ひらき、「つぎへ」で ② に すすむ
+  let firstRunPending = false; // ① から おうちのかたへ に きて いる あいだ
+  const WELCOME_DEV = "keisan-dev-welcomed"; // かいはつ よう の きりかえ の とき は、この タブ の あいだ だけ おぼえる
+  function welcomed() {
+    if (accessState().dev) { try { return !!sessionStorage.getItem(WELCOME_DEV); } catch (e) { return true; } }
+    return !!loadAccess().welcomed;
+  }
+  function setWelcomed() {
+    if (accessState().dev) { try { sessionStorage.setItem(WELCOME_DEV, "1"); } catch (e) { /* ためせない */ } return; }
+    saveAccess({ ...loadAccess(), welcomed: dateKey(new Date()) });
+  }
+  const needWelcome = () => accessState().state === "before" && !welcomed();
+  // ① の あと（または ① が いらない とき）の つづき
+  function continueFirstRun() {
+    firstRunPending = false;
+    renderParentBack();
+    if (!settings.guideSeen && !settings.nameAsked && !cleanName(settings.name)) openGuide("first");
+    else if (!settings.nameAsked && !cleanName(settings.name)) openName("first");
+    else show("start");
+  }
+  function renderParentBack() {
+    $("parentBack").textContent = firstRunPending ? "つぎへ ▶" : "もどる";
+  }
+  $("welcomeTrial").addEventListener("click", () => {
+    setWelcomed();
+    firstRunPending = true;
+    renderParentBack();
+    parentGate(() => show("parent"), "welcome");
+  });
+  $("welcomeLater").addEventListener("click", () => { setWelcomed(); continueFirstRun(); });
+
   $("guideNext").addEventListener("click", () => guideGo(1));
   $("guidePrev").addEventListener("click", () => guideGo(-1));
   $("guideSkip").addEventListener("click", endGuide);
@@ -3740,7 +3810,7 @@
   $("retryBtn").addEventListener("click", startGame);
   $("homeBtn").addEventListener("click", () => show("start"));
   $("parentBtn").addEventListener("click", () => parentGate(() => show("parent"), "start"));
-  $("parentBack").addEventListener("click", () => show("start"));
+  $("parentBack").addEventListener("click", () => { if (firstRunPending) continueFirstRun(); else show("start"); });
 
   // ---- プライバシーポリシー ----
   // ほんぶん は legal/privacy.html だけ に かく（tools/publish-legal.sh で こうかい する もの と おなじ）。
@@ -4689,7 +4759,8 @@
   $("parentBtn").classList.toggle("due", parentDue());
   // はじめて ひらいた とき は ガイド を みせて から なまえ を きく（おいわい は はじめ の がめん に もどって から）。
   // ガイド を いれる まえ から つかって いる ひと（なまえ を もう きいた ひと）には ださない
-  if (!settings.guideSeen && !settings.nameAsked && !cleanName(settings.name)) openGuide("first");
+  if (needWelcome()) show("welcome");
+  else if (!settings.guideSeen && !settings.nameAsked && !cleanName(settings.name)) openGuide("first");
   else if (!settings.nameAsked && !cleanName(settings.name)) openName("first");
   else celebrate();
 })();
