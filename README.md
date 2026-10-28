@@ -526,5 +526,7 @@ package.json            ストア版を作るための部品と、npm run build 
 capacitor.config.json   ストア版の設定（Bundle ID・アプリの名前・www/）
 ios/                    ストア版の iOS（Xcode）プロジェクト
 tools/make-icons.py     アイコン（Web 版・iOS）と起動画面の PNG を作る（Google Chrome と Pillow を使う）
+APP_STORE.md            App Store に申請するときの文章・質問の答え・スクリーンショットの撮り方の下書き
+STORE_CHECK.md          ストアに出す前の点検の記録
 README.md               このファイル
 ```
