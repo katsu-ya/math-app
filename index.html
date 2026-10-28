@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>けいさん れんしゅう</title>
 <!-- ホーム画面 に ついか して アプリ の ように つかう（PWA） -->
 <link rel="manifest" href="manifest.webmanifest">
@@ -16,6 +16,11 @@
 <style>
   :root {
     --bg: #fffbe6; /* やさしい クリーム いろ */
+    /* ノッチ・じこく の バー・ホームバー の ぶん の すきま（ない がめん では 0） */
+    --sa-t: env(safe-area-inset-top, 0px);
+    --sa-r: env(safe-area-inset-right, 0px);
+    --sa-b: env(safe-area-inset-bottom, 0px);
+    --sa-l: env(safe-area-inset-left, 0px);
     --card: #ffffff;
     --text: #333;
     /* ボタン は あかるい いろ に して、うえ の もじ は こい いろ（--on-…）に する。
@@ -48,14 +53,16 @@
     --sh-level2: #f08fbc;
     --sh-ok: #6fd88a;
     /* しろ や クリーム の はいけい に のせる もじ の いろ */
-    --main-text: #d9480f;
-    --ok-text: #2b8a3e;
+    --main-text: #c2410c;
+    --ok-text: #27803a;
     --ng-text: #e03131;
     /* ◯✕ の しるし（しろい しるし が はっきり みえる こさ） */
     --mark-ok: #2b8a3e;
     --mark-ng: #e03131;
   }
   * { box-sizing: border-box; }
+  /* よみあげ ソフト だけ に つたえる もじ（がめん には でない） */
+  .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
   body {
     margin: 0;
     background-color: var(--bg);
@@ -67,13 +74,15 @@
     font-family: "Hiragino Maru Gothic ProN", "Rounded Mplus 1c", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
     font-size: 20px;
     -webkit-tap-highlight-color: transparent;
+    /* うえ の じこく・でんち、した の ホームバー と ボタン が かさならない ように */
+    padding: var(--sa-t) var(--sa-r) var(--sa-b) var(--sa-l);
   }
   .wrap {
     max-width: 560px;
     margin: 0 auto;
     padding: 16px;
-    min-height: 100vh;
-    min-height: 100dvh;
+    min-height: calc(100vh - var(--sa-t) - var(--sa-b));
+    min-height: calc(100dvh - var(--sa-t) - var(--sa-b));
     display: flex;
     flex-direction: column;
   }
@@ -262,6 +271,8 @@
   }
   .action.next { background: var(--minus); color: var(--on-minus); --sh: var(--sh-minus); }
   button:disabled { opacity: .4; }
+  /* 「つぎ に すすむよ…」は おしらせ なので、もじ は こい まま、いろ だけ うすく する */
+  .action.next:disabled { opacity: 1; background: #d3efff; box-shadow: 0 6px 0 #a9dcf7; }
 
   /* けっか がめん */
   .score {
@@ -336,7 +347,7 @@
   .cal-week { margin-bottom: 3px; }
   .cal-week span { font-size: 14px; font-weight: bold; color: #666; }
   .cal-week .sun, .cal-day.sun .cal-num { color: #e03131; }
-  .cal-week .sat, .cal-day.sat .cal-num { color: #1c7ed6; }
+  .cal-week .sat, .cal-day.sat .cal-num { color: #1971c2; }
   .cal-day {
     position: relative;
     height: var(--cell);
@@ -350,15 +361,16 @@
     -webkit-user-select: none;
     user-select: none;
   }
-  .cal-day.future .cal-num { opacity: .4; }
+  .cal-day.future .cal-num { color: #737373; } /* これから の ひ は うすい はいいろ（すけさせる と よみにくい） */
   .cal-day.today { background: #ffe8cc; box-shadow: inset 0 0 0 3px var(--main); }
-  .cal-day.today .cal-num { color: #d9480f; font-size: 20px; }
+  .cal-day.today .cal-num { color: var(--main-text); font-size: 20px; }
   .cal-day.picked { box-shadow: inset 0 0 0 2px #adb5bd; }
+  .cal-day:focus-visible { outline: 3px solid #1971c2; outline-offset: 1px; }
   .cal-day.today.picked { box-shadow: inset 0 0 0 3px var(--main); }
   .cal-num { position: relative; z-index: 1; text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 2px #fff; }
   .cal-mark { position: absolute; inset: 1px; display: flex; align-items: center; justify-content: center; pointer-events: none; }
   .cal-mark svg { height: 100%; width: 100%; }
-  .cal-info { margin-top: 8px; min-height: 1.4em; font-size: 18px; font-weight: bold; text-align: center; color: #d9480f; }
+  .cal-info { margin-top: 8px; min-height: 1.4em; font-size: 18px; font-weight: bold; text-align: center; color: var(--main-text); }
   .cal-legend { margin-top: 4px; display: flex; justify-content: center; align-items: center; gap: 14px; font-size: 14px; color: #666; }
   .cal-legend span { display: inline-flex; align-items: center; gap: 4px; }
   .cal-legend svg { width: 22px; height: 22px; }
@@ -397,7 +409,7 @@
   .rp-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .rp-stat { background: var(--bg); border-radius: 12px; padding: 8px 10px; }
   .rp-stat .label { font-size: 13px; color: #666; }
-  .rp-stat .val { font-size: 26px; font-weight: bold; color: #d9480f; line-height: 1.25; }
+  .rp-stat .val { font-size: 26px; font-weight: bold; color: var(--main-text); line-height: 1.25; }
   .rp-stat .val small { font-size: 14px; color: var(--text); margin-left: 2px; }
   .rp-stat .sub { font-size: 12px; color: #666; min-height: 1.5em; }
   .rp-op {
@@ -429,7 +441,7 @@
     width: 26px; height: 26px;
     border-radius: 50%;
     background: #ffe8cc;
-    color: #d9480f;
+    color: var(--main-text);
     font-weight: bold;
     display: flex; align-items: center; justify-content: center;
   }
@@ -446,18 +458,18 @@
   .st-card p { margin: 0 0 8px; }
   .st-card .st-ok, .st-card .st-warn { font-size: 18px; font-weight: bold; margin-bottom: 4px; }
   .st-ok { color: var(--ok-text); }
-  .st-warn { color: #e8590c; }
+  .st-warn { color: var(--main-text); }
   .st-card button { background: var(--minus); color: var(--on-minus); font-size: 15px; padding: 8px 14px; border-radius: 12px; box-shadow: 0 3px 0 var(--sh-minus); margin: 0 8px 8px 0; }
   .st-install { background: var(--bg); border-radius: 12px; padding: 10px 12px; margin: 4px 0 12px; }
   .st-install[hidden] { display: none; }
-  .st-install h4 { margin: 0 0 6px; font-size: 16px; color: #d9480f; }
+  .st-install h4 { margin: 0 0 6px; font-size: 16px; color: var(--main-text); }
   .st-install ol { margin: 0 0 8px; padding-left: 1.4em; }
   .st-install p:last-child { margin-bottom: 0; }
   .st-note { font-size: 13px; color: #666; }
   /* バックアップ を ほぞん した けっか */
   .st-result { border-radius: 10px; padding: 8px 12px; margin: 2px 0 10px; font-weight: bold; }
   .st-result[hidden] { display: none; }
-  .st-result.ok { background: #ebfbee; color: #2b8a3e; }
+  .st-result.ok { background: #ebfbee; color: var(--ok-text); }
   .st-result.ng { background: #fff5f5; color: #c92a2a; }
   .st-result.ask, .st-result.cancel { background: var(--bg); color: var(--text); }
   .st-result small { display: block; font-weight: normal; font-size: 13px; margin-top: 2px; color: #555; }
@@ -465,7 +477,7 @@
   .st-card .st-result button.st-no { background: #868e96; box-shadow: 0 3px 0 #495057; }
   .st-backup { border-top: 1px dotted #ddd; padding-top: 10px; }
   .st-backup h4 { margin: 0 0 6px; font-size: 16px; }
-  .st-last b { color: #d9480f; }
+  .st-last b { color: var(--main-text); }
   .st-due { background: #fff4e6; border-left: 4px solid #ff922b; border-radius: 8px; padding: 6px 10px; }
   /* バックアップ が ひさしぶり の とき、「おうちのかたへ」に しるし を つける */
   .parent-link.due::after { content: ""; position: absolute; inset: auto; top: 2px; right: -8px; width: 9px; height: 9px; border-radius: 50%; background: var(--ng); }
@@ -473,7 +485,7 @@
   /* おうちのかた の あんしょうばんごう */
   #pin { max-width: 420px; margin: 0 auto; text-align: center; }
   .pin-lead { font-size: 17px; font-weight: bold; margin: -6px 0 10px; line-height: 1.5; word-break: keep-all; }
-  .pin-q { font-size: 34px; font-weight: bold; color: #d9480f; letter-spacing: 2px; margin-bottom: 8px; }
+  .pin-q { font-size: 34px; font-weight: bold; color: var(--main-text); letter-spacing: 2px; margin-bottom: 8px; }
   .pin-q[hidden] { display: none; }
   .pin-dots { display: flex; justify-content: center; gap: 14px; height: 44px; align-items: center; }
   .pin-dots span { width: 22px; height: 22px; border-radius: 50%; border: 3px solid #adb5bd; }
@@ -586,7 +598,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 16px;
+    padding: calc(var(--sa-t) + 16px) calc(var(--sa-r) + 16px) calc(var(--sa-b) + 16px) calc(var(--sa-l) + 16px);
     overflow: hidden;
   }
   .celebrate[hidden] { display: none; }
@@ -611,7 +623,7 @@
   }
 
   /* かくにん の まど（ブラウザ の confirm・alert の かわり） */
-  .dialog { position: fixed; inset: 0; z-index: 11; background: rgba(0, 0, 0, .35); display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .dialog { position: fixed; inset: 0; z-index: 11; background: rgba(0, 0, 0, .35); display: flex; align-items: center; justify-content: center; padding: calc(var(--sa-t) + 16px) calc(var(--sa-r) + 16px) calc(var(--sa-b) + 16px) calc(var(--sa-l) + 16px); }
   .dialog[hidden] { display: none; }
   .dialog-box { width: 100%; max-width: 400px; background: var(--card); border-radius: 30px; padding: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
   .dialog-text { font-size: 20px; font-weight: bold; line-height: 1.5; margin: 4px 0 0; white-space: pre-line; word-break: keep-all; overflow-wrap: anywhere; }
@@ -655,7 +667,7 @@
     flex: 1;
     background: none;
     box-shadow: none;
-    color: #b35c00;
+    color: #8f4a00;
     font-size: 18px;
     padding: 8px 10px;
     border-radius: 12px;
@@ -717,9 +729,9 @@
   .shiki button.selected { background: var(--main); border-color: var(--main); color: var(--on-main); box-shadow: 0 5px 0 var(--sh-main); }
   .shiki button.right { background: var(--ok); border-color: var(--ok); color: var(--on-ok); box-shadow: 0 5px 0 var(--sh-ok); opacity: 1; }
   .shiki button.wrong { background: #fff5f5; border-color: var(--ng-text); border-style: dashed; color: var(--ng-text); box-shadow: 0 5px 0 #ffc9c9; opacity: 1; }
-  .question .prompt { font-size: 24px; color: #888; }
+  .question .prompt { font-size: 24px; color: #6f6f6f; }
   .answer-box small { font-size: 22px; color: #666; margin-left: 6px; }
-  .answer-box.empty small { color: #ccc; }
+  .answer-box.empty small { color: #767676; } /* たんい は よめる こさ に する */
   .result .explain { font-size: 18px; color: var(--text); line-height: 1.45; margin-top: 2px; }
   .result .explain b { color: var(--ok-text); font-size: 22px; }
   .result .hint { font-size: 16px; color: #666; }
@@ -786,7 +798,7 @@
   }
 
   /* なまえ */
-  .greet { text-align: center; font-size: 20px; font-weight: bold; color: #d9480f; margin: -12px 0 12px; word-break: keep-all; overflow-wrap: anywhere; }
+  .greet { text-align: center; font-size: 20px; font-weight: bold; color: var(--main-text); margin: -12px 0 12px; word-break: keep-all; overflow-wrap: anywhere; }
   #name { font-size: 16px; }
   .name-label { display: block; font-weight: bold; color: #666; margin: 0 0 6px; }
   .name-label.second { margin-top: 18px; }
@@ -813,7 +825,7 @@
     white-space: nowrap;
   }
   .honor button.selected { background: var(--main); border-color: var(--main); color: var(--on-main); box-shadow: 0 5px 0 var(--sh-main); }
-  .name-preview { margin-top: 18px; text-align: center; font-size: 22px; font-weight: bold; color: #d9480f; min-height: 1.5em; word-break: keep-all; overflow-wrap: anywhere; }
+  .name-preview { margin-top: 18px; text-align: center; font-size: 22px; font-weight: bold; color: var(--main-text); min-height: 1.5em; word-break: keep-all; overflow-wrap: anywhere; }
   .name-foot { text-align: center; font-size: 13px; color: #666; margin: 12px 0 0; word-break: keep-all; }
   /* はじめて ガイド（キャラクター が つかいかた を あんない する） */
   #guide { max-width: 560px; margin: 0 auto; }
@@ -875,10 +887,10 @@
   .gd-speak[hidden] { display: none; }
   .gd-parent { font-size: 13px; color: #666; line-height: 1.6; margin: 12px 0 0; }
   .gd-parent[hidden] { display: none; }
-  .cele-name { font-size: 22px; font-weight: bold; color: #d9480f; margin-top: 4px; word-break: keep-all; overflow-wrap: anywhere; }
+  .cele-name { font-size: 22px; font-weight: bold; color: var(--main-text); margin-top: 4px; word-break: keep-all; overflow-wrap: anywhere; }
 
   /* けっか がめん の けいけんち */
-  .xp-gain { font-size: 22px; font-weight: bold; color: #e67700; }
+  .xp-gain { font-size: 22px; font-weight: bold; color: #b35c00; }
   .xp-gain small { font-size: 15px; margin-left: 4px; }
 
   /* かけざん：なんの だん？ */
@@ -896,7 +908,7 @@
   .dan-grid .dan-all b { font-size: 26px; line-height: 1.3; }
   .c-order { background-color: var(--minus); color: var(--on-minus); --sh: var(--sh-minus); }
   .c-order small { display: block; font-size: 16px; }
-  .dan-info { text-align: center; font-size: 20px; font-weight: bold; color: #d9480f; margin-top: 16px; min-height: 1.4em; }
+  .dan-info { text-align: center; font-size: 20px; font-weight: bold; color: var(--main-text); margin-top: 16px; min-height: 1.4em; }
   .dan-foot { text-align: center; font-size: 13px; color: #666; margin: 12px 0 0; word-break: keep-all; }
   #dan .big-btn { margin-top: 12px; }
 
@@ -919,13 +931,13 @@
 
   /* バッジ いちらん の だん マスター */
   .dan-badges { margin-top: 10px; background: var(--card); border-radius: 18px; padding: 6px 6px 4px; box-shadow: 0 4px 12px rgba(200, 150, 40, .14); }
-  .dan-badges-title { text-align: center; font-size: 15px; font-weight: bold; color: #2b8a3e; margin-bottom: 4px; }
+  .dan-badges-title { text-align: center; font-size: 15px; font-weight: bold; color: var(--ok-text); margin-bottom: 4px; }
   .dan-badges-title small { font-size: 12px; font-weight: normal; color: #666; margin-left: 6px; }
   .dan-badge-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px 4px; text-align: center; }
   .dan-badge .medal { width: 40px; height: 40px; font-size: 22px; }
   .dan-badge .badge-name { margin-top: 2px; }
   .dan-badge.locked .badge-name { color: #666; }
-  .medal.dan span { font-weight: bold; color: #2b8a3e; }
+  .medal.dan span { font-weight: bold; color: var(--ok-text); }
 
   /* ステージ2：きんいろ の バッジ と、こん いろ の カード */
   .medal.s2 {
@@ -967,7 +979,7 @@
   .rp-dans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .rp-dan { background: var(--bg); border-radius: 12px; padding: 6px 10px 8px; }
   .rp-dan-head { display: flex; justify-content: space-between; font-size: 14px; }
-  .rp-dan-val { font-size: 22px; font-weight: bold; color: #2b8a3e; line-height: 1.3; }
+  .rp-dan-val { font-size: 22px; font-weight: bold; color: var(--ok-text); line-height: 1.3; }
   .rp-dan-val.low { color: var(--ng-text); }
   .rp-dan .bar { height: 6px; background: #e9ecef; border-radius: 3px; overflow: hidden; }
   .rp-dan .bar span { display: block; height: 100%; background: var(--times); }
@@ -1319,11 +1331,11 @@
         <div class="cal-title" id="calTitle"></div>
         <button class="cal-nav" id="calNext" aria-label="つぎ の つき">▶</button>
       </div>
-      <div class="cal-grid cal-week">
+      <div class="cal-grid cal-week" aria-hidden="true">
         <span class="sun">にち</span><span>げつ</span><span>か</span><span>すい</span><span>もく</span><span>きん</span><span class="sat">ど</span>
       </div>
       <div class="cal-grid" id="calDays"></div>
-      <div class="cal-info" id="calInfo"></div>
+      <div class="cal-info" id="calInfo" aria-live="polite"></div>
       <div class="cal-legend" id="calLegend"></div>
     </div>
     </div>
@@ -2095,6 +2107,14 @@
     renderCalendar();
   }
 
+  // よみあげ ソフト むけ：「10がつ 20にち、10もん、はなまる」
+  function calLabel(key, m, d, todayKey) {
+    const n = countOf(key);
+    const day = `${m}がつ ${d}にち` + (key === todayKey ? "（きょう）" : "");
+    if (key > todayKey) return `${day}、まだ`;
+    return `${day}、${n}もん` + (n >= HANAMARU_COUNT ? "、はなまる" : n >= MARU_COUNT ? "、まる" : "");
+  }
+
   function renderCalendar() {
     const todayKey = dateKey(new Date());
     $("calTitle").textContent = `${calYear}ねん ${calMonth + 1}がつ`;
@@ -2110,7 +2130,7 @@
         key === todayKey ? "today" : "",
         key > todayKey ? "future" : "",
         key === calPicked ? "picked" : ""].join(" ");
-      html += `<div class="${cls}" data-date="${key}">` +
+      html += `<div class="${cls}" data-date="${key}" role="button" tabindex="0" aria-pressed="${key === calPicked}" aria-label="${calLabel(key, calMonth + 1, d, todayKey)}">` +
         `<span class="cal-mark">${markOf(countOf(key))}</span><span class="cal-num">${d}</span></div>`;
     }
     $("calDays").innerHTML = html;
@@ -2135,7 +2155,7 @@
   }
 
   $("calLegend").innerHTML =
-    `<span>${MARU_SVG} ${MARU_COUNT}もん いじょう</span><span>${HANAMARU_SVG} ${HANAMARU_COUNT}もん いじょう</span>`;
+    `<span>${MARU_SVG}<span class="sr-only">まる、</span> ${MARU_COUNT}もん いじょう</span><span>${HANAMARU_SVG}<span class="sr-only">はなまる、</span> ${HANAMARU_COUNT}もん いじょう</span>`;
   $("calPrev").addEventListener("click", () => {
     if (--calMonth < 0) { calMonth = 11; calYear--; }
     renderCalendar();
@@ -2144,11 +2164,21 @@
     if (++calMonth > 11) { calMonth = 0; calYear++; }
     renderCalendar();
   });
-  $("calDays").addEventListener("click", (e) => {
-    const day = e.target.closest(".cal-day");
-    if (!day) return;
+  function pickDay(day) {
     calPicked = calPicked === day.dataset.date ? null : day.dataset.date;
     renderCalendar();
+    $("calDays").querySelector(`[data-date="${day.dataset.date}"]`).focus({ preventScroll: true });
+  }
+  $("calDays").addEventListener("click", (e) => {
+    const day = e.target.closest(".cal-day");
+    if (day) pickDay(day);
+  });
+  // キーボード や よみあげ ソフト でも えらべる ように
+  $("calDays").addEventListener("keydown", (e) => {
+    const day = e.target.closest(".cal-day");
+    if (!day || (e.key !== "Enter" && e.key !== " ")) return;
+    e.preventDefault();
+    pickDay(day);
   });
   resetCalendar();
 
@@ -2586,7 +2616,7 @@
     };
   }
   const isEarned = (b, s) => b.goal ? b.goal(s)[0] >= b.goal(s)[1] : !!b.check(s);
-  const medal = (b, got) => `<div class="medal${b.dan ? " dan" : ""}${b.s2 ? " s2" : ""}${got ? "" : " locked"}"><span>${b.icon}</span></div>`;
+  const medal = (b, got) => `<div class="medal${b.dan ? " dan" : ""}${b.s2 ? " s2" : ""}${got ? "" : " locked"}" aria-hidden="true"><span>${b.icon}</span></div>`;
 
   // おいわい は ためて おいて、けっか がめん か はじめ の がめん で じゅんばん に だす
   const celebrations = [];
@@ -2666,14 +2696,15 @@
         sub = `${Math.min(cur, goal)} / ${goal}`;
       }
       return `<div class="badge-card${b.s2 ? " s2" : ""}${when ? "" : " locked"}">${medal(b, !!when)}` +
-        `<div class="badge-name">${b.name}</div><div class="badge-desc">${b.desc}</div><div class="badge-prog">${sub}</div></div>`;
+        `<div class="badge-name">${b.name}</div><div class="badge-desc">${b.desc}</div><div class="badge-prog">${sub}</div>` +
+        (when ? "" : '<span class="sr-only">まだ もって いない</span>') + "</div>";
     };
     $("badgeGrid").innerHTML = STAGE1.filter((b) => !b.dan).map(card).join("");
     $("badge2Grid").innerHTML = g.stage2 ? STAGE2.map(card).join("") : "";
     // だん マスター は 1れつ に ちいさく ならべる
     $("danBadgeGrid").innerHTML = BADGES.filter((b) => b.dan).map((b) => {
       const when = g.badges[b.id];
-      return `<div class="dan-badge${when ? "" : " locked"}" title="${b.name}">${medal(b, !!when)}` +
+      return `<div class="dan-badge${when ? "" : " locked"}" title="${b.name}" role="img" aria-label="${b.dan}のだん マスター、${when ? gotOn(when) : "まだ"}">${medal(b, !!when)}` +
         `<div class="badge-name">${b.dan}のだん</div><div class="badge-prog">${when ? gotOn(when) : ""}</div></div>`;
     }).join("");
   }
@@ -2977,6 +3008,7 @@
     for (let i = 0; i < 10; i++) {
       const sp = document.createElement("span");
       sp.className = "sparkle";
+      sp.setAttribute("aria-hidden", "true");
       sp.textContent = SPARKS[i % SPARKS.length];
       const a = (i / 10) * Math.PI * 2 + Math.random() * 0.5;
       const d = 60 + Math.random() * 50;
@@ -3422,7 +3454,7 @@
   function renderDanReview() {
     $("review").innerHTML = dans.map((d) => {
       const ps = problems.filter((p) => p.a === d).sort((x, y) => x.b - y.b);
-      const cells = ps.map((p) => `<span class="${p.correct ? "c-ok" : "c-ng"}" title="${p.text} ＝ ${p.ans}">${p.b}</span>`).join("");
+      const cells = ps.map((p) => `<span class="${p.correct ? "c-ok" : "c-ng"}" title="${p.text} ＝ ${p.ans}" role="img" aria-label="${p.text} ＝ ${p.ans}、${p.correct ? "せいかい" : "まちがい"}">${p.b}</span>`).join("");
       return `<li><span class="dr-name">${d}のだん${ps.every((p) => p.correct) ? "🏅" : ""}</span><span class="dr-cells">${cells}</span></li>`;
     }).join("");
     const miss = problems.filter((p) => !p.correct);
