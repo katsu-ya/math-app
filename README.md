@@ -477,6 +477,16 @@ npm run ios       # www/ を つくり、ios/ に うつして、Xcode を ひ�
 - シミュレーターで Face ID を試すときは、メニューの「Features → Face ID → Enrolled」をオンにし、Face ID の画面が出たら「Matching Face」（通る）か「Non-matching Face」（通らない）を選びます。
 - 入れている部品：`@aparajita/capacitor-biometric-auth`（Face ID・Touch ID）、`@capacitor/filesystem` と `@capacitor/share`（バックアップの保存）、`@capacitor/app`（Face ID の部品が使う）。
 - `www/` と `node_modules/` は作り直せるので、GitHub には上げません（`.gitignore`）。`ios/` は上げます。
+- アイコンは、明るい黄色に、たまごから顔を出したひよこ（アプリのキャラクター）と＋×の絵です。起動画面は、アプリの背景と同じクリーム色に同じ絵です。絵を直すときは `icons/icon.svg`（起動画面は `icons/splash.svg`）を直して、`python3 tools/make-icons.py` を実行します。Web 版のアイコンと iOS のアイコン・起動画面がまとめて作り直されます。
+
+### アプリ版で出さないもの
+
+アプリ（`isNativeApp` が true）のときは、Web 版向けの次のものを出しません。Web 版はこれまでどおりです。
+
+- 「おうちのかたへ」の記録の保存の欄の、「ホーム画面に追加すると…」の案内と、ブラウザの「保護されています／保護を申請する」。かわりに、バックアップをすすめる一文を出します。
+- ブラウザへの保護の申請（`navigator.storage.persist()`）。
+- オフライン用のしくみ（Service Worker）と「✨ あたらしい バージョン が あります」。アプリの新しい版は App Store から届きます。
+- 「このブラウザだけに保存」などの言葉は、「この端末のアプリの中」などに変えます。
 
 ## ファイル
 
@@ -484,7 +494,8 @@ npm run ios       # www/ を つくり、ios/ に うつして、Xcode を ひ�
 index.html              アプリ本体
 manifest.webmanifest    アプリの名前・アイコン・色（ホーム画面に追加したとき用）
 sw.js                   オフラインで使うためのしくみと、アップデートのお知らせ（サービスワーカー）
-icons/icon.svg          アイコンの元の絵（ここを直したら PNG も作り直す）
+icons/icon.svg          アイコンの元の絵（ここを直したら python3 tools/make-icons.py で PNG も作り直す）
+icons/splash.svg        ストア版の起動画面の元の絵（キャラクターは icon.svg から入る）
 icons/icon-192.png      アイコン（Android など）
 icons/icon-512.png      アイコン（大きいサイズ）
 icons/icon-maskable-512.png  アイコン（Android で丸などの形に切りぬかれる用。絵を小さめにしてある）
@@ -492,5 +503,6 @@ icons/apple-touch-icon.png   アイコン（iPhone・iPad 用）
 package.json            ストア版を作るための部品と、npm run build / npm run ios
 capacitor.config.json   ストア版の設定（Bundle ID・アプリの名前・www/）
 ios/                    ストア版の iOS（Xcode）プロジェクト
+tools/make-icons.py     アイコン（Web 版・iOS）と起動画面の PNG を作る（Google Chrome と Pillow を使う）
 README.md               このファイル
 ```

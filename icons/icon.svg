@@ -1,32 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <defs>
-    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#8ce0ff"/>
-      <stop offset="1" stop-color="#4dabf7"/>
-    </linearGradient>
+    <!-- あかるい きいろ。まんなか は やわらかく ひかる -->
+    <radialGradient id="sun" cx=".5" cy=".46" r=".72">
+      <stop offset="0" stop-color="#fffbe0"/>
+      <stop offset=".45" stop-color="#fff0a0"/>
+      <stop offset="1" stop-color="#ffd94a"/>
+    </radialGradient>
   </defs>
-  <rect width="512" height="512" fill="url(#sky)"/>
+  <rect width="1024" height="1024" fill="url(#sun)"/>
   <g id="art">
-    <ellipse cx="256" cy="468" rx="170" ry="26" fill="#2f9e44" opacity=".25"/>
+    <!-- キラキラ -->
     <g fill="#fff">
-      <circle cx="112" cy="116" r="64"/>
-      <circle cx="400" cy="116" r="64"/>
+      <path transform="translate(150 470) scale(3.2)" d="M0 -8 L2 -2 L8 0 L2 2 L0 8 L-2 2 L-8 0 L-2 -2 Z"/>
+      <path transform="translate(878 520) scale(2.6)" d="M0 -8 L2 -2 L8 0 L2 2 L0 8 L-2 2 L-8 0 L-2 -2 Z"/>
+      <path transform="translate(512 112) scale(2.2)" d="M0 -8 L2 -2 L8 0 L2 2 L0 8 L-2 2 L-8 0 L-2 -2 Z"/>
     </g>
     <!-- たす と かける -->
-    <g fill="#ff6b6b"><rect x="80" y="104" width="64" height="24" rx="12"/><rect x="100" y="84" width="24" height="64" rx="12"/></g>
-    <g fill="#40c057" transform="rotate(45 400 116)"><rect x="368" y="104" width="64" height="24" rx="12"/><rect x="388" y="84" width="24" height="64" rx="12"/></g>
-    <!-- げんきな ひよこ -->
-    <g transform="translate(96 162) scale(3.2)" stroke-linecap="round" stroke-linejoin="round">
-      <ellipse cx="18" cy="48" rx="8" ry="14" transform="rotate(-35 18 48)" fill="#ffc61a" stroke="#f0a800" stroke-width="3"/>
-      <ellipse cx="82" cy="48" rx="8" ry="14" transform="rotate(35 82 48)" fill="#ffc61a" stroke="#f0a800" stroke-width="3"/>
-      <path d="M41 86 v7 m-4 0 h8 M59 86 v7 m-4 0 h8" stroke="#ff922b" stroke-width="3" fill="none"/>
-      <ellipse cx="50" cy="56" rx="31" ry="31" fill="#ffd43b" stroke="#f0a800" stroke-width="3"/>
-      <ellipse cx="50" cy="70" rx="17" ry="12" fill="#ffe680"/>
-      <path d="M44 26 q-5 -8 1 -11 M50 25 q-1 -10 6 -11 M56 26 q4 -8 10 -6" stroke="#f0a800" stroke-width="3" fill="none"/>
-      <circle cx="40" cy="47" r="4.2" fill="#3b2f1e"/><circle cx="41.4" cy="45.5" r="1.4" fill="#fff"/>
-      <circle cx="60" cy="47" r="4.2" fill="#3b2f1e"/><circle cx="61.4" cy="45.5" r="1.4" fill="#fff"/>
-      <path d="M45 53 L55 53 L50 59 Z" fill="#ff922b" stroke="#e8590c" stroke-width="1.5"/>
-      <ellipse cx="31" cy="57" rx="5" ry="3" fill="#ffa8a8" opacity=".8"/><ellipse cx="69" cy="57" rx="5" ry="3" fill="#ffa8a8" opacity=".8"/>
+    <g fill="#ff7eb6" stroke="#e8579a" stroke-width="8" stroke-linejoin="round">
+      <path d="M182 168 h40 v-40 h44 v40 h40 v44 h-40 v40 h-44 v-40 h-40 z"/>
+    </g>
+    <g fill="#74c7ff" stroke="#3d9fe0" stroke-width="8" stroke-linejoin="round" transform="rotate(45 818 190)">
+      <path d="M754 168 h40 v-40 h44 v40 h40 v44 h-40 v40 h-44 v-40 h-40 z"/>
+    </g>
+    <!-- たまご から かお を だした ひよこ（アプリ の キャラクター）-->
+    <ellipse cx="512" cy="900" rx="250" ry="34" fill="#e0a800" opacity=".22"/>
+    <g transform="translate(152 196) scale(7.2)" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="50" cy="50" r="28" fill="#ffd43b" stroke="#e89c00" stroke-width="2.6"/>
+      <path d="M48 23 q-3 -8 3 -10 M53 23 q3 -7 9 -5" stroke="#e89c00" stroke-width="2.6" fill="none"/>
+      <circle cx="41" cy="46" r="4.2" fill="#3b2f1e"/><circle cx="42.4" cy="44.5" r="1.4" fill="#fff"/>
+      <circle cx="59" cy="46" r="4.2" fill="#3b2f1e"/><circle cx="60.4" cy="44.5" r="1.4" fill="#fff"/>
+      <path d="M45 52 L55 52 L50 58 Z" fill="#ff922b" stroke="#e8590c" stroke-width="1.5"/>
+      <ellipse cx="33" cy="56" rx="5" ry="3" fill="#ff9a9a" opacity=".85"/><ellipse cx="67" cy="56" rx="5" ry="3" fill="#ff9a9a" opacity=".85"/>
+      <path d="M16 63 L24 56 L31 64 L39 56 L46 64 L54 56 L61 64 L69 56 L76 64 L84 61 Q86 96 50 96 Q14 96 16 63 Z" fill="#fffaf0" stroke="#d9ad55" stroke-width="2.6"/>
+      <circle cx="33" cy="82" r="4" fill="#ffe0a3"/><circle cx="66" cy="86" r="3.5" fill="#ffe0a3"/><circle cx="50" cy="74" r="2.6" fill="#ffe0a3"/>
     </g>
   </g>
 </svg>

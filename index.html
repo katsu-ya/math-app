@@ -1540,7 +1540,7 @@
       <div class="st-install" id="stInstall" hidden></div>
       <div class="st-backup">
         <h4>バックアップ</h4>
-        <p>名前・キャラクター・経験値・バッジ・カレンダー・学習レポート・設定など、すべての記録を1つのファイルにします。機種変更や、iPhone でホーム画面に追加するときにも使えます。</p>
+        <p>名前・キャラクター・経験値・バッジ・カレンダー・学習レポート・設定など、すべての記録を1つのファイルにします。機種変更<span id="stBackupWeb">や、iPhone でホーム画面に追加するとき</span>にも使えます。</p>
         <p id="stLast"></p>
         <button id="backupBtn">💾 きろくを ほぞん</button><button id="restoreBtn">📂 きろくを よみこむ</button>
         <input type="file" id="restoreFile" hidden>
@@ -1684,6 +1684,8 @@
   let waitingNext = false; // まちがえた ぶんしょうだい の せつめい を よんで いる ところ
 
   const $ = (id) => document.getElementById(id);
+  // ストア版（Capacitor の アプリ）の とき true。Web 版 むけ の あんない や しくみ は だささない
+  const isNativeApp = !!(window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform());
 
   // ---- えらぶ ボタン ----
   function setupChoices(containerId, onPick) {
@@ -2424,7 +2426,7 @@
         : "※ 正答率・時間・よく間違える問題は、これから解いた問題で集計されます。") +
       `<br>※ 1問に${AWAY_MS / 60000}分以上かかったものは、席を離れていたとみなして平均時間から除いています。` +
       `<br>※ 練習では、選んだ計算・むずかしさで直近${WEAK_DAYS}日に${WEAK_MIN_MISS}回以上・${Math.round(WEAK_MIN_RATE * 100)}%以上間違えた苦手を、1回${TOTAL}問のうち${Math.round(TOTAL * WEAK_RATIO)}問ほど混ぜて出します（半分は間違えた問題そのもの、半分は同じ種類の新しい問題）。` +
-      "<br>※ 記録はこのブラウザだけに保存されています。";
+      `<br>※ 記録は${isNativeApp ? "この端末のアプリの中" : "このブラウザ"}だけに保存されています。`;
   }
 
   // ---- そだつ なかま（けいけんち で せいちょう する）----
@@ -3248,7 +3250,7 @@
       sel.innerHTML = "<option>—</option>";
       $("voiceNote").textContent = canSpeak
         ? "日本語の声が見つかりません。端末の設定で日本語の読み上げ音声を追加すると使えるようになります。"
-        : "このブラウザでは読み上げが使えません。";
+        : isNativeApp ? "この端末では読み上げが使えません。" : "このブラウザでは読み上げが使えません。";
       return;
     }
     // 🌐 は インターネット を つかう こえ（なまえ は よまない）
@@ -3264,7 +3266,7 @@
       "★ は自然に聞こえやすい声です。「おまかせ」では、この端末でいちばん自然な声を自動で選びます。" +
       "🌐 はインターネットを使う声です。名前を外部に送らないため、🌐 の声では名前を読み上げません。" +
       (callName() && v && !v.localService ? "（いま選んでいる声では名前を読み上げません。名前を呼んでほしいときは 🌐 のない声を選んでください）" : "") +
-      "使える声は端末やブラウザによって違います。iPhone・iPad では「設定 → アクセシビリティ → 読み上げコンテンツ → 声 → 日本語」から、高品質な声をダウンロードできます。";
+      `使える声は${isNativeApp ? "端末" : "端末やブラウザ"}によって違います。iPhone・iPad では「設定 → アクセシビリティ → 読み上げコンテンツ → 声 → 日本語」から、高品質な声をダウンロードできます。`;
   }
 
   $("voiceSelect").addEventListener("change", () => {
@@ -3641,7 +3643,7 @@
   const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   const isAndroid = /Android/.test(navigator.userAgent);
   let installPrompt = null; // Android や パソコン の Chrome で「ホーム画面 に ついか」を だす ため の もの
-  window.addEventListener("beforeinstallprompt", (e) => {
+  if (!isNativeApp) window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     installPrompt = e;
     if ($("parent").classList.contains("active")) renderStorage();
@@ -3653,10 +3655,17 @@
     try { return navigator.storage && navigator.storage.persist ? await navigator.storage.persist() : null; } catch (e) { return null; }
   }
   // Firefox は こども に かくにん が でて しまう ので、おうちのかた が ボタン で たのむ
-  if (!/Firefox/.test(navigator.userAgent)) askPersist();
+  // アプリ では ブラウザ の ほご の しくみ は つかわない
+  if (!isNativeApp && !/Firefox/.test(navigator.userAgent)) askPersist();
 
   // persistResult：「保護を申請する」を おした けっか（"ok" / "ng"）。ない とき は ""
   async function renderStorage(persistResult = "") {
+    // アプリ では「ほご」と「ホーム画面 に ついか」の あんない は ださず、バックアップ だけ を すすめる
+    if (isNativeApp) {
+      $("stStatus").innerHTML = "<p>機種変更のときや念のために、ときどき「💾 きろくを ほぞん」でバックアップしてください。</p>";
+      $("stInstall").hidden = true;
+      return;
+    }
     let persisted = null;
     try { if (navigator.storage && navigator.storage.persisted) persisted = await navigator.storage.persisted(); } catch (e) { /* わからない */ }
     const app = isStandalone();
@@ -3808,6 +3817,7 @@
     $("stLast").className = "st-last" + (due ? " st-due" : "");
     $("stLast").innerHTML = (last ? `さいごに ほぞんした日：<b>${jpDate(last)}</b>` : "まだ保存したことがありません。") +
       (due ? `<br>⚠️ ${last ? "前回の保存から1か月以上たちました。" : ""}「きろくを ほぞん」で新しいファイルを作っておくと安心です。` : "");
+    $("stBackupWeb").hidden = isNativeApp;
     $("stBackupNote").innerHTML = isIOS
       ? "iPhone・iPad：「きろくを ほぞん」→「\"ファイル\"に保存」→「iCloud Drive」を選んで「保存」。読みこむときは「きろくを よみこむ」→「ファイルを選択」→「ブラウズ」から、そのファイルを選びます。"
       : isAndroid ? "Android：保存したファイルは「ダウンロード」フォルダなどに入ります。共有メニューが出たときは、Google ドライブなどを選べます。"
@@ -4152,7 +4162,8 @@
   checkBio();
 
   // オフライン でも つかえる ように する。あたらしい バージョン が とどいたら おしらせ を だす
-  if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  // アプリ では ファイル が アプリ の なか に ある ので いらない（アップデート は ストア から とどく）
+  if (!isNativeApp && "serviceWorker" in navigator && location.protocol !== "file:") {
     const sw = navigator.serviceWorker;
     sw.register("sw.js").catch(() => { /* つかえなくても ふつう に うごく */ });
     let lastCheck = 0;
