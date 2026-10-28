@@ -485,8 +485,12 @@
   /* おうちのかた の あんしょうばんごう */
   #pin { max-width: 420px; margin: 0 auto; text-align: center; }
   .pin-lead { font-size: 17px; font-weight: bold; margin: -6px 0 10px; line-height: 1.5; word-break: keep-all; }
-  .pin-q { font-size: 34px; font-weight: bold; color: var(--main-text); letter-spacing: 2px; margin-bottom: 8px; }
+  .pin-q { font-size: 34px; font-weight: bold; color: var(--main-text); letter-spacing: 2px; line-height: 1.2; margin-bottom: 6px; }
   .pin-q[hidden] { display: none; }
+  .pin-task { margin: 0 0 2px; font-size: 18px; font-weight: bold; line-height: 1.5; }
+  .pin-task[hidden] { display: none; }
+  .pin-task span { display: inline-block; }
+  .bio-state { font-weight: bold; }
   .pin-dots { display: flex; justify-content: center; gap: 14px; height: 44px; align-items: center; }
   .pin-dots span { width: 22px; height: 22px; border-radius: 50%; border: 3px solid #adb5bd; }
   .pin-dots span.on { background: #495057; border-color: #495057; }
@@ -1460,6 +1464,7 @@
     <h1>🔒 <span id="pinTitle">おうちのかたへ</span></h1>
     <p class="pin-lead" id="pinLead"></p>
     <div class="pin-q" id="pinQ" hidden></div>
+    <p class="pin-task" id="pinTask" hidden></p>
     <div class="pin-dots" id="pinDots"></div>
     <p class="pin-msg" id="pinMsg"></p>
     <div class="keypad pin-pad" id="pinPad">
@@ -1542,6 +1547,13 @@
         <div class="st-result" id="stResult" hidden></div>
         <p class="st-note" id="stBackupNote"></p>
       </div>
+    </div>
+
+    <div class="rp-card st-card" id="bioCard" hidden>
+      <h3><span class="bio-name">Face ID</span>で開く</h3>
+      <p>オンにすると、「おうちのかたへ」を暗証番号のかわりに<span class="bio-name">Face ID</span>で開けます。お子さまの顔や指紋もこの端末に登録されているときは、オフのままにしてください（お子さまが開けてしまいます）。</p>
+      <p class="bio-state" id="bioState"></p>
+      <button id="bioToggle"></button>
     </div>
 
     <div class="rp-card st-card">
@@ -2805,7 +2817,7 @@
     if (id === "start") { resetCalendar(); renderGrowth(); $("parentBtn").classList.toggle("due", backupDue()); }
     if (id === "dan") renderDan();
     if (id === "badges") renderBadges();
-    if (id === "parent") { renderReport(); renderStorage(); renderBackup(); }
+    if (id === "parent") { renderReport(); renderStorage(); renderBackup(); renderBio(); }
     if (id === "settings") renderSettings();
     if (id === "pin") renderPin();
     if (id === "start") renderGreet();
@@ -3931,25 +3943,31 @@
     return ["7890", "0987", "2580", "0852"].includes(p);
   }
 
-  // おとな か どうか の かくにん：漢数字 を すうじ に する（こども の けいさん で は とけない ように 万 の くらい と 0 を まぜる）
-  const KAN = "〇一二三四五六七八九";
-  function kanjiNumber(n) {
-    const under = (x) => {
-      let t = "";
-      for (const [u, k] of [[1000, "千"], [100, "百"], [10, "十"]]) {
-        const d = Math.floor(x / u) % 10;
-        if (d) t += (d > 1 ? KAN[d] : "") + k;
-      }
-      return t + (x % 10 ? KAN[x % 10] : "");
-    };
-    return under(Math.floor(n / 10000)) + "万" + under(n % 10000);
-  }
+  // おとな か どうか の かくにん：5つ の すうじ を、漢字 の しじ どおり に いれる。
+  // 「降順」「奇数番目」「末尾」「各桁」など、小学校 で ならわない ことば を まぜ、しじ も まいかい かえる
+  const ASKS = [
+    { text: "上の数字を降順に並べ替えて入力", ans: (d) => [...d].sort((x, y) => y - x) },
+    { text: "上の数字を昇順に並べ替えて入力", ans: (d) => [...d].sort((x, y) => x - y) },
+    { text: "上の数字を逆順に入力", ans: (d) => [...d].reverse() },
+    { text: "奇数番目の数字だけを入力", ans: (d) => d.filter((_, i) => i % 2 === 0) },
+    { text: "末尾の三桁を逆順に入力", ans: (d) => d.slice(-3).reverse() },
+    { text: "各桁に一を加えて入力", ans: (d) => d.map((x) => x + 1) },
+  ];
+  let askLast = -1;
   function newChallenge() {
-    let low;
-    do { low = Array.from({ length: 4 }, () => rand(0, 9)); }
-    while (!low.includes(0) || low.filter((x) => x).length < 2);
-    pinAnswer = String(rand(2, 9)) + low.join("");
-    $("pinQ").textContent = kanjiNumber(Number(pinAnswer));
+    // 1〜8 の ちがう すうじ（1 を たして も 1けた）。はじめ から ならんで いる もの は さける
+    let d;
+    do {
+      const pool = [1, 2, 3, 4, 5, 6, 7, 8];
+      d = Array.from({ length: 5 }, () => pool.splice(rand(0, pool.length - 1), 1)[0]);
+    } while (d.every((x, i) => !i || x > d[i - 1]) || d.every((x, i) => !i || x < d[i - 1]));
+    let k;
+    do { k = rand(0, ASKS.length - 1); } while (k === askLast); // おなじ しじ を つづけない
+    askLast = k;
+    pinAnswer = ASKS[k].ans(d).join("");
+    $("pinQ").textContent = d.join(" ");
+    // せまい がめん で おりかえす とき は「してください」の まえ で
+    $("pinTask").innerHTML = `${ASKS[k].text}<span>してください</span>`;
   }
 
   async function parentGate(next, backTo) {
@@ -3977,16 +3995,16 @@
       enter: "保護者用の暗証番号を入力してください",
       new1: "保護者用の暗証番号（4けた）を決めてください",
       new2: "確認のため、もう一度入力してください",
-      forgot: "暗証番号を決め直すには、次の漢数字を<br>数字で入力してください",
-      setup: "保護者用の暗証番号を決める前に、<br>次の漢数字を数字で入力してください",
+      forgot: "暗証番号を決め直すには、<br>次の問題に答えてください",
+      setup: "保護者用の暗証番号を決める前に、<br>次の問題に答えてください",
     }[pinMode];
-    $("pinQ").hidden = !forgot;
+    $("pinQ").hidden = $("pinTask").hidden = !forgot;
     // ばんごう は ●● で かくす。かくにん の こたえ は みえて よい
     $("pinDots").innerHTML = Array.from({ length: len }, (_, i) =>
       forgot ? `<b>${pinInput[i] || ""}</b>` : `<span class="${i < pinInput.length ? "on" : ""}"></span>`).join("");
     $("pinForgot").hidden = pinMode !== "enter";
     const wait = (loadLock().until || 0) - Date.now();
-    const locked = pinMode === "enter" && wait > 0;
+    const locked = pinLocked();
     $("pinPad").querySelectorAll("button").forEach((b) => { b.disabled = locked; });
     $("pinMsg").className = "pin-msg" + (pinNote && !pinNote.startsWith("⚠") && !locked ? " ok" : "");
     $("pinMsg").textContent = locked ? `${PIN_TRIES}回まちがえたので、${Math.ceil(wait / 1000)}秒待ってから入力してください` : pinNote;
@@ -3994,11 +4012,29 @@
     if (locked) pinTimer = setInterval(() => { if (Date.now() >= (loadLock().until || 0)) pinNote = ""; renderPin(); }, 1000);
   }
 
+  // ばんごう を きめて いる とちゅう（new1・new2）より まえ は、まちがい が つづくと まつ
+  const pinLocked = () => pinMode !== "new1" && pinMode !== "new2" && (loadLock().until || 0) > Date.now();
+  // まちがい を かぞえる。PIN_TRIES かい で 1ぷん まつ。のこり の かいすう を かえす（0 は まつ）
+  function countFail() {
+    const lock = loadLock();
+    const fails = (lock.fails || 0) + 1;
+    if (fails >= PIN_TRIES) saveLock({ ...lock, fails: 0, until: Date.now() + PIN_WAIT_MS });
+    else saveLock({ ...lock, fails });
+    return fails >= PIN_TRIES ? 0 : PIN_TRIES - fails;
+  }
+  // まちがい の かず を けして、ほか（ばんごう・Face ID の せってい）は のこす
+  const calmLock = ({ fails, until, ...rest }) => rest;
+
   async function pinDone() {
     const lock = loadLock();
     if (isAsk(pinMode)) {
-      if (pinInput !== pinAnswer) openPin(pinMode, "⚠ ちがいます。新しい問題にかえました");
-      else if (pinMode === "setup") openPin("new1", "確認できました。4けたの番号を決めてください");
+      if (pinInput !== pinAnswer) {
+        const left = countFail();
+        openPin(pinMode, left ? `⚠ ちがいます。新しい問題にかえました（あと${left}回まちがえると、1分待ちます）` : "");
+        return;
+      }
+      saveLock(calmLock(lock));
+      if (pinMode === "setup") openPin("new1", "確認できました。4けたの番号を決めてください");
       else openPin("new1", "新しい暗証番号を決めてください（記録はそのままです）");
       return;
     }
@@ -4011,20 +4047,18 @@
     if (pinMode === "new2") {
       if (pinInput !== pinFirst) { openPin("new1", "⚠ 1回目と2回目がちがいました。最初から入力してください"); return; }
       const salt = Array.from(crypto.getRandomValues ? crypto.getRandomValues(new Uint8Array(8)) : [rand(0, 255)], (b) => b.toString(16)).join("");
-      saveLock({ salt, hash: await pinHash(pinInput, salt) });
+      saveLock({ ...calmLock(loadLock()), salt, hash: await pinHash(pinInput, salt) });
       unlockParent();
       return;
     }
     // enter
     if (lock.hash && (await pinHash(pinInput, lock.salt)) === lock.hash) {
-      saveLock({ salt: lock.salt, hash: lock.hash });
+      saveLock(calmLock(lock));
       unlockParent();
       return;
     }
-    const fails = (lock.fails || 0) + 1;
-    if (fails >= PIN_TRIES) saveLock({ ...lock, fails: 0, until: Date.now() + PIN_WAIT_MS });
-    else saveLock({ ...lock, fails });
-    openPin("enter", fails >= PIN_TRIES ? "" : `⚠ 暗証番号がちがいます（あと${PIN_TRIES - fails}回まちがえると、1分待ちます）`);
+    const left = countFail();
+    openPin("enter", left ? `⚠ 暗証番号がちがいます（あと${left}回まちがえると、1分待ちます）` : "");
   }
   function unlockParent() {
     parentUnlocked = true;
@@ -4035,7 +4069,7 @@
 
   let pinBusy = false; // さいご の けた を いれて から しらべおわる まで
   function pinKey(key) {
-    if (pinBusy || (pinMode === "enter" && (loadLock().until || 0) > Date.now())) return;
+    if (pinBusy || pinLocked()) return;
     const len = isAsk(pinMode) ? pinAnswer.length : PIN_LEN;
     if (key === "back") pinInput = pinInput.slice(0, -1);
     else if (key === "clear") pinInput = "";
@@ -4057,6 +4091,51 @@
   });
   $("pinForgot").addEventListener("click", () => openPin("forgot", ""));
   $("pinBack").addEventListener("click", () => { pinNext = null; show(pinBackTo); });
+
+  // ---- Face ID / Touch ID（ストア版）----
+  // @aparajita/capacitor-biometric-auth を いれる と つかえる。たんまつ に こども の かお や ゆび も
+  // とうろく されて いる こと が ある ので、おうちのかた が オン に した とき だけ つかう。
+  // オン・オフ は この たんまつ だけ の もの なので LOCK_KEY に いれる（バックアップ には はいらない）
+  const BIO_NAMES = { 1: "Touch ID", 2: "Face ID", 3: "指紋認証", 4: "顔認証", 5: "虹彩認証" };
+  let bioName = ""; // つかえない とき は ""
+  function bioPlugin() {
+    const cap = window.Capacitor;
+    if (!cap || !cap.isNativePlatform || !cap.isNativePlatform()) return null;
+    const p = cap.Plugins || {};
+    return p.BiometricAuthNative || p.BiometricAuth || null;
+  }
+  async function checkBio() {
+    const p = bioPlugin();
+    if (!p) return;
+    try {
+      const r = await p.checkBiometry();
+      bioName = r && r.isAvailable ? BIO_NAMES[r.biometryType] || "生体認証" : "";
+    } catch (e) { bioName = ""; }
+  }
+  async function bioAuth(reason) {
+    try {
+      // たんまつ の パスコード は こども が しって いる こと も ある ので つかわない
+      await bioPlugin().authenticate({ reason, cancelTitle: "暗証番号を使う", allowDeviceCredential: false });
+      return true;
+    } catch (e) { return false; }
+  }
+  extraUnlocks.push(async () => !!bioName && !!loadLock().bio && !!loadLock().hash && bioAuth("「おうちのかたへ」を開きます"));
+
+  function renderBio(note = "") {
+    $("bioCard").hidden = !bioName;
+    if (!bioName) return;
+    const on = !!loadLock().bio;
+    document.querySelectorAll(".bio-name").forEach((e) => { e.textContent = bioName; });
+    $("bioState").textContent = note || (on ? `今はオン：${bioName}で開けます（だめなときは暗証番号）` : "今はオフ：暗証番号で開きます");
+    $("bioToggle").textContent = on ? `${bioName}を使わない` : `${bioName}を使う`;
+  }
+  $("bioToggle").addEventListener("click", async () => {
+    if (loadLock().bio) { saveLock({ ...loadLock(), bio: undefined }); renderBio(); return; }
+    // オン に する まえ に、いま ここ に いる おうちのかた で とおる か ためす
+    if (await bioAuth(`${bioName}で「おうちのかたへ」を開けるようにします`)) { saveLock({ ...loadLock(), bio: true }); renderBio(); }
+    else renderBio(`${bioName}で確認できなかったので、オフのままです`);
+  });
+  checkBio();
 
   // オフライン でも つかえる ように する。あたらしい バージョン が とどいたら おしらせ を だす
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
