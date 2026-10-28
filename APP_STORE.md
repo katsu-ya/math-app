@@ -16,8 +16,7 @@ Bundle ID：`jp.katsuya.keisanrenshu`
 | サポート URL | https://katsu-ya.github.io/math-app/support.html |
 | マーケティング URL（任意） | 空欄でよい |
 
-- 問い合わせのメールアドレスは、2つのページとも「準備中です」になっています。決めたら `privacy.html` と `support.html` の `TODO` の行を直して、main に push します。
-  - **申請の前に必ず入れる**：サポート URL のページには、連絡先が必要です。
+- 問い合わせのメールアドレス：katsu.rx.101@gmail.com（2つのページに入れた。2026-10-28）。アプリの中で読むプライバシーポリシーでは、リンクにせず文字だけで出ます。
 - 運営者名は「katsu-ya（個人で開発しています）」です（著作権の表記と同じ）。
 - 2つのページのアプリ名は「たまごと けいさん れんしゅう」にしました。
 
@@ -293,7 +292,7 @@ The app is in Japanese. Text for children is written in hiragana.
 | # | 内容 | 重要度 |
 |---|---|---|
 | ~~A~~ | ~~アプリの中からプライバシーポリシーを見られるようにする~~ → **した**（2026-10-28）。「おうちのかたへ」→「▶ プライバシーポリシーを読む」で、`privacy.html` の本文をアプリの中で読める（リンクにしない） | 高 |
-| B | 問い合わせのメールアドレスを決めて、`privacy.html`・`support.html` に入れる | **高** |
+| ~~B~~ | ~~問い合わせのメールアドレスを決めて、`privacy.html`・`support.html` に入れる~~ → **した**（katsu.rx.101@gmail.com） | 高 |
 | ~~C~~ | ~~`Info.plist` に `ITSAppUsesNonExemptEncryption = NO` を書く~~ → **した**（2026-10-28。暗証番号のハッシュは暗号化に当たらない） | 中 |
 | D | 実機で確かめる：Face ID・Touch ID、バックアップの保存と読みこみ（STORE_CHECK 3-4）、アップデートしても記録が残るか（2-5） | **高** |
 | E | Apple Developer Program に登録し、App Store Connect でアプリを作る（Bundle ID `jp.katsuya.keisanrenshu`）。Xcode で署名（Team）を選び、Archive → アップロード | **高** |
