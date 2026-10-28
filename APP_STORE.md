@@ -18,17 +18,22 @@ Bundle ID：`jp.katsuya.keisanrenshu`
 
 - 問い合わせのメールアドレスは、2つのページとも「準備中です」になっています。決めたら `privacy.html` と `support.html` の `TODO` の行を直して、main に push します。
   - **申請の前に必ず入れる**：サポート URL のページには、連絡先が必要です。
-- 運営者名は仮に「katsu-ya（個人で開発しています）」としています。App Store の「販売元」（Apple Developer に登録した名前）と合わせたいときは、あわせて直します。
+- 運営者名は「katsu-ya（個人で開発しています）」です（著作権の表記と同じ）。
+- 2つのページのアプリ名は「たまごと けいさん れんしゅう」にしました。
 
 ---
 
 ## 1. App Store に載せる文章
 
-### アプリ名（30文字まで）★要決定
+### アプリ名（30文字まで）
+
+**たまごと けいさん れんしゅう**（15文字・2026-10-28 に決定）
+
+検討した案：
 
 | 案 | 文字数 | ひとこと |
 |---|---|---|
-| **たまごと けいさん れんしゅう**（おすすめ） | 15 | キャラクターが名前に入り、同じ名前のアプリと区別しやすい |
+| **たまごと けいさん れんしゅう**（決定） | 15 | キャラクターが名前に入り、同じ名前のアプリと区別しやすい |
 | けいさん れんしゅう - たまごと いっしょ | 22 | 今の名前を先に出す |
 | けいさん れんしゅう | 10 | 今の名前のまま。似た名前のアプリが多く、検索で埋もれやすい |
 
@@ -83,6 +88,7 @@ Bundle ID：`jp.katsuya.keisanrenshu`
 ・記録のバックアップ（機種変更のときに引き継げます）
 ・お子さまの名前とよびかたの設定
 ・保護者向けの画面は、保護者用の暗証番号で守られています。Face ID・Touch ID でも開けます（最初はオフ）
+・プライバシーポリシーも、保護者向けの画面の中で読めます
 
 ■ お子さまに
 ・表示はひらがな中心で、低学年でも読みやすくしています
@@ -111,7 +117,7 @@ Bundle ID：`jp.katsuya.keisanrenshu`
 | キッズカテゴリ | キッズ・**6〜8歳**（理由は 3-2） |
 | 価格 | 無料 |
 | App 内課金 | なし |
-| 著作権 | 2026 katsu-ya（★販売元の名前に合わせる） |
+| 著作権 | © 2026 katsu-ya |
 | コンテンツ配信権 | 第三者のコンテンツは使っていない（絵・音・キャラクターはすべて自作。STORE_CHECK 5章） |
 | バージョン | 1.0 |
 | サインインが必要か | 不要（アカウントなし） |
@@ -155,7 +161,8 @@ HOW TO OPEN THE PARENT AREA (parental gate)
    question again, and set a new PIN.
 
 The parent area contains: learning report, changing the child's name,
-backup/restore of records (iOS share sheet / Files), and an option to unlock with Face ID.
+backup/restore of records (iOS share sheet / Files), an option to unlock with Face ID,
+and the privacy policy (shown inside the app, not as an external link).
 
 FACE ID
 Face ID is OFF by default. A parent can turn it on in the parent area ("Face IDを使う").
@@ -265,7 +272,19 @@ The app is in Japanese. Text for children is written in hiragana.
 
 ### 4-4. 見本の記録
 
-見本の記録は、自分で何回か解けば作れます。ただ、キャラクターを育てたりカレンダーを埋めたりするには時間がかかります。必要なら、シミュレーターだけで使う「見本の記録を入れるファイル」を作ります（バックアップのファイルの形で作り、「きろくを よみこむ」で入れます。アプリのコードは変えません）。★必要なら言ってください。
+`tools/make-sample-backup.py` で、見本の記録（バックアップのファイル）を作り、「きろくを よみこむ」で入れます。アプリのコードは変えません。
+
+- 中身：名前「ゆう」（よびかた「さん」）、14日ぶん・176問の記録（最後の12日は続けて解いている）、カレンダーに ○ と花丸（20問以上）が4つ、キャラクター Lv.4「げんきな ひよこ」（あと 60 でレベルアップ）、バッジ 9こ、全問正解 7回、よく間違える問題（7×8・6×7・13−6）。
+- 日付は**作った日**から数えます。撮る日に作り直してください（日がたつと、カレンダーの連続や「きょう は 12もん」がずれます）。
+
+手順（シミュレーターを1台だけ起動しておく）：
+1. `! python3 tools/make-sample-backup.py --sim` を実行します。起動しているシミュレーターの「ファイル」アプリ（このiPhone内）に `keisan-sample.json` が入ります。
+2. アプリで「おうちのかたへ」→「📂 きろくを よみこむ」→「ファイルを選択」（または「ブラウズ」）→「このiPhone内」→ `keisan-sample.json` を選び、「よみこむ」を押します。
+3. アプリが開き直し、「ゆうさん、きょうも がんばろう！」と出れば入っています。
+4. iPad でも同じようにします（iPad では「このiPad内」）。
+
+- Mac にファイルを作るだけなら `! python3 tools/make-sample-backup.py`（デスクトップに `keisan-sample.json` ができます）。
+- 撮り終わったら、シミュレーターのアプリを長押しして削除すれば、見本の記録は消えます。
 
 ---
 
@@ -273,9 +292,9 @@ The app is in Japanese. Text for children is written in hiragana.
 
 | # | 内容 | 重要度 |
 |---|---|---|
-| A | **アプリの中からプライバシーポリシーを見られるようにする**。ガイドライン 5.1.1 で、アプリの中からも見られることが求められます。キッズカテゴリでは外部リンクに保護者の確認が必要なので、「おうちのかたへ」の中に、ポリシーの本文をそのまま載せる（リンクにしない）のがおすすめです | **高** |
+| ~~A~~ | ~~アプリの中からプライバシーポリシーを見られるようにする~~ → **した**（2026-10-28）。「おうちのかたへ」→「▶ プライバシーポリシーを読む」で、`privacy.html` の本文をアプリの中で読める（リンクにしない） | 高 |
 | B | 問い合わせのメールアドレスを決めて、`privacy.html`・`support.html` に入れる | **高** |
-| C | `Info.plist` に `ITSAppUsesNonExemptEncryption = NO` を書く（暗号化を使っていないことの申告。書かないと、アップロードのたびに質問される。暗証番号のハッシュは暗号化に当たらない） | 中 |
+| ~~C~~ | ~~`Info.plist` に `ITSAppUsesNonExemptEncryption = NO` を書く~~ → **した**（2026-10-28。暗証番号のハッシュは暗号化に当たらない） | 中 |
 | D | 実機で確かめる：Face ID・Touch ID、バックアップの保存と読みこみ（STORE_CHECK 3-4）、アップデートしても記録が残るか（2-5） | **高** |
 | E | Apple Developer Program に登録し、App Store Connect でアプリを作る（Bundle ID `jp.katsuya.keisanrenshu`）。Xcode で署名（Team）を選び、Archive → アップロード | **高** |
 | F | Web 版をどうするか（今は同じ中身が無料で公開されている。STORE_CHECK 6-10）。無料で出すうちは、そのままでも問題はない | 低 |

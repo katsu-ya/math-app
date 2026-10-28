@@ -7,6 +7,7 @@ const FILES = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
+  "./privacy.html",           // おうちのかたへ の なか で よむ
   "./icons/icon.svg",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
@@ -31,7 +32,7 @@ self.addEventListener("fetch", (e) => {
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
     // アプリ の ページ（./ と index.html）を ひらく とき だけ アプリ を かえす。
-    // ほか の ページ（privacy.html・support.html など）は そのまま サーバー から もらう
+    // ほか の ページ（privacy.html・support.html など）は、とっておいた もの か サーバー から もらう
     const app = req.mode === "navigate" && /\/(index\.html)?$/.test(new URL(req.url).pathname);
     const hit = await cache.match(app ? "./" : req, { ignoreSearch: true });
     return hit || fetch(req);

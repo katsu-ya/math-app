@@ -397,6 +397,16 @@
   #parent { font-size: 16px; line-height: 1.5; }
   #parent h1 { margin-bottom: 6px; }
   #parent h1 small { display: block; font-size: 16px; color: #666; font-weight: normal; }
+  #privacy { font-size: 16px; line-height: 1.7; }
+  #privacy h1 { margin-bottom: 6px; }
+  #privacy h1 small { display: block; font-size: 16px; color: #666; font-weight: normal; }
+  .pv-card p { margin: 6px 0; }
+  .pv-card ul { margin: 6px 0; padding-left: 1.3em; }
+  .pv-card li { margin: 4px 0; }
+  .pv-card.point { background: #fff3c4; }
+  .pv-card.point ul { font-weight: bold; }
+  .pv-card .note, .pv-date { font-size: 14px; color: #666; }
+  .pv-date { text-align: center; margin: 14px 0 0; }
   .rp-card {
     background: var(--card);
     border-radius: 24px;
@@ -1562,8 +1572,21 @@
       <button id="guideOpen">▶ はじめてガイドを見る</button>
     </div>
 
+    <div class="rp-card st-card">
+      <h3>プライバシーポリシー</h3>
+      <p>このアプリは、お子さまの情報を集めません。記録や名前はこの端末の中だけに保存し、外部に送りません。広告・解析ツールも使っていません。</p>
+      <button id="privacyOpen">▶ プライバシーポリシーを読む</button>
+    </div>
+
     <p class="rp-foot" id="rpFoot"></p>
     <button class="big-btn home-btn" id="parentBack">もどる</button>
+  </section>
+
+  <!-- プライバシーポリシー（privacy.html の ほんぶん を アプリ の なか で よむ。リンク には しない） -->
+  <section id="privacy" class="screen">
+    <h1>プライバシーポリシー<small>おうちのかたへ</small></h1>
+    <div id="pvBody"><div class="rp-card"><p>読みこんでいます…</p></div></div>
+    <button class="big-btn home-btn" id="privacyBack">もどる</button>
   </section>
 
   <!-- もんだい がめん -->
@@ -2889,6 +2912,7 @@
     if (id === "start") renderGreet();
     if (id === "name") { renderName(); $("nameInput").focus(); }
     if (id === "guide") renderGuide();
+    if (id === "privacy") renderPrivacy();
     else if (guideSpeaking) stopSpeech();
     window.scrollTo(0, 0);
     if (id === "start" || id === "finish") celebrate();
@@ -3628,6 +3652,37 @@
   $("homeBtn").addEventListener("click", () => show("start"));
   $("parentBtn").addEventListener("click", () => parentGate(() => show("parent"), "start"));
   $("parentBack").addEventListener("click", () => show("start"));
+
+  // ---- プライバシーポリシー ----
+  // ほんぶん は privacy.html だけ に かく（ストア の URL と おなじ もの を みせる）。
+  // そと へ でる ところ を つくらない ため、リンク は もじ だけ に する
+  let privacyLoaded = false;
+  async function renderPrivacy() {
+    if (privacyLoaded) return;
+    const box = $("pvBody");
+    try {
+      const res = await fetch("privacy.html");
+      if (!res.ok) throw new Error(res.status);
+      const doc = new DOMParser().parseFromString(await res.text(), "text/html");
+      doc.querySelectorAll("a").forEach((a) => a.replaceWith(a.textContent));
+      const cards = [...doc.querySelectorAll("main > section")].map((sec) => {
+        const h = sec.querySelector("h2");
+        const title = h ? h.textContent : "";
+        if (h) h.remove();
+        return `<div class="rp-card pv-card ${sec.classList.contains("point") ? "point" : ""}"><h3>${esc(title)}</h3>${sec.innerHTML}</div>`;
+      });
+      if (!cards.length) throw new Error("empty");
+      const foot = doc.querySelector("footer");
+      box.innerHTML = cards.join("") + (foot ? `<p class="pv-date">${esc(foot.textContent.trim())}</p>` : "");
+      privacyLoaded = true;
+    } catch (e) {
+      // パソコン で index.html を ちょくせつ ひらいた とき など
+      box.innerHTML = '<div class="rp-card"><p>プライバシーポリシーを読みこめませんでした。</p>' +
+        '<p>同じ内容は katsu-ya.github.io/math-app/privacy.html にあります。</p></div>';
+    }
+  }
+  $("privacyOpen").addEventListener("click", () => show("privacy"));
+  $("privacyBack").addEventListener("click", () => show("parent"));
   $("settingsBtn").addEventListener("click", () => show("settings"));
   $("settingsBack").addEventListener("click", () => { stopSpeech(); show("start"); });
   $("badgeBtn").addEventListener("click", () => { badgeTab = 0; show("badges"); });
@@ -4002,7 +4057,7 @@
   // ここ から ほか の がめん に いったら かぎ を かける。
   // guide は こども も みる が、おうちのかたへ から みなおした とき に レポート へ もどれる ように いれて おく
   //（はじめて ひらいた とき は もともと かぎ が かかって いる）
-  const PARENT_SCREENS = ["parent", "name", "pin", "guide"];
+  const PARENT_SCREENS = ["parent", "name", "pin", "guide", "privacy"];
   // ストア版 で Face ID / Touch ID を つかう とき は、ここ に「true を かえす と ひらく」関数 を たす
   const extraUnlocks = [];
   let parentUnlocked = false;
