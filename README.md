@@ -528,6 +528,7 @@ capacitor.config.json   ストア版の設定（Bundle ID・アプリの名前�
 ios/                    ストア版の iOS（Xcode）プロジェクト
 tools/make-icons.py     アイコン（Web 版・iOS）と起動画面の PNG を作る（Google Chrome と Pillow を使う）
 tools/make-sample-backup.py  スクリーンショット用の見本の記録（名前は「ゆう」）をバックアップのファイルで作る
+tools/screenshots/      App Store 用のスクリーンショットを撮って、キャッチコピー入りの画像にする（make-screenshots.sh）
 APP_STORE.md            App Store に申請するときの文章・質問の答え・スクリーンショットの撮り方の下書き
 STORE_CHECK.md          ストアに出す前の点検の記録
 README.md               このファイル

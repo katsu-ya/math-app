@@ -240,6 +240,24 @@ The app is in Japanese. Text for children is written in hiragana.
 - 1端末につき1〜10枚まで載せられます。おすすめは5〜6枚です。
 - iPad は縦・横どちらで撮ってもかまいません。そろえると見栄えがよくなります。
 
+### 4-0. まとめて作る（おすすめ）
+
+```
+! tools/screenshots/make-screenshots.sh
+```
+
+見本の記録（今日の日付）を作り、iPhone 18 Pro Max と iPad Pro 13-inch (M5) で9つの画面を自動で撮ります。そのあと、キャッチコピー入りの画像を `~/Desktop/keisan-screenshots/iphone/`・`ipad/` に作ります（10分ほど）。
+
+- ファイル名の番号が、App Store Connect に並べる順番です（01 はじめの画面「こうこく なし・あんしん」〜 09 学習レポート）。
+- 終わると、シミュレーターにはふつうのアプリが入り直します。時計の表示（9:41）を戻すときは `xcrun simctl status_bar booted clear`。
+- 画像は GitHub に上げません（出力先はリポジトリの外）。
+- キャッチコピーや順番は `tools/screenshots/compose.py` の `SLIDES`、撮る画面は `tools/screenshots/capture.js` で変えます。アプリにない機能（例：時計）は書かないでください。
+- 画面の作りを変えると、iPad の切りとる範囲（`compose.py` の `crop_box`）や、自動の操作（`capture.js`）を直す必要があることがあります。撮れた画像を必ず見て確かめてください。
+
+### 4-1-b. 手で撮るとき
+
+下の 4-2〜4-4 の手順で撮ります。
+
 ### 4-2. 撮り方
 
 1. `! npm run ios` を実行し、Xcode で **iPhone 18 Pro Max** を選んで ▶ を押します。
