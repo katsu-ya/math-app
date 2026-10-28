@@ -514,6 +514,21 @@
   .plan-card li { margin: 2px 0; }
   .st-card button.plan-main { background: var(--main); color: var(--on-main, #4a2500); box-shadow: 0 3px 0 #e8590c; font-size: 17px; padding: 10px 18px; }
   .plan-terms { font-size: 13px; color: #666; margin: 4px 0 0; }
+  /* この 30にちかん の ふりかえり */
+  .review-card { border: 3px solid #ffd8a8; }
+  .review-card h4 { margin: 14px 0 6px; font-size: 16px; color: var(--main-text); }
+  .review-mini { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin: 10px 0 2px; }
+  .review-mini span { position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888; background: var(--bg); border-radius: 8px; }
+  .review-mini span.done { color: #333; background: #fff3c4; }
+  .review-mini span svg { position: absolute; inset: 1px; width: calc(100% - 2px); height: calc(100% - 2px); }
+  .review-row { display: flex; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px dashed #eee; }
+  .review-row:last-child { border-bottom: 0; }
+  .review-row b { white-space: nowrap; }
+  .review-up { color: var(--mark-ok); } .review-down { color: #868e96; }
+  .review-buddy { display: flex; align-items: center; gap: 12px; }
+  .review-buddy .pic { width: 64px; height: 64px; flex: none; }
+  .review-buddy .pic svg { width: 100%; height: 100%; }
+  .review-badges { font-size: 26px; letter-spacing: 4px; margin-top: 4px; }
   .plan-terms p { margin: 0 0 6px; }
   .st-card .plan-terms button { background: none; box-shadow: none; color: var(--main-text); text-decoration: underline; padding: 0; margin: 0 12px 0 0; font-size: 13px; }
   .pin-dots { display: flex; justify-content: center; gap: 14px; height: 44px; align-items: center; }
@@ -1586,6 +1601,8 @@
 
     <!-- ごりよう の プラン（ストア版 だけ。Web 版 では ださない） -->
     <div class="rp-card st-card plan-card" id="planCard" hidden></div>
+    <!-- この 30にちかん の ふりかえり（おためし の のこり 3にち から と、おわった あと） -->
+    <div class="rp-card review-card" id="reviewCard" hidden></div>
 
     <div class="rp-card">
       <h3>取り組み</h3>
@@ -2975,7 +2992,7 @@
     if (id === "finish" || id === "dan") renderAccessGate();
     if (id === "dan") renderDan();
     if (id === "badges") renderBadges();
-    if (id === "parent") { renderPlan(); renderReport(); renderStorage(); renderBackup(); renderBio(); }
+    if (id === "parent") { renderPlan(); renderReview(); renderReport(); renderStorage(); renderBackup(); renderBio(); }
     if (id === "settings") renderSettings();
     if (id === "pin") renderPin();
     if (id === "start") renderGreet();
@@ -3982,8 +3999,9 @@
       const stop = addDays(s0, TRIAL_DAYS); // はじめた ひ を 1にちめ と して、31にちめ の 0じ に おわる
       const end = addDays(stop, -1);
       const daysLeft = Math.ceil((stop - Date.now()) / DAY_MS);
-      if (daysLeft > 0) return { state: "trial", end, daysLeft, notice: daysLeft <= TRIAL_NOTICE_DAYS, dev };
-      return { state: "expired", end, dev };
+      const start = addDays(s0, 0);
+      if (daysLeft > 0) return { state: "trial", start, end, daysLeft, notice: daysLeft <= TRIAL_NOTICE_DAYS, dev };
+      return { state: "expired", start, end, dev };
     }
     return { state: "before", tasteUsed, dev };
   }
@@ -4047,6 +4065,115 @@
     }
     card.innerHTML = html;
   }
+  // ---- この 30にちかん の ふりかえり ----
+  // おためし の のこり 3にち から と、おわった あと に だす。かず は ぜんぶ たんまつ の きろく から けいさん する。
+  // あおる かきかた は しない（「つづけると○○」とは かかない）。きろく が すくない とき は のび を ださない
+  function tagStats(list) {
+    const m = new Map();
+    const add = (tag, missed) => {
+      const g = m.get(tag.key) || { label: tag.label, n: 0, miss: 0 };
+      g.n++; if (missed) g.miss++;
+      m.set(tag.key, g);
+    };
+    list.forEach((e) => {
+      if (e.st) add(storyTag(e), !e.sk);
+      if (!e.st || e.sk) add(weakTag(e), !e.ok);
+    });
+    return m;
+  }
+  // おためし を はじめた とき の けいけんち を おぼえて おく（「たまご → ○○」に つかう）
+  function trialSnapshot(a) {
+    const acc = loadAccess();
+    const key = dateKey(a.start);
+    if (acc.snap && acc.snap.start === key) return acc.snap;
+    if (a.state !== "trial" || a.dev) return null;
+    const snap = { start: key, xp: loadGrowth().xp };
+    saveAccess({ ...acc, snap });
+    return snap;
+  }
+  function renderReview() {
+    const a = accessState();
+    const card = $("reviewCard");
+    if (a.state === "trial") trialSnapshot(a);
+    card.hidden = !((a.state === "trial" && a.notice) || (a.state === "expired" && a.start));
+    if (card.hidden) return;
+    records = loadRecords();
+    const today = addDays(new Date(), 0);
+    const last = a.state === "expired" ? a.end : today;
+    const days = [];
+    for (let d = a.start; d <= last; d = addDays(d, 1)) days.push(d);
+    const counts = days.map((d) => countOf(dateKey(d)));
+    const total = counts.reduce((x, n) => x + n, 0);
+    const studied = counts.filter((n) => n > 0).length;
+    let best = 0, run = 0;
+    counts.forEach((n) => { run = n > 0 ? run + 1 : 0; best = Math.max(best, run); });
+    const hana = counts.filter((n) => n >= HANAMARU_COUNT).length;
+    const maru = counts.filter((n) => n >= MARU_COUNT && n < HANAMARU_COUNT).length;
+    const stop = addDays(last, 1);
+    const log = loadLog().filter((e) => e.t >= a.start.getTime() && e.t < stop.getTime());
+    const span = `${md(a.start)}〜${a.state === "expired" ? md(a.end) : "今日"}`;
+
+    let html = `<h3>この30日間のふりかえり <span class="rp-note">${span}</span></h3>` +
+      '<div class="rp-stats">' +
+      `<div class="rp-stat"><div class="label">解いた問題</div><div class="val">${total}<small>問</small></div></div>` +
+      `<div class="rp-stat"><div class="label">勉強した日</div><div class="val">${studied}<small>日</small></div><div class="sub">いちばん長く続いたのは ${best}日</div></div>` +
+      `<div class="rp-stat"><div class="label">花丸（${HANAMARU_COUNT}問以上）</div><div class="val">${hana}<small>こ</small></div></div>` +
+      `<div class="rp-stat"><div class="label">○（${MARU_COUNT}問以上）</div><div class="val">${maru}<small>こ</small></div></div>` +
+      "</div>" +
+      '<div class="review-mini" aria-hidden="true">' +
+      days.map((d, i) => `<span class="${counts[i] > 0 ? "done" : ""}">${d.getDate()}${markOf(counts[i])}</span>`).join("") +
+      "</div>";
+
+    const few = total < 50 || studied < 7; // さいしょ と さいご の 1しゅうかん を くらべる ので、すくない とき は ださない
+    if (few) {
+      html += '<p class="st-note">記録がまだ少ないため、正答率の伸びは表示していません。</p>';
+    } else {
+      // せいとうりつ の のび：さいしょ の 1しゅうかん と さいご の 1しゅうかん（みじかい とき は まえ はんぶん と うしろ はんぶん）
+      const wk = days.length >= 14 ? 7 : Math.floor(days.length / 2);
+      const firstEnd = addDays(a.start, wk), lastStart = addDays(stop, -wk);
+      const head = log.filter((e) => e.t < firstEnd.getTime());
+      const tail = log.filter((e) => e.t >= lastStart.getTime());
+      const rate = (list) => list.length ? Math.round((list.filter((e) => e.ok).length / list.length) * 100) : null;
+      const rows = OPS.map(({ op, name }) => {
+        const h = head.filter((e) => e.op === op && !e.st), t = tail.filter((e) => e.op === op && !e.st);
+        if (h.length < 5 || t.length < 5) return "";
+        const r1 = rate(h), r2 = rate(t), diff = r2 - r1;
+        const mark = diff > 0 ? `<span class="review-up">▲${diff}</span>` : diff < 0 ? `<span class="review-down">（次のめあて）</span>` : "";
+        return `<div class="review-row"><span>${name}</span><b>${r1}% → ${r2}% ${mark}</b></div>`;
+      }).join("");
+      html += `<h4>正答率の伸び <span class="rp-note">最初の${wk}日と最後の${wk}日</span></h4>` +
+        (rows || '<p class="st-note">比べられるだけの記録がそろった計算はまだありません。</p>');
+      // にがて の かいぜん：まえ はんぶん で よく まちがえた もの の、うしろ はんぶん の せいとうりつ
+      const mid = addDays(a.start, Math.ceil(days.length / 2));
+      const before = tagStats(log.filter((e) => e.t < mid.getTime()));
+      const after = tagStats(log.filter((e) => e.t >= mid.getTime()));
+      const weak = [...before.entries()].filter(([, g]) => g.miss >= 2).sort((x, y) => y[1].miss - x[1].miss).slice(0, 5);
+      const better = weak.map(([k, g]) => {
+        const g2 = after.get(k);
+        if (!g2 || g2.n < 3) return null;
+        const r1 = Math.round((1 - g.miss / g.n) * 100), r2 = Math.round((1 - g2.miss / g2.n) * 100);
+        return r2 > r1 ? `<div class="review-row"><span>${esc(g.label)}</span><b>${r1}% → ${r2}% <span class="review-up">▲${r2 - r1}</span></b></div>` : null;
+      }).filter(Boolean).slice(0, 3);
+      html += "<h4>苦手の改善</h4>" + (better.length ? better.join("")
+        : weak.length ? `<p class="st-note">「${esc(weak[0][1].label)}」は、これからも少しずつ練習していくとよさそうです。</p>`
+        : '<p class="st-note">大きなつまずきはありませんでした。</p>');
+    }
+
+    // キャラクター と バッジ
+    const g = loadGrowth();
+    const now = stageOf(g.xp);
+    const snap = trialSnapshot(a);
+    const from = snap ? stageOf(snap.xp) : null;
+    const startKey = dateKey(a.start), lastKey = dateKey(last);
+    const got = BADGES.filter((b) => g.badges[b.id] && g.badges[b.id] >= startKey && g.badges[b.id] <= lastKey);
+    html += "<h4>キャラクターとバッジ</h4>" +
+      `<div class="review-buddy"><div class="pic">${buddySvg(now)}</div><div>` +
+      (from !== null && from < now ? `${STAGES[from].name} → <b>${STAGES[now].name}</b> に育ちました` : `Lv.${now + 1} <b>${STAGES[now].name}</b>`) +
+      (got.length ? `<br>この30日間に バッジを ${got.length}こ 取りました<div class="review-badges">${got.map((b) => b.icon).join("")}</div>` : "") +
+      "</div></div>";
+    card.innerHTML = html;
+  }
+
   // ボタン：App Store との つなぎこみ は まだ（ステップ6）。かいはつ よう の きりかえ の とき は じょうたい を かえて ためせる
   $("planCard").addEventListener("click", async (e) => {
     const btn = e.target.closest("button[data-act]");
@@ -4066,7 +4193,7 @@
     if (a.dev) {
       const next = { trial: "trial-30", subscribe: "subscribed", manage: "expired" }[act];
       if (next) { try { sessionStorage.setItem(DEV_ACCESS, next); } catch (err) { /* ためせない */ } }
-      renderPlan(); renderAccessGate();
+      renderPlan(); renderReview(); renderAccessGate();
       return;
     }
     await askDialog("準備中です", { sub: "App Store でのお試し・登録は、これから作ります。", cancel: "" });
