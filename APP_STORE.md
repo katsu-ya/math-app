@@ -12,9 +12,13 @@ Bundle ID：`jp.katsuya.keisanrenshu`
 
 | 用途 | URL |
 |---|---|
-| プライバシーポリシー URL | https://katsu-ya.github.io/math-app/privacy.html |
-| サポート URL | https://katsu-ya.github.io/math-app/support.html |
+| プライバシーポリシー URL | https://katsu-ya.github.io/keisan-renshu/privacy.html |
+| サポート URL | https://katsu-ya.github.io/keisan-renshu/support.html |
 | マーケティング URL（任意） | 空欄でよい |
+
+- 2つのページは、公開用のリポジトリ `katsu-ya/katsu-ya.github.io` の `keisan-renshu/` にあります（2026-10-28 に移した。math-app を非公開にしても見られる）。
+- 本文の元は math-app の `legal/privacy.html`・`legal/support.html` です。直したら `tools/publish-legal.sh` で公開用のリポジトリに写します。
+- 前の URL（`katsu-ya.github.io/math-app/privacy.html` など）は、新しい URL への案内に置きかえました。math-app を非公開にすると、前の URL は見られなくなります（無料プランでは非公開のリポジトリの GitHub Pages は止まる）。
 
 - 問い合わせのメールアドレス：katsu.rx.101@gmail.com（2つのページに入れた。2026-10-28）。アプリの中で読むプライバシーポリシーでは、リンクにせず文字だけで出ます。
 - 運営者名は「katsu-ya（個人で開発しています）」です（著作権の表記と同じ）。
@@ -93,7 +97,7 @@ Bundle ID：`jp.katsuya.keisanrenshu`
 ・表示はひらがな中心で、低学年でも読みやすくしています
 ・文字を大きくする設定もあります
 
-プライバシーポリシー：https://katsu-ya.github.io/math-app/privacy.html
+プライバシーポリシー：https://katsu-ya.github.io/keisan-renshu/privacy.html
 ```
 
 - 誇張した言葉（「必ず成績が上がる」など）は使っていません。
@@ -186,7 +190,7 @@ The app is in Japanese. Text for children is written in hiragana.
 | 質問 | 答え |
 |---|---|
 | このアプリ、または第三者のパートナーは、このアプリからデータを収集しますか？ | **いいえ、このアプリからデータを収集しません** |
-| プライバシーポリシー URL | https://katsu-ya.github.io/math-app/privacy.html |
+| プライバシーポリシー URL | https://katsu-ya.github.io/keisan-renshu/privacy.html |
 
 これで「データの収集なし」と表示されます。理由は次のとおりです。
 - 名前・記録・設定は端末の中だけにあり、開発者にも第三者にも送りません。Apple の定義では、端末の外に送らないデータは「収集」に当たりません。
@@ -309,8 +313,8 @@ The app is in Japanese. Text for children is written in hiragana.
 
 | # | 内容 | 重要度 |
 |---|---|---|
-| ~~A~~ | ~~アプリの中からプライバシーポリシーを見られるようにする~~ → **した**（2026-10-28）。「おうちのかたへ」→「▶ プライバシーポリシーを読む」で、`privacy.html` の本文をアプリの中で読める（リンクにしない） | 高 |
-| ~~B~~ | ~~問い合わせのメールアドレスを決めて、`privacy.html`・`support.html` に入れる~~ → **した**（katsu.rx.101@gmail.com） | 高 |
+| ~~A~~ | ~~アプリの中からプライバシーポリシーを見られるようにする~~ → **した**（2026-10-28）。「おうちのかたへ」→「▶ プライバシーポリシーを読む」で、`legal/privacy.html` の本文をアプリの中で読める（リンクにしない） | 高 |
+| ~~B~~ | ~~問い合わせのメールアドレスを決めて、`legal/privacy.html`・`legal/support.html` に入れる~~ → **した**（katsu.rx.101@gmail.com） | 高 |
 | ~~C~~ | ~~`Info.plist` に `ITSAppUsesNonExemptEncryption = NO` を書く~~ → **した**（2026-10-28。暗証番号のハッシュは暗号化に当たらない） | 中 |
 | D | 実機で確かめる：Face ID・Touch ID、バックアップの保存と読みこみ（STORE_CHECK 3-4）、アップデートしても記録が残るか（2-5） | **高** |
 | E | Apple Developer Program に登録し、App Store Connect でアプリを作る（Bundle ID `jp.katsuya.keisanrenshu`）。Xcode で署名（Team）を選び、Archive → アップロード | **高** |

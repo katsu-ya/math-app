@@ -1582,7 +1582,7 @@
     <button class="big-btn home-btn" id="parentBack">もどる</button>
   </section>
 
-  <!-- プライバシーポリシー（privacy.html の ほんぶん を アプリ の なか で よむ。リンク には しない） -->
+  <!-- プライバシーポリシー（legal/privacy.html の ほんぶん を アプリ の なか で よむ。リンク には しない） -->
   <section id="privacy" class="screen">
     <h1>プライバシーポリシー<small>おうちのかたへ</small></h1>
     <div id="pvBody"><div class="rp-card"><p>読みこんでいます…</p></div></div>
@@ -3654,14 +3654,14 @@
   $("parentBack").addEventListener("click", () => show("start"));
 
   // ---- プライバシーポリシー ----
-  // ほんぶん は privacy.html だけ に かく（ストア の URL と おなじ もの を みせる）。
+  // ほんぶん は legal/privacy.html だけ に かく（tools/publish-legal.sh で こうかい する もの と おなじ）。
   // そと へ でる ところ を つくらない ため、リンク は もじ だけ に する
   let privacyLoaded = false;
   async function renderPrivacy() {
     if (privacyLoaded) return;
     const box = $("pvBody");
     try {
-      const res = await fetch("privacy.html");
+      const res = await fetch("legal/privacy.html");
       if (!res.ok) throw new Error(res.status);
       const doc = new DOMParser().parseFromString(await res.text(), "text/html");
       doc.querySelectorAll("a").forEach((a) => a.replaceWith(a.textContent));
@@ -3678,7 +3678,7 @@
     } catch (e) {
       // パソコン で index.html を ちょくせつ ひらいた とき など
       box.innerHTML = '<div class="rp-card"><p>プライバシーポリシーを読みこめませんでした。</p>' +
-        '<p>同じ内容は katsu-ya.github.io/math-app/privacy.html にあります。</p></div>';
+        '<p>同じ内容は katsu-ya.github.io/keisan-renshu/privacy.html にあります。</p></div>';
     }
   }
   $("privacyOpen").addEventListener("click", () => show("privacy"));

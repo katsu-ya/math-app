@@ -291,7 +291,7 @@ https://katsu-ya.github.io/math-app/ をホーム画面に追加すると、ア�
 - **よく間違える問題**：直近30日の間違いを「7の段」「くり上がりあり」などに分けて、多い順に5つまで表示（よく間違える問題の例つき）
 - **ひとことアドバイス**：結果に合わせて「よいところ」と「次のステップ」を1つずつ表示
 - **はじめてガイド**：お子さまと一緒に、使い方の案内をもう一度見られます
-- **プライバシーポリシー**：「▶ プライバシーポリシーを読む」で、アプリの中で本文を読めます。本文は `privacy.html`（App Store に載せる URL と同じもの）を読みこんで表示します。外部へのリンクにはしていません（中のリンクは文字だけにします）。ポリシーを直すときは `privacy.html` だけを直します。`index.html` を直接開いたときは読みこめないので、URL を文字で案内します。
+- **プライバシーポリシー**：「▶ プライバシーポリシーを読む」で、アプリの中で本文を読めます。本文は `legal/privacy.html`（App Store に載せる URL と同じもの）を読みこんで表示します。外部へのリンクにはしていません（中のリンクは文字だけにします）。ポリシーを直すときは `legal/privacy.html` だけを直し、`tools/publish-legal.sh` で公開用のページにも写します。`index.html` を直接開いたときは読みこめないので、URL を文字で案内します。
 
 記録について：
 
@@ -463,7 +463,7 @@ Android では、Chrome とホーム画面のアプリで記録が共通なの�
 - 問題を解いている途中は表示しません。
 - アプリのファイルは端末に保存してあり（`sw.js`）、いつもはそれを使います。開いたときにサーバーのファイルと比べて、ちがっていれば新しいファイルを受け取っておき、タップしたときに入れかえます。バージョン番号を上げる作業はいりません。
 - ファイルを増やしたときは、`sw.js` の `FILES` にも追加してください。
-- `sw.js` は、アプリのページ（`./` と `index.html`）を開くときだけ、端末に保存したアプリを返します。`privacy.html`・`support.html` などほかのページは、そのページとして開きます（`privacy.html` はアプリの中でも読むので `FILES` に入れています。`support.html` は入れません）。
+- `sw.js` は、アプリのページ（`./` と `index.html`）を開くときだけ、端末に保存したアプリを返します。`privacy.html`・`support.html` などほかのページは、そのページとして開きます（`legal/privacy.html` はアプリの中でも読むので `FILES` に入れています）。
 - `index.html` をパソコンで直接開いたとき（`file://`）は、オフライン機能とアップデートのお知らせは動きません（ほかの機能は使えます）。
 
 ## ストア版（iOS アプリ）を作る
@@ -515,8 +515,12 @@ iOS の WebView の localStorage は、端末の空き容量が少ないとき�
 index.html              アプリ本体
 manifest.webmanifest    アプリの名前・アイコン・色（ホーム画面に追加したとき用）
 sw.js                   オフラインで使うためのしくみと、アップデートのお知らせ（サービスワーカー）
-privacy.html            プライバシーポリシー（App Store に載せる URL。アプリでは「おうちのかたへ」の中で本文を読みこんで見せる）
-support.html            サポートページ（よくある質問とお問い合わせ。App Store のサポート URL）
+legal/privacy.html      プライバシーポリシーの本文（アプリでは「おうちのかたへ」の中で読みこんで見せる。公開は tools/publish-legal.sh）
+legal/support.html      サポートページの本文（よくある質問とお問い合わせ）
+legal/icon-192.png      2つのページで使うアイコン
+privacy.html            前の URL の案内（新しい URL へ移る。しばらく残す）
+support.html            前の URL の案内（同上）
+tools/publish-legal.sh  legal/ のページを公開用のリポジトリ katsu-ya.github.io の keisan-renshu/ に写して push する
 icons/icon.svg          アイコンの元の絵（ここを直したら python3 tools/make-icons.py で PNG も作り直す）
 icons/splash.svg        ストア版の起動画面の元の絵（キャラクターは icon.svg から入る）
 icons/icon-192.png      アイコン（Android など）

@@ -18,4 +18,5 @@
 - 記録の localStorage のキーは `keisan-renshu-` で始める（バックアップのファイルに入る。アプリ版では Preferences にも写る）。
 - 保護者向けの機能（レポート・名前の変更・目標設定・バックアップ・記録のリセット・保護者メッセージなど）は、`parentGate(開く処理, もどる画面)` を通して開く。保護者向けの画面を足したら `PARENT_SCREENS` にも入れる（そこから出るとロックに戻る）。子どもが使う場所には付けない。
 - ストア版で Face ID / Touch ID を使うときは、`extraUnlocks` に「true を返すと開く」関数を足す。
+- プライバシーポリシーとサポートの本文は `legal/` に置く（アプリの中でも読む）。直したら `tools/publish-legal.sh` で公開用のリポジトリ（katsu-ya.github.io の `keisan-renshu/`）に写す。App Store に載せる URL は `https://katsu-ya.github.io/keisan-renshu/privacy.html`・`support.html`。
 - バックアップのファイルの形を変えるときは、`BACKUP_V` を増やし、`upgradeBackup()` に古い形の読みかえを足す（前に保存したファイルも読みこめるように）。

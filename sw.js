@@ -7,7 +7,7 @@ const FILES = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
-  "./privacy.html",           // おうちのかたへ の なか で よむ
+  "./legal/privacy.html",     // おうちのかたへ の なか で よむ
   "./icons/icon.svg",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
