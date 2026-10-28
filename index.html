@@ -518,6 +518,8 @@
   .plan-card li { margin: 2px 0; }
   .st-card button.plan-main { background: var(--main); color: var(--on-main, #4a2500); box-shadow: 0 3px 0 #e8590c; font-size: 17px; padding: 10px 18px; }
   .plan-terms { font-size: 13px; color: #666; margin: 4px 0 0; }
+  .plan-early { font-size: 13px; color: #666; margin: 6px 0 8px; }
+  .st-card button.plan-sub { font-size: 14px; padding: 6px 14px; }
   /* この 30にちかん の ふりかえり */
   .review-card { border: 3px solid #ffd8a8; }
   .review-card h4 { margin: 14px 0 6px; font-size: 16px; color: var(--main-text); }
@@ -5112,11 +5114,15 @@
     } else if (a.state === "trial") {
       html += `<p class="plan-state">お試し中：あと${a.daysLeft}日<small>${md(a.end)}まで、すべての機能を使えます</small></p>` +
         `<div class="plan-days" aria-hidden="true"><div style="width:${Math.round((a.daysLeft / TRIAL_DAYS) * 100)}%"></div></div>`;
+      // おためし ちゅう に とうろく すると、のこり の ひにち は つかわない（その ひ から つきがく）
+      const early = '<p class="plan-early">登録すると、その日から月額が始まります。お試しの残りの日数はなくなります。</p>';
       if (a.notice) {
         html += `<p class="plan-notice">お試しは ${md(a.end)} で終わります。続けて練習するには、${PRICE_TEXT}で登録してください。登録しなくても、記録はなくならず、見ることとバックアップはできます。</p>` +
-          `<button class="plan-main" data-act="subscribe">${PRICE_TEXT}で登録する</button>` + restore + terms();
+          `<button class="plan-main" data-act="subscribe">${PRICE_TEXT}で登録する</button>` + early + restore + terms();
       } else {
-        html += `<p class="st-note">お試しが終わる3日前に、ここでお知らせします。お試しが終わっても、自動で課金されることはありません。</p>`;
+        // めだつ ボタン と おしらせ は のこり 3にち から。それまで は ちいさめ の ボタン だけ（いつでも とうろく できる ように）
+        html += `<p class="st-note">お試しが終わる3日前に、ここでお知らせします。お試しが終わっても、自動で課金されることはありません。</p>` +
+          `<button class="plan-sub" data-act="subscribe">${PRICE_TEXT}で登録する</button>` + early + restore + terms();
       }
     } else if (a.state === "subscribed") {
       html += '<p class="plan-state">登録中<small>すべての機能を使えます</small></p>' +

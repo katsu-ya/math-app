@@ -148,6 +148,7 @@ Bundle ID：`jp.katsuya.keisanrenshu`
 | プライマリカテゴリ | 教育 |
 | キッズカテゴリ | キッズ・**6〜8歳**（理由は 3-2） |
 | 価格 | 無料（App 内課金あり。下の 1-2） |
+| 配信する国 | **日本だけ**（2026-10-28 に決定。「価格および配信状況」で日本だけを選ぶ） |
 | App 内課金 | 30日間 無料お試し（0円・非消耗型）、月額300円（自動更新サブスクリプション） |
 | 著作権 | © 2026 katsu-ya |
 | コンテンツ配信権 | 第三者のコンテンツは使っていない（絵・音・キャラクターはすべて自作。STORE_CHECK 5章） |
@@ -165,12 +166,12 @@ Bundle ID：`jp.katsuya.keisanrenshu`
 | 参照名（ストアには出ない） | Trial 30 days | Monthly |
 | サブスクリプション グループ | — | けいさん れんしゅう（参照名 `Keisan`） |
 | 期間 | — | 1か月 |
-| 価格 | 0円（無料） | 300円（日本。ほかの国は App Store Connect の自動の換算でよい ★要決定：日本だけで売るなら、配信する国を日本だけにする） |
+| 価格 | 0円（無料） | 300円（日本） |
 | 表示名（日本語） | 30日間 無料お試し | けいさん れんしゅう 月額 |
 | 説明（日本語・45文字まで） | 30日間すべての機能を0円で。自動で課金されません | すべての機能を使えます（1か月ごとに自動更新） |
 | ファミリー共有 | オン | オン |
 | 無料トライアル（導入オファー） | — | **つけない**（お試しは非消耗型の0円の購入で行うため。両方あると30日を2回使えてしまう） |
-| 審査用のスクリーンショット | 「おうちのかたへ」の「ご利用のプラン」（お試しの前）を iPhone で撮ったもの | 同じ欄の、お試しの残り3日（登録のボタンが出ている状態）を撮ったもの |
+| 審査用のスクリーンショット | 「おうちのかたへ」の「ご利用のプラン」（お試しの前）を iPhone で撮ったもの | 同じ欄の、お試し中（小さめの「月額300円（税込）で登録する」が出ている状態）を撮ったもの |
 | 審査メモ | 下の 2. と同じ内容でよい | 同じ |
 
 - 英語の表示名・説明も入れておくと、英語の端末でも名前が出ます（例：`30-Day Free Trial`／`All features for 30 days at no cost. No automatic charge.`、`Monthly`／`All features, renews monthly.`）。
@@ -219,10 +220,13 @@ HOW TO TEST THE PURCHASES (sandbox)
 2. Pass the parental gate (see below), then the plan card at the top of the parent area
    shows "30日間 無料で ためす（0円）" (= "Try free for 30 days (JPY 0)"). Tap it and
    confirm the JPY 0 purchase. The card then shows "お試し中：あと30日" (= "Trial: 30 days left").
-3. The subscribe button "月額300円（税込）で登録する" (= "Subscribe for JPY 300/month")
-   appears in the last 3 days of the trial and after it ends. With a sandbox account,
-   you can also test it after the trial by clearing the purchase history of the
-   sandbox tester (the trial is tied to the Apple ID, so reinstalling does not reset it).
+3. During the trial, the same card always shows a smaller button
+   "月額300円（税込）で登録する" (= "Subscribe for JPY 300/month"), so the subscription can be
+   purchased right away. (In the last 3 days of the trial and after it ends, this button
+   becomes the main button together with a notice.) Subscribing during the trial starts the
+   monthly subscription on that day; the remaining trial days are not used.
+   The trial is tied to the Apple ID, so reinstalling does not reset it. To test from the
+   beginning again, clear the purchase history of the sandbox tester.
 
 HOW TO OPEN THE PARENT AREA (parental gate)
 1. On the start screen, scroll to the bottom and tap "おうちのかたへ" (= "For parents").
@@ -405,5 +409,98 @@ The app is in Japanese. Text for children is written in hiragana.
 | E | Apple Developer Program に登録し、App Store Connect でアプリを作る（Bundle ID `jp.katsuya.keisanrenshu`）。Xcode で署名（Team）を選び、Archive → アップロード | **高** |
 | F | Web 版をどうするか → **決めた**（2026-10-28）：App Store 版の公開の日に、Web 版の「おうちのかたへ」に終了の案内を出す（ステップ10）。Android の家庭のため、Google Play 版を出すまでは Web 版を残す | 中 |
 | G | App Store Connect に App 内課金を2つ登録する（1-2）。有料アプリ契約（Paid Applications Agreement）・銀行口座・税の情報を入れる（入れないと App 内課金が動かない）。Sandbox のテスターでお試し・登録・復元・解約を確かめる（ステップ8） | **高** |
-| H | 新しいプライバシーポリシーとサポートのページ（購入のことを書いたもの）を公開する：`tools/publish-legal.sh`。審査に出す前に公開しておく | **高** |
+| H | 新しいプライバシーポリシーとサポートのページ（購入のことを書いたもの）を公開する：`tools/publish-legal.sh`。**ステップ8で、審査に出す前に公開する**（2026-10-28 に決定）。あわせて `main` の `legal/` も同じにする | **高** |
 | I | スクリーンショットを撮り直す（「追加の課金なし」をやめる・とけい・ひっさんを足す。ステップ9） | **高** |
+
+---
+
+## 6. ステップ8：App Store Connect と Sandbox の手順
+
+> 画面の名前やボタンの位置は変わることがあります。見つからないときは、App Store Connect のヘルプで項目名を検索してください。
+> ★ のついたところは、あなたの操作が必要なところです（こちらからは App Store Connect を操作できません）。
+
+### 8-1. 契約・税・口座 ★
+
+1. App Store Connect →「ビジネス」（または「契約／税金／口座情報」）で、**有料 App の契約（Paid Applications Agreement）** に同意します。
+2. 同じ画面で、銀行口座と税の情報を入れます。
+3. 状態が「有効」になるまで待ちます（数日かかることがあります）。**有効になるまで、App 内課金は Sandbox でも読みこめません**（アプリの「ご利用のプラン」のボタンを押しても「商品が見つかりません」になります）。
+
+### 8-2. アプリを作る ★
+
+「マイ App」→「＋」→「新規 App」：
+
+| 項目 | 入れるもの |
+|---|---|
+| プラットフォーム | iOS |
+| 名前 | たまごと けいさん れんしゅう |
+| 主言語 | 日本語 |
+| バンドル ID | `jp.katsuya.keisanrenshu`（一覧にないときは、先に Xcode で Team を選んで一度ビルドするか、Apple Developer の「Identifiers」で作る） |
+| SKU | `keisanrenshu-ios`（自分用の管理番号。ストアには出ない） |
+| ユーザアクセス | フルアクセス |
+
+### 8-3. 価格および配信状況 ★
+
+- 価格：**無料**（アプリ本体は0円。料金は App 内課金で）
+- 配信する国：**日本だけ**を選ぶ（2026-10-28 に決定）
+
+### 8-4. App 内課金を2つ作る ★
+
+1-2 の表のとおりに入れます。製品 ID は一度作ると変えられないので、コピーして貼ってください。
+
+**① 30日間 無料お試し**（「App 内課金」→「＋」→ 非消耗型）
+1. 参照名 `Trial 30 days`、製品 ID `jp.katsuya.keisanrenshu.trial30`
+2. 価格：0円（「無料」）。配信する国は日本
+3. ファミリー共有：オン
+4. ローカリゼーション（日本語）：表示名「30日間 無料お試し」、説明「30日間すべての機能を0円で。自動で課金されません」
+5. 審査に関する情報：スクリーンショットに `~/Desktop/keisan-iap-review/1-お試し（trial30）用.png`、メモは 2. の英文の「IN-APP PURCHASES」の部分
+
+**② 月額**（「サブスクリプション」→ サブスクリプション グループを作る → その中にサブスクリプションを作る）
+1. グループの参照名 `Keisan`。グループのローカリゼーション（日本語）：表示名「けいさん れんしゅう」
+2. 参照名 `Monthly`、製品 ID `jp.katsuya.keisanrenshu.monthly`、期間「1か月」
+3. 価格：日本 300円。配信する国は日本
+4. ファミリー共有：オン
+5. ローカリゼーション（日本語）：表示名「けいさん れんしゅう 月額」、説明「すべての機能を使えます（1か月ごとに自動更新）」
+6. 導入オファー（無料トライアル）は**作らない**
+7. 審査に関する情報：スクリーンショットに `~/Desktop/keisan-iap-review/2-月額（monthly）用.png`、メモは①と同じ
+
+- 2つとも、状態が「提出準備完了」（Ready to Submit）になれば入力は足りています。「メタデータが不足」のときは、足りない項目が表示されます。
+- 審査用のスクリーンショット（iPhone 18 Pro Max・1320×2868）は、Sandbox で試す前でも使えるように、こちらで撮っておきました（`~/Desktop/keisan-iap-review/`。GitHub には上げない）。見本の記録（ゆう）で、保護者画面の「ご利用のプラン」を写したものです。
+
+### 8-5. Sandbox のテスターを作る ★
+
+1. App Store Connect →「ユーザとアクセス」→「Sandbox」→「テスター」→「＋」
+2. メールアドレスは、Apple ID として使っていない新しいものにします（Gmail なら `katsu.rx.101+sandbox1@gmail.com` のように「+」をつけると、同じ受信箱に届きます）。地域（国）は**日本**
+3. iPhone の「設定」→「App Store」→ いちばん下の「Sandbox アカウント」で、このテスターでサインインします（ふだんの Apple ID はそのままでかまいません）
+
+### 8-6. Sandbox で試す（実機の iPhone がおすすめ）
+
+1. `! npm run ios` → Xcode で、上のスキームを **「App-Sandbox」** に切りかえます。
+   - 「App」のスキームは、お金のかからない試し用の設定（`Keisan.storekit`）を使うので、Sandbox にはつながりません。「App-Sandbox」はその設定を外したスキームです（2026-10-28 に足した）。
+2. iPhone をつないで ▶（はじめての実機は、Xcode の「Signing & Capabilities」で Team を選ぶ）
+3. 次の順に確かめます。
+
+| # | すること | こうなれば OK |
+|---|---|---|
+| 1 | 最初の説明 →「お試しの準備をする」→ 確認問題 → 暗証番号 →「30日間 無料で ためす（0円）」 | Apple の確認（[Sandbox] と出る・0円）→「お試しを始めました（○月○日まで…自動で課金されません）」→「お試し中：あと30日」。はじめの画面で練習できる |
+| 2 | 小さめの「月額300円（税込）で登録する」 | Apple の確認（300円）→「登録しました」→「登録中」 |
+| 3 | 「登録の確認・解約」 | Apple のサブスクリプションの画面が開く。ここで解約できる |
+| 4 | 5分ほど待つ（Sandbox では1か月が数分で進む） | 解約したなら、登録が終わって「お試し中」に戻る（お試しの30日はまだ残っているため）。解約しないと、自動で更新が続く |
+| 5 | アプリを削除して入れ直す →「おうちのかたへ」 | 最初の説明はとばされ、「お試し中」または「登録中」のまま（Apple ID の購入の記録から戻る）。戻らないときは「購入を復元」で戻る |
+| 6 | 機内モードで開く | 前に受け取った状態のまま使える |
+
+- お試しの30日は、アプリが本当の日にちで数えるので、Sandbox でも早送りできません。「お試しが終わった」状態の見た目は、Web 版の `?access=expired`（README の「開発用」）で確かめてあります。
+- テスターの購入の記録を消すと（App Store Connect のテスターの設定 →「購入履歴を消去」）、もう一度お試しの前から試せます。
+- うまくいかないときは、出たメッセージと、どの手順だったかを教えてください。
+
+### 8-7. 審査に出す前に
+
+1. **プライバシーポリシーとサポートのページを公開する**（2026-10-28 に、ステップ8で公開すると決めた）：
+   `! tools/publish-legal.sh` で公開用のリポジトリに写します。`main` の `legal/` も同じ内容にします（こちらでやります。合図をください）。
+2. ステップ9：スクリーンショットを撮り直す（「追加の課金なし」をやめる・とけい・ひっさんを足す）
+3. アーカイブしてアップロードする ★：
+   - Xcode の上のスキームを **「App」**、行き先を「Any iOS Device (arm64)」にして、「Product」→「Archive」（アーカイブは Release で作るので、`Keisan.storekit` は入りません）
+   - 開いた Organizer で「Distribute App」→「App Store Connect」→「Upload」
+   - 2回目からは、ビルド番号（`CURRENT_PROJECT_VERSION`、今は 1）を増やしてからアップロードします
+4. バージョン 1.0 のページ ★：スクリーンショット、説明文・キーワード・サポート URL など（1章）、「App 内課金とサブスクリプション」で①②を選ぶ、App Review に関する情報（2章のメモ・連絡先）、App のプライバシー（3-1）、年齢制限（3-2）、キッズカテゴリ（3-3）、著作権
+5. 「審査用に追加」→「審査へ提出」
+6. ステップ10：公開の日に、Web 版に終了の案内を出す
