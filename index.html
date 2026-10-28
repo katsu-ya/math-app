@@ -3655,7 +3655,8 @@
   // Firefox は こども に かくにん が でて しまう ので、おうちのかた が ボタン で たのむ
   if (!/Firefox/.test(navigator.userAgent)) askPersist();
 
-  async function renderStorage() {
+  // persistResult：「保護を申請する」を おした けっか（"ok" / "ng"）。ない とき は ""
+  async function renderStorage(persistResult = "") {
     let persisted = null;
     try { if (navigator.storage && navigator.storage.persisted) persisted = await navigator.storage.persisted(); } catch (e) { /* わからない */ }
     const app = isStandalone();
@@ -3663,6 +3664,13 @@
       persisted ? '<p class="st-ok">✅ 保護されています</p><p>端末の空き容量が少なくなっても、ブラウザがこのアプリの記録を自動で消すことはありません。</p>'
       : persisted === false ? '<p class="st-warn">⚠️ まだ保護されていません</p><p>端末の空き容量が少なくなったとき、ブラウザが記録を消すことがあります。</p><button id="persistBtn">保護を申請する</button>'
       : '<p class="st-warn">このブラウザでは、保護されているか確認できません</p>';
+    if (persistResult === "ok" && persisted !== false) html = '<div class="st-result ok">✓ 保護されました</div>' + html;
+    // ことわられた ときは、つぎ に できる こと を あんない する（なにも でないと こわれて みえる）
+    if (persistResult === "ng") {
+      html += '<div class="st-result ng" role="status">ブラウザが今回は保護を許可しませんでした' +
+        '<small>' + (isStandalone() ? "" : "アプリとしてインストールすると（下の「ホーム画面に追加」）、許可されやすくなります。") +
+        "ときどき「💾 きろくを ほぞん」でバックアップしてください。</small></div>";
+    }
     if (isIOS && !app) html += '<p class="st-note">iPhone・iPad の Safari では、7日以上ひらかないと記録が消えることがあります。ホーム画面に追加したアプリには、この制限がありません。</p>';
     $("stStatus").innerHTML = html;
 
@@ -3680,7 +3688,9 @@
   }
 
   $("stStatus").addEventListener("click", async (e) => {
-    if (e.target.id === "persistBtn") { await askPersist(); renderStorage(); }
+    if (e.target.id !== "persistBtn") return;
+    e.target.disabled = true; // こたえ が くる まで 2かい おせない ように
+    renderStorage((await askPersist()) ? "ok" : "ng");
   });
   $("stInstall").addEventListener("click", async (e) => {
     if (e.target.id !== "installBtn" || !installPrompt) return;
