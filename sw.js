@@ -30,7 +30,10 @@ self.addEventListener("fetch", (e) => {
   if (req.method !== "GET" || new URL(req.url).origin !== location.origin) return;
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
-    const hit = await cache.match(req.mode === "navigate" ? "./" : req, { ignoreSearch: true });
+    // アプリ の ページ（./ と index.html）を ひらく とき だけ アプリ を かえす。
+    // ほか の ページ（privacy.html・support.html など）は そのまま サーバー から もらう
+    const app = req.mode === "navigate" && /\/(index\.html)?$/.test(new URL(req.url).pathname);
+    const hit = await cache.match(app ? "./" : req, { ignoreSearch: true });
     return hit || fetch(req);
   })());
 });
