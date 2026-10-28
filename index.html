@@ -539,6 +539,46 @@
 
   /* そだつ なかま（キャラクター）と けいけんち */
   .start-layout { display: flex; flex-direction: column; }
+  /* れんしゅう が できない とき：えらぶ ところ を かくして、かわいい カード を だす */
+  .start-main.rest > :not(.rest-card) { display: none; }
+  .rest-card {
+    position: relative; overflow: hidden; text-align: center;
+    background: linear-gradient(180deg, #fffdf3 0%, #fff1b8 100%);
+    border: 3px solid #ffe08a; border-radius: 28px;
+    padding: 18px 16px 16px; margin-top: 6px;
+    box-shadow: 0 8px 20px rgba(200, 150, 40, .18);
+  }
+  .rest-pic { width: 132px; height: 132px; margin: 0 auto; animation: rest-sway 3.2s ease-in-out infinite; transform-origin: 50% 90%; }
+  .rest-pic svg { width: 100%; height: 100%; }
+  @keyframes rest-sway { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg) translateY(-3px); } }
+  .rest-bubble {
+    position: relative; margin: 10px auto 0; max-width: 22em;
+    background: #fff; border-radius: 22px; padding: 12px 16px;
+    font-size: 21px; font-weight: bold; line-height: 1.5; color: #b35c00;
+    box-shadow: 0 3px 0 #ffe08a;
+  }
+  .rest-bubble::before {
+    content: ""; position: absolute; left: 50%; top: -11px; margin-left: -11px;
+    border: 11px solid transparent; border-top: 0; border-bottom-color: #fff;
+  }
+  .rest-ask {
+    display: inline-block; margin: 14px 0 0; padding: 8px 20px;
+    background: #ffb8d9; color: #6b1238; border-radius: 999px;
+    font-size: 19px; font-weight: bold; box-shadow: 0 3px 0 #f28cbc;
+  }
+  .rest-note { margin: 12px 0 0; font-size: 15px; color: #8a6a2a; }
+  .rest-deco { position: absolute; font-size: 22px; opacity: .85; animation: rest-twinkle 2.4s ease-in-out infinite; }
+  .rest-deco.d1 { left: 16px; top: 18px; }
+  .rest-deco.d2 { right: 20px; top: 26px; animation-delay: .6s; }
+  .rest-deco.d3 { left: 28px; top: 112px; animation-delay: 1.2s; }
+  .rest-deco.d4 { right: 30px; top: 108px; animation-delay: 1.8s; }
+  @keyframes rest-twinkle { 0%, 100% { transform: scale(1); opacity: .85; } 50% { transform: scale(1.25); opacity: .45; } }
+  .taste-note {
+    margin: 4px 0 8px; text-align: center; font-size: 17px; font-weight: bold; color: #b35c00;
+    background: #fff3c4; border-radius: 999px; padding: 6px 14px;
+  }
+  /* パソコン の ひくい がめん では 1がめん に おさめる ため に だない（なくても こまらない あんない） */
+  @media (min-width: 860px) and (max-height: 699px) { .taste-note { display: none !important; } }
   .start-side { display: contents; } /* スマホ では キャラクター を いちばん うえ に だす */
   .buddy {
     order: -1;
@@ -1302,7 +1342,16 @@
     <p class="greet" id="greet" hidden></p>
 
     <div class="start-layout">
-    <div class="start-main">
+    <div class="start-main" id="startMain">
+    <!-- れんしゅう が できない とき（おためし の まえ で たいけん を つかった・おためし が おわった）。かう ように は すすめない -->
+    <div class="rest-card" id="restCard" hidden>
+      <span class="rest-deco d1">⭐</span><span class="rest-deco d2">💛</span><span class="rest-deco d3">✨</span><span class="rest-deco d4">🌸</span>
+      <div class="rest-pic" id="restPic" aria-hidden="true"></div>
+      <p class="rest-bubble" id="restText"></p>
+      <p class="rest-ask">🏠 おうちのかたに きいてね</p>
+      <p class="rest-note">カレンダー や バッジ は いつでも みられるよ 🌟</p>
+    </div>
+    <p class="taste-note" id="tasteNote" hidden>🎁 はじめての 1かい、やって みよう！</p>
     <div class="mode-row">
       <div class="mode-switch" id="modeChoices">
         <button class="selected" data-mode="calc">🔢 けいさん</button>
@@ -2906,7 +2955,8 @@
     // おうちのかた の がめん から でたら、また かぎ を かける
     if (!PARENT_SCREENS.includes(id)) parentUnlocked = false;
     if (id !== "pin") clearInterval(pinTimer);
-    if (id === "start") { resetCalendar(); renderGrowth(); renderDevAccess(); $("parentBtn").classList.toggle("due", backupDue()); }
+    if (id === "start") { resetCalendar(); renderGrowth(); renderAccessGate(); $("parentBtn").classList.toggle("due", backupDue()); }
+    if (id === "finish" || id === "dan") renderAccessGate();
     if (id === "dan") renderDan();
     if (id === "badges") renderBadges();
     if (id === "parent") { renderReport(); renderStorage(); renderBackup(); renderBio(); }
@@ -3030,6 +3080,8 @@
 
   // ---- ゲーム の ながれ ----
   function startGame() {
+    // れんしゅう できない とき は はじめない（ボタン は かくして いる が、ねん の ため）
+    if (!canPractice()) { show("start"); return; }
     problems = makeProblems();
     index = 0;
     sessionXp = 0;
@@ -3929,6 +3981,24 @@
     if (a.state !== "before" || a.dev || loadAccess().taste) return;
     saveAccess({ ...loadAccess(), taste: dateKey(new Date()) });
   }
+  // こども むけ の がめん を、いま れんしゅう できる か に あわせる
+  function renderAccessGate() {
+    const a = accessState();
+    const ok = canPractice();
+    $("startMain").classList.toggle("rest", !ok);
+    $("restCard").hidden = ok;
+    $("tasteNote").hidden = !(a.state === "before" && ok);
+    $("retryBtn").hidden = !ok;
+    if (!ok) {
+      $("restPic").innerHTML = buddySvg(stageOf(loadGrowth().xp));
+      // かなしく ならない ことば に する（「おしまい」「もう できない」とは いわない）
+      $("restText").innerHTML = a.state === "before"
+        ? "はじめての 1かい、<br>たのしかった？<br>つづき は おうちのかたと<br>いっしょに はじめようね！"
+        : "また いっしょに<br>れんしゅう しようね！";
+    }
+    renderDevAccess();
+  }
+
   // かいはつ よう の ひょうじ（?access を つけた とき だけ）
   function renderDevAccess() {
     const a = accessState();
@@ -4397,7 +4467,7 @@
   renderGrowth();
   applyPrefs();
   renderGreet();
-  renderDevAccess();
+  renderAccessGate();
   $("parentBtn").classList.toggle("due", backupDue());
   // はじめて ひらいた とき は ガイド を みせて から なまえ を きく（おいわい は はじめ の がめん に もどって から）。
   // ガイド を いれる まえ から つかって いる ひと（なまえ を もう きいた ひと）には ださない
