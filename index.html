@@ -4029,7 +4029,8 @@
   // おためし を はじめた ひ と とうろく は App Store の こうにゅう の きろく から くる（たんまつ の きろく では きめない）
   const TRIAL_DAYS = 30;
   const TRIAL_NOTICE_DAYS = 3; // のこり が この ひかず に なったら おしらせ
-  let entitlement = { trialStart: null, subscribed: false }; // trialStart：おためし を はじめた とき（ミリびょう）
+  // trialStart：おためし を はじめた とき（ミリびょう）。App Store から うけとる まで は、まえ に うけとった もの を つかう
+  let entitlement = { trialStart: null, subscribed: false };
   function loadAccess() {
     try { const d = JSON.parse(localStorage.getItem(ACCESS_KEY)); return isObj(d) ? d : {}; } catch (e) { return {}; }
   }
@@ -4245,6 +4246,71 @@
   }
 
   // ボタン：App Store との つなぎこみ は まだ（ステップ6）。かいはつ よう の きりかえ の とき は じょうたい を かえて ためせる
+  // ---- App Store の こうにゅう と つなぐ（ios/App/App/KeisanStorePlugin.swift）----
+  const TRIAL_ID = "jp.katsuya.keisanrenshu.trial30";
+  const MONTHLY_ID = "jp.katsuya.keisanrenshu.monthly";
+  const storePlugin = () => (isNativeApp && window.Capacitor.Plugins && window.Capacitor.Plugins.KeisanStore) || null;
+  // まえ に うけとった じょうたい（たんまつ だけ）。ひらいた すぐ に がめん が ちらつかない ように つかう
+  {
+    const ent = loadAccess().ent;
+    if (isObj(ent)) entitlement = { trialStart: typeof ent.trialStart === "number" ? ent.trialStart : null, subscribed: !!ent.subscribed };
+  }
+  function setEntitlement(r) {
+    entitlement = { trialStart: typeof r.trialStart === "number" ? r.trialStart : null, subscribed: !!r.subscribed };
+    saveAccess({ ...loadAccess(), ent: entitlement });
+    onAccessChange();
+  }
+  async function refreshEntitlement() {
+    const st = storePlugin();
+    if (!st) return;
+    try { setEntitlement(await st.getStatus()); } catch (e) { /* わからない とき は まえ の まま */ }
+  }
+  // じょうたい が かわったら、いま の がめん を かきなおす
+  function onAccessChange() {
+    renderAccessGate();
+    $("parentBtn").classList.toggle("due", parentDue());
+    if ($("parent").classList.contains("active")) { renderPlan(); renderReview(); }
+    // いれなおし など で、もう おためし を はじめて いた とき は、さいしょ の せつめい を とばす
+    if ($("welcome").classList.contains("active") && accessState().state !== "before") { setWelcomed(); continueFirstRun(); }
+  }
+  async function storeAction(act) {
+    const st = storePlugin();
+    if (!st) { await askDialog("この端末では使えません", { sub: "App Store のアプリでお試し・登録ができます。", cancel: "" }); return; }
+    const fail = (e) => askDialog("うまくいきませんでした", { sub: "インターネットにつながっているか確かめて、もう一度お試しください。" + (e && e.message ? `\n（${e.message}）` : ""), cancel: "" });
+    try {
+      if (act === "trial" || act === "subscribe") {
+        const r = await st.purchase({ productId: act === "trial" ? TRIAL_ID : MONTHLY_ID });
+        if (r.result === "success") {
+          setEntitlement(r);
+          const a = accessState();
+          await askDialog(act === "trial" ? "お試しを始めました" : "登録しました", {
+            sub: act === "trial" && a.end ? `${md(a.end)}まで、すべての機能を使えます。お試しが終わっても、自動で課金されることはありません。` : "すべての機能を使えます。",
+            cancel: "" });
+        } else if (r.result === "pending") {
+          await askDialog("承認を待っています", { sub: "ファミリー共有の「承認と購入のリクエスト」などで、承認されると使えるようになります。", cancel: "" });
+        } else if (r.result !== "cancelled") {
+          await fail();
+        }
+      } else if (act === "restore") {
+        setEntitlement(await st.restore());
+        const a = accessState();
+        await askDialog("購入を確かめました", {
+          sub: a.state === "subscribed" ? "登録中です。すべての機能を使えます。" : a.state === "trial" ? `お試し中です（${md(a.end)}まで）。` : a.state === "expired" ? "お試しは終わっています。" : "このApple IDでのお試し・登録は見つかりませんでした。",
+          cancel: "" });
+      } else if (act === "manage") {
+        await st.manage();
+        refreshEntitlement();
+      }
+    } catch (e) {
+      await fail(e);
+    }
+  }
+  if (storePlugin()) {
+    storePlugin().addListener("change", refreshEntitlement);
+    // アプリ に もどって きた とき（App Store で かいやく した あと など）にも たしかめる
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshEntitlement(); });
+  }
+
   $("planCard").addEventListener("click", async (e) => {
     const btn = e.target.closest("button[data-act]");
     if (!btn) return;
@@ -4266,7 +4332,8 @@
       renderPlan(); renderReview(); renderAccessGate();
       return;
     }
-    await askDialog("準備中です", { sub: "App Store でのお試し・登録は、これから作ります。", cancel: "" });
+    btn.disabled = true; // こたえ が くる まで 2かい おせない ように
+    try { await storeAction(act); } finally { btn.disabled = false; }
   });
 
   // こども むけ の がめん を、いま れんしゅう できる か に あわせる
@@ -4759,6 +4826,7 @@
   $("parentBtn").classList.toggle("due", parentDue());
   // はじめて ひらいた とき は ガイド を みせて から なまえ を きく（おいわい は はじめ の がめん に もどって から）。
   // ガイド を いれる まえ から つかって いる ひと（なまえ を もう きいた ひと）には ださない
+  refreshEntitlement(); // App Store から いま の じょうたい を うけとる（くる まで は まえ の じょうたい）
   if (needWelcome()) show("welcome");
   else if (!settings.guideSeen && !settings.nameAsked && !cleanName(settings.name)) openGuide("first");
   else if (!settings.nameAsked && !cleanName(settings.name)) openName("first");

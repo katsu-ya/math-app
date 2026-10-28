@@ -515,6 +515,18 @@ npm run ios       # www/ を つくり、ios/ に うつして、Xcode を ひ�
   2. 「お試しの準備をする」→ 保護者の確認（確認問題 → 暗証番号を決める）→「おうちのかたへ」のプランの欄（ここで「30日間 無料で ためす（0円）」）。下のボタンが「つぎへ ▶」になり、押すとはじめてガイドへ進みます。「あとで」なら、すぐにはじめてガイドへ進みます
   3. はじめてガイド → なまえ → はじめの画面（今までどおり）
   - 一度見たら出ません（`keisan-renshu-access` の `welcomed`）。Web 版では出ません。開発用の切りかえ（`?access=before`）のときは、そのタブの間だけ覚えるので、新しいタブで開くともう一度見られます
+- **App Store の購入とのつなぎこみ**：`ios/App/App/KeisanStorePlugin.swift`（自作の小さな部品。StoreKit 2 だけを使い、外部のサーバーは使わない）。`MainViewController` で登録しています（`SceneDelegate.swift`）。
+  - 商品：お試し `jp.katsuya.keisanrenshu.trial30`（0円・非消耗型）、月額 `jp.katsuya.keisanrenshu.monthly`（300円・自動更新・グループ「けいさん れんしゅう」）。App Store Connect にも同じ ID で登録します
+  - JavaScript からは `Capacitor.Plugins.KeisanStore` の `getStatus()`・`getProducts()`・`purchase({ productId })`・`restore()`・`manage()` を使います。状態が変わると `change` を知らせます
+  - お試しを始めた日は、Apple の購入の記録（`originalPurchaseDate`）から受け取ります。受け取った状態は端末に覚えておき（`keisan-renshu-access` の `ent`）、開いた直後に画面がちらつかないようにします。アプリに戻ってきたときにも確かめます
+  - 入れ直しなどで、もうお試しを始めていたことが分かったときは、最初の説明の画面をとばします
+  - 購入が保護者の承認待ち（ファミリー共有の「承認と購入のリクエスト」）のときは、「承認を待っています」と出します
+- **お金をかけずに購入を試す**：`ios/App/Keisan.storekit`（StoreKit の試し用の設定ファイル）を、共有のスキーム（`App.xcscheme`）で使うようにしてあります。**Xcode の ▶ で動かしたときだけ**使われます（`xcrun simctl` で起動したときは使われません）。
+  1. `npm run ios` → Xcode でシミュレーターを選んで ▶
+  2. 「おうちのかたへ」→「30日間 無料で ためす（0円）」→ 購入の確認（試し用）→「お試しを始めました」
+  3. Xcode のメニュー「Debug → StoreKit → Manage Transactions」で、購入の記録を見たり消したりできます（消すとお試しの前に戻ります）
+  4. 月額の登録は、試し用の設定では時間が早く進むように変えられます（`Keisan.storekit` を開き、「Editor → Time Rate」）
+  - お試しの30日の終わりは早送りできないので、終わったあとの見た目は開発用の切りかえ（`?access=expired`）で確かめます
 - **開発用の切りかえ**：URL に `?access=before`・`before-used`・`trial-12`（のこり12日）・`subscribed`・`expired` をつけると、その状態になります（Web 版でも試せます）。はじめの画面のいちばん下に、灰色で「開発用：…」と出ます。`?access=off` で元に戻ります（そのタブの間だけ覚えます）。
 
 ### アプリ版の記録の保存

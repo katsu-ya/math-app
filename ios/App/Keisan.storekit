@@ -1,0 +1,68 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [ ]
+  },
+  "identifier" : "6B1C2F0A",
+  "nonRenewingSubscriptions" : [ ],
+  "products" : [
+    {
+      "displayPrice" : "0",
+      "familyShareable" : true,
+      "internalID" : "6B1C2F01",
+      "localizations" : [
+        {
+          "description" : "30日間、すべての機能を無料で使えます。終わっても自動で課金されません。",
+          "displayName" : "30日間 お試し",
+          "locale" : "ja"
+        }
+      ],
+      "productID" : "jp.katsuya.keisanrenshu.trial30",
+      "referenceName" : "30日間 お試し",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "",
+    "_developerTeamID" : "",
+    "_failTransactionsEnabled" : false,
+    "_locale" : "ja",
+    "_storefront" : "JPN",
+    "_storeKitErrors" : [ ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "6B1C2F02",
+      "localizations" : [ ],
+      "name" : "けいさん れんしゅう",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [ ],
+          "codeOffers" : [ ],
+          "displayPrice" : "300",
+          "familyShareable" : true,
+          "groupNumber" : 1,
+          "internalID" : "6B1C2F03",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "すべての機能を使えます。1か月ごとに自動で更新されます。",
+              "displayName" : "月額プラン",
+              "locale" : "ja"
+            }
+          ],
+          "productID" : "jp.katsuya.keisanrenshu.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "月額プラン",
+          "subscriptionGroupID" : "6B1C2F02",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [ ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}
