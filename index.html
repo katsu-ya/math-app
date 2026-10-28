@@ -503,6 +503,19 @@
   .pin-task[hidden] { display: none; }
   .pin-task span { display: inline-block; }
   .bio-state { font-weight: bold; }
+  /* ごりよう の プラン */
+  .plan-card { border: 3px solid #ffe08a; }
+  .plan-card .plan-state { font-size: 20px; font-weight: bold; color: var(--main-text); margin: 0 0 6px; }
+  .plan-card .plan-state small { display: block; font-size: 15px; font-weight: normal; color: #666; }
+  .plan-days { height: 12px; background: #f1f3f5; border-radius: 999px; overflow: hidden; margin: 2px 0 10px; }
+  .plan-days > div { height: 100%; background: linear-gradient(90deg, #ffd43b, #ffa94d); border-radius: 999px; }
+  .plan-notice { background: #fff3c4; border-radius: 12px; padding: 10px 12px; margin: 0 0 10px; font-weight: bold; }
+  .plan-card ul { margin: 0 0 10px; padding-left: 1.3em; }
+  .plan-card li { margin: 2px 0; }
+  .st-card button.plan-main { background: var(--main); color: var(--on-main, #4a2500); box-shadow: 0 3px 0 #e8590c; font-size: 17px; padding: 10px 18px; }
+  .plan-terms { font-size: 13px; color: #666; margin: 4px 0 0; }
+  .plan-terms p { margin: 0 0 6px; }
+  .st-card .plan-terms button { background: none; box-shadow: none; color: var(--main-text); text-decoration: underline; padding: 0; margin: 0 12px 0 0; font-size: 13px; }
   .pin-dots { display: flex; justify-content: center; gap: 14px; height: 44px; align-items: center; }
   .pin-dots span { width: 22px; height: 22px; border-radius: 50%; border: 3px solid #adb5bd; }
   .pin-dots span.on { background: #495057; border-color: #495057; }
@@ -1570,6 +1583,9 @@
   <!-- おうちのかたへ（がくしゅう レポート） -->
   <section id="parent" class="screen">
     <h1>おうちのかたへ<small>学習レポート</small></h1>
+
+    <!-- ごりよう の プラン（ストア版 だけ。Web 版 では ださない） -->
+    <div class="rp-card st-card plan-card" id="planCard" hidden></div>
 
     <div class="rp-card">
       <h3>取り組み</h3>
@@ -2955,11 +2971,11 @@
     // おうちのかた の がめん から でたら、また かぎ を かける
     if (!PARENT_SCREENS.includes(id)) parentUnlocked = false;
     if (id !== "pin") clearInterval(pinTimer);
-    if (id === "start") { resetCalendar(); renderGrowth(); renderAccessGate(); $("parentBtn").classList.toggle("due", backupDue()); }
+    if (id === "start") { resetCalendar(); renderGrowth(); renderAccessGate(); $("parentBtn").classList.toggle("due", parentDue()); }
     if (id === "finish" || id === "dan") renderAccessGate();
     if (id === "dan") renderDan();
     if (id === "badges") renderBadges();
-    if (id === "parent") { renderReport(); renderStorage(); renderBackup(); renderBio(); }
+    if (id === "parent") { renderPlan(); renderReport(); renderStorage(); renderBackup(); renderBio(); }
     if (id === "settings") renderSettings();
     if (id === "pin") renderPin();
     if (id === "start") renderGreet();
@@ -3936,13 +3952,14 @@
   // かいはつ よう：URL に ?access=before・before-used・trial-12（のこり 12にち）・subscribed・expired を つけると
   // その じょうたい に なる（Web 版 でも ためせる）。?access=off で もどす。この タブ の あいだ だけ おぼえる
   const DEV_ACCESS = "keisan-dev-access";
+  // URL は ひらいた とき に 1かい だけ よむ（ボタン で かえた じょうたい を うわがき しない ため）
+  try {
+    const q = new URLSearchParams(location.search).get("access");
+    if (q === "off") sessionStorage.removeItem(DEV_ACCESS);
+    else if (q) sessionStorage.setItem(DEV_ACCESS, q);
+  } catch (e) { /* ためせない */ }
   function devAccess() {
-    try {
-      const q = new URLSearchParams(location.search).get("access");
-      if (q === "off") sessionStorage.removeItem(DEV_ACCESS);
-      else if (q) sessionStorage.setItem(DEV_ACCESS, q);
-      return sessionStorage.getItem(DEV_ACCESS) || "";
-    } catch (e) { return ""; }
+    try { return sessionStorage.getItem(DEV_ACCESS) || ""; } catch (e) { return ""; }
   }
   // { state: "web" | "before" | "trial" | "subscribed" | "expired", tasteUsed, end（さいご の ひ）, daysLeft, notice, dev }
   function accessState() {
@@ -3981,6 +3998,80 @@
     if (a.state !== "before" || a.dev || loadAccess().taste) return;
     saveAccess({ ...loadAccess(), taste: dateKey(new Date()) });
   }
+  // ---- ごりよう の プラン（ほごしゃ の がめん）----
+  // りょうきん・もうしこみ の あんない は ここ だけ に だす（こども むけ の がめん には ださない）
+  const PRICE_TEXT = "月額300円（税込）";
+  // りようきやく は Apple の ひょうじゅん の もの（ほうりつ や しんさ で ひつよう な ので、ほごしゃ の がめん に だけ おく）
+  const TERMS_URL = "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/";
+  const md = (d) => `${d.getMonth() + 1}月${d.getDate()}日`;
+  // おうちのかたへ の ボタン に ちいさな しるし を つける（バックアップ の おしらせ と おためし の おわり）
+  const parentDue = () => backupDue() || !!accessState().notice;
+  function renderPlan() {
+    const a = accessState();
+    const card = $("planCard");
+    card.hidden = a.state === "web";
+    if (card.hidden) return;
+    const terms = () =>
+      '<div class="plan-terms">' +
+      `<p>登録すると${PRICE_TEXT}で、1か月ごとに自動で更新されます。更新日の24時間前までに解約しないと、次の月も更新されます。お支払いは Apple ID で行われます。</p>` +
+      "<p>解約・登録の確認は、iPhone・iPad の「設定」→ 自分の名前 →「サブスクリプション」から、またはこの画面の「登録の確認・解約」からできます。</p>" +
+      '<p><button data-act="privacy">プライバシーポリシー</button><button data-act="terms">利用規約</button></p></div>';
+    const restore = '<button data-act="restore">購入を復元</button>';
+    let html = '<h3>ご利用のプラン</h3>';
+    if (a.state === "before") {
+      const end = addDays(new Date(), TRIAL_DAYS - 1);
+      html += '<p class="plan-state">30日間の無料お試し<small>まだ始まっていません</small></p>' +
+        "<ul>" +
+        `<li>今日始めると、<b>${md(end)}まで</b>の30日間、すべての機能を無料で使えます。</li>` +
+        "<li>お試しは0円です。お試しが終わっても、<b>自動で課金されることはありません</b>。</li>" +
+        "<li>お試しが終わったあとは、練習はできなくなります。記録（キャラクター・バッジ・カレンダー・レポート）を見ることと、バックアップはこれからもできます。</li>" +
+        `<li>続けて使うときは、${PRICE_TEXT}で登録します（いつでも解約できます）。</li>` +
+        "</ul>" +
+        '<button class="plan-main" data-act="trial">30日間 無料で ためす（0円）</button>' + restore + terms();
+    } else if (a.state === "trial") {
+      html += `<p class="plan-state">お試し中：あと${a.daysLeft}日<small>${md(a.end)}まで、すべての機能を使えます</small></p>` +
+        `<div class="plan-days" aria-hidden="true"><div style="width:${Math.round((a.daysLeft / TRIAL_DAYS) * 100)}%"></div></div>`;
+      if (a.notice) {
+        html += `<p class="plan-notice">お試しは ${md(a.end)} で終わります。続けて練習するには、${PRICE_TEXT}で登録してください。登録しなくても、記録はなくならず、見ることとバックアップはできます。</p>` +
+          `<button class="plan-main" data-act="subscribe">${PRICE_TEXT}で登録する</button>` + restore + terms();
+      } else {
+        html += `<p class="st-note">お試しが終わる3日前に、ここでお知らせします。お試しが終わっても、自動で課金されることはありません。</p>`;
+      }
+    } else if (a.state === "subscribed") {
+      html += '<p class="plan-state">登録中<small>すべての機能を使えます</small></p>' +
+        '<button data-act="manage">登録の確認・解約</button>' + restore + terms();
+    } else {
+      html += `<p class="plan-state">お試しは終わりました<small>${a.end ? md(a.end) + "まで" : ""}</small></p>` +
+        "<p>記録（キャラクター・バッジ・カレンダー・レポート）を見ることと、バックアップは、これからもできます。続けて練習するには、登録してください。</p>" +
+        `<button class="plan-main" data-act="subscribe">${PRICE_TEXT}で登録する</button>` + restore + terms();
+    }
+    card.innerHTML = html;
+  }
+  // ボタン：App Store との つなぎこみ は まだ（ステップ6）。かいはつ よう の きりかえ の とき は じょうたい を かえて ためせる
+  $("planCard").addEventListener("click", async (e) => {
+    const btn = e.target.closest("button[data-act]");
+    if (!btn) return;
+    const act = btn.dataset.act;
+    if (act === "privacy") { show("privacy"); return; }
+    if (act === "terms") {
+      // そと の ページ に でる まえ に たしかめる
+      if (await askDialog("利用規約を開きます", { sub: "Apple の標準の利用規約（外部のページ）を Safari で開きます。", ok: "開く", cancel: "やめる" })) {
+        // アプリ では ページ の いどう と して わたすと、Capacitor が Safari で ひらく（アプリ の がめん は そのまま）
+        if (isNativeApp) location.href = TERMS_URL;
+        else window.open(TERMS_URL, "_blank");
+      }
+      return;
+    }
+    const a = accessState();
+    if (a.dev) {
+      const next = { trial: "trial-30", subscribe: "subscribed", manage: "expired" }[act];
+      if (next) { try { sessionStorage.setItem(DEV_ACCESS, next); } catch (err) { /* ためせない */ } }
+      renderPlan(); renderAccessGate();
+      return;
+    }
+    await askDialog("準備中です", { sub: "App Store でのお試し・登録は、これから作ります。", cancel: "" });
+  });
+
   // こども むけ の がめん を、いま れんしゅう できる か に あわせる
   function renderAccessGate() {
     const a = accessState();
@@ -4099,7 +4190,7 @@
       ? "iPhone・iPad：「きろくを ほぞん」→「\"ファイル\"に保存」→「iCloud Drive」を選んで「保存」。読みこむときは「きろくを よみこむ」→「ファイルを選択」→「ブラウズ」から、そのファイルを選びます。"
       : isAndroid ? "Android：保存したファイルは「ダウンロード」フォルダなどに入ります。共有メニューが出たときは、Google ドライブなどを選べます。"
       : "パソコン：保存したファイルは「ダウンロード」フォルダに入ります。";
-    $("parentBtn").classList.toggle("due", due);
+    $("parentBtn").classList.toggle("due", due || !!accessState().notice);
     $("stResult").hidden = true;
   }
 
@@ -4468,7 +4559,7 @@
   applyPrefs();
   renderGreet();
   renderAccessGate();
-  $("parentBtn").classList.toggle("due", backupDue());
+  $("parentBtn").classList.toggle("due", parentDue());
   // はじめて ひらいた とき は ガイド を みせて から なまえ を きく（おいわい は はじめ の がめん に もどって から）。
   // ガイド を いれる まえ から つかって いる ひと（なまえ を もう きいた ひと）には ださない
   if (!settings.guideSeen && !settings.nameAsked && !cleanName(settings.name)) openGuide("first");
