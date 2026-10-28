@@ -483,6 +483,17 @@ npm run ios       # www/ を つくり、ios/ に うつして、Xcode を ひ�
 - シミュレーターで Face ID を試すときは、メニューの「Features → Face ID → Enrolled」をオンにし、Face ID の画面が出たら「Matching Face」（通る）か「Non-matching Face」（通らない）を選びます。
 - 入れている部品：`@aparajita/capacitor-biometric-auth`（Face ID・Touch ID）、`@capacitor/filesystem` と `@capacitor/share`（バックアップの保存）、`@capacitor/app`（Face ID の部品が使う）、`@capacitor/preferences`（記録の控え）。
 
+### お試しと登録（ストア版・作っているところ）
+
+ストア版は、保護者が「30日間 無料で ためす（0円）」を押した日から30日間と、月300円の登録中だけ練習できます。お試しの前は、最初の1回だけ練習を体験できます。記録を見ることとバックアップは、いつでもできます。Web 版は今までどおり全部使えます。
+
+- 判定は `index.html` の `accessState()`・`canPractice()` の1か所にまとめています。
+  - `before`（お試しの前）／`trial`（お試し中）／`subscribed`（登録中）／`expired`（お試しが終わった）／`web`（Web 版）
+  - お試しは、始めた日を1日目として30日目の終わりまで（例：10月28日に始めたら11月26日まで）。残りが3日以下になると「お知らせ」の状態になります。
+  - お試しを始めた日と登録は、App Store の購入の記録から受け取ります（まだつないでいません）。
+- お試しの前の「1回だけの体験」は、問題を最後まで解いたとき、または1問以上解いて途中でやめたときに「使った」と記録します（`keisan-renshu-access`）。端末だけの記録なので、バックアップには入りません。
+- **開発用の切りかえ**：URL に `?access=before`・`before-used`・`trial-12`（のこり12日）・`subscribed`・`expired` をつけると、その状態になります（Web 版でも試せます）。はじめの画面のいちばん下に、灰色で「開発用：…」と出ます。`?access=off` で元に戻ります（そのタブの間だけ覚えます）。
+
 ### アプリ版の記録の保存
 
 iOS の WebView の localStorage は、端末の空き容量が少ないときに OS が消すことがあります。そのためアプリ版では、記録を `@capacitor/preferences`（iOS は UserDefaults）にも写しています。

@@ -394,6 +394,8 @@
     text-decoration: underline;
   }
   .parent-link:active { transform: none; box-shadow: none; }
+  /* かいはつ よう の ひょうじ（?access を つけた とき だけ でる） */
+  .dev-access { margin: 6px 0 0; text-align: center; font-size: 12px; color: #fff; background: #555; border-radius: 8px; padding: 2px 8px; }
   #parent { font-size: 16px; line-height: 1.5; }
   #parent h1 { margin-bottom: 6px; }
   #parent h1 small { display: block; font-size: 16px; color: #666; font-weight: normal; }
@@ -1359,6 +1361,7 @@
       <button class="parent-link" id="settingsBtn">⚙️ せってい</button>
       <button class="parent-link" id="parentBtn">おうちのかたへ</button>
     </div>
+    <p class="dev-access" id="devAccess" hidden></p>
   </section>
 
   <!-- かけざん：なんの だん？ -->
@@ -2903,7 +2906,7 @@
     // おうちのかた の がめん から でたら、また かぎ を かける
     if (!PARENT_SCREENS.includes(id)) parentUnlocked = false;
     if (id !== "pin") clearInterval(pinTimer);
-    if (id === "start") { resetCalendar(); renderGrowth(); $("parentBtn").classList.toggle("due", backupDue()); }
+    if (id === "start") { resetCalendar(); renderGrowth(); renderDevAccess(); $("parentBtn").classList.toggle("due", backupDue()); }
     if (id === "dan") renderDan();
     if (id === "badges") renderBadges();
     if (id === "parent") { renderReport(); renderStorage(); renderBackup(); renderBio(); }
@@ -3585,6 +3588,7 @@
 
   function finish() {
     const elapsed = stopTimer();
+    useTaste();
     const total = problems.length;
     const score = problems.filter((p) => p.correct).length;
     $("score").innerHTML = `${score}<small> / ${total} もん</small>`;
@@ -3712,6 +3716,7 @@
     clearTimeout(autoNextId);
     autoNextId = null;
     if (await askDialog("とちゅう で やめる？", { sub: "ここまで といた もんだい は きろく に のこるよ", ok: "やめる", cancel: "つづける" })) {
+      if (index > 0 || answered) useTaste(); // 1もん でも といたら たいけん を つかった こと に する
       stopTimer(); stopSpeech(); show("start");
     } else if (resume && $("quiz").classList.contains("active")) {
       autoNextId = setTimeout(next, 800);
@@ -3845,8 +3850,9 @@
   const BACKUP_V = 1;
   const BACKUP_KEY = STORE_PREFIX + "backup"; // さいご に ほぞん した ひ
   const LOCK_KEY = STORE_PREFIX + "lock";     // おうちのかた の あんしょうばんごう
+  const ACCESS_KEY = STORE_PREFIX + "access"; // おためし の まえ の 1かい の たいけん を つかった か
   // この たんまつ だけ の もの は バックアップ に いれず、よみこんで も かわらない
-  const DEVICE_KEYS = [BACKUP_KEY, LOCK_KEY];
+  const DEVICE_KEYS = [BACKUP_KEY, LOCK_KEY, ACCESS_KEY];
   const BACKUP_DUE_DAYS = 30; // これ いじょう たったら おしらせ
   const isObj = (v) => !!v && typeof v === "object" && !Array.isArray(v);
   // しって いる きろく の かたち（しらない キー は、あたらしい バージョン で ふえた もの と して そのまま もどす）
@@ -3860,6 +3866,77 @@
   // ふるい かたち の ファイル を いま の かたち に する（v1 が さいしょ なので、いま は なにも しない）
   function upgradeBackup(d) {
     return d;
+  }
+
+  // ---- つかえる じょうたい（30にち の おためし と、つきがく の とうろく）----
+  // ストア版 は、おためし か とうろく の あいだ だけ れんしゅう できる。おためし の まえ は さいしょ の 1かい だけ たいけん できる。
+  // きろく を みる こと と バックアップ は いつ でも できる。Web 版 は いつ でも ぜんぶ つかえる。
+  // おためし を はじめた ひ と とうろく は App Store の こうにゅう の きろく から くる（たんまつ の きろく では きめない）
+  const TRIAL_DAYS = 30;
+  const TRIAL_NOTICE_DAYS = 3; // のこり が この ひかず に なったら おしらせ
+  let entitlement = { trialStart: null, subscribed: false }; // trialStart：おためし を はじめた とき（ミリびょう）
+  function loadAccess() {
+    try { const d = JSON.parse(localStorage.getItem(ACCESS_KEY)); return isObj(d) ? d : {}; } catch (e) { return {}; }
+  }
+  function saveAccess(d) {
+    try { localStorage.setItem(ACCESS_KEY, JSON.stringify(d)); } catch (e) { /* ほぞん できなくても つづける */ }
+  }
+  // かいはつ よう：URL に ?access=before・before-used・trial-12（のこり 12にち）・subscribed・expired を つけると
+  // その じょうたい に なる（Web 版 でも ためせる）。?access=off で もどす。この タブ の あいだ だけ おぼえる
+  const DEV_ACCESS = "keisan-dev-access";
+  function devAccess() {
+    try {
+      const q = new URLSearchParams(location.search).get("access");
+      if (q === "off") sessionStorage.removeItem(DEV_ACCESS);
+      else if (q) sessionStorage.setItem(DEV_ACCESS, q);
+      return sessionStorage.getItem(DEV_ACCESS) || "";
+    } catch (e) { return ""; }
+  }
+  // { state: "web" | "before" | "trial" | "subscribed" | "expired", tasteUsed, end（さいご の ひ）, daysLeft, notice, dev }
+  function accessState() {
+    const dev = devAccess();
+    if (!dev && !isNativeApp) return { state: "web" };
+    let ent = entitlement;
+    let tasteUsed = !!loadAccess().taste;
+    if (dev) {
+      const today = addDays(new Date(), 0);
+      const m = dev.match(/^trial-(\d+)$/);
+      ent = {
+        trialStart: m ? addDays(today, Number(m[1]) - TRIAL_DAYS).getTime() : dev === "expired" ? addDays(today, -TRIAL_DAYS - 5).getTime() : null,
+        subscribed: dev === "subscribed",
+      };
+      if (dev.startsWith("before")) tasteUsed = dev === "before-used";
+    }
+    if (ent.subscribed) return { state: "subscribed", dev };
+    if (ent.trialStart != null) {
+      const s0 = new Date(ent.trialStart);
+      const stop = addDays(s0, TRIAL_DAYS); // はじめた ひ を 1にちめ と して、31にちめ の 0じ に おわる
+      const end = addDays(stop, -1);
+      const daysLeft = Math.ceil((stop - Date.now()) / DAY_MS);
+      if (daysLeft > 0) return { state: "trial", end, daysLeft, notice: daysLeft <= TRIAL_NOTICE_DAYS, dev };
+      return { state: "expired", end, dev };
+    }
+    return { state: "before", tasteUsed, dev };
+  }
+  // いま れんしゅう を はじめて よい か
+  function canPractice() {
+    const a = accessState();
+    return a.state === "before" ? !a.tasteUsed : a.state !== "expired";
+  }
+  // おためし の まえ の 1かい の たいけん を つかった こと に する（おわった とき か、とちゅう で やめた とき）
+  function useTaste() {
+    const a = accessState();
+    if (a.state !== "before" || a.dev || loadAccess().taste) return;
+    saveAccess({ ...loadAccess(), taste: dateKey(new Date()) });
+  }
+  // かいはつ よう の ひょうじ（?access を つけた とき だけ）
+  function renderDevAccess() {
+    const a = accessState();
+    $("devAccess").hidden = !a.dev;
+    if (!a.dev) return;
+    const name = { before: a.tasteUsed ? "お試しの前（体験は使った）" : "お試しの前（体験1回できる）", trial: `お試し中（あと${a.daysLeft}日・${a.end ? jpDate(a.end) : ""}まで${a.notice ? "・お知らせ" : ""}）`,
+      subscribed: "登録中", expired: `お試しが終わった（${a.end ? jpDate(a.end) : ""}まで）` }[a.state];
+    $("devAccess").textContent = `開発用：${name}・練習${canPractice() ? "できる" : "できない"}`;
   }
 
   function loadBackupInfo() {
@@ -4320,6 +4397,7 @@
   renderGrowth();
   applyPrefs();
   renderGreet();
+  renderDevAccess();
   $("parentBtn").classList.toggle("due", backupDue());
   // はじめて ひらいた とき は ガイド を みせて から なまえ を きく（おいわい は はじめ の がめん に もどって から）。
   // ガイド を いれる まえ から つかって いる ひと（なまえ を もう きいた ひと）には ださない
