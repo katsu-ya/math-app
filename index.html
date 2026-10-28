@@ -4124,8 +4124,12 @@
   }
   async function bioAuth(reason) {
     try {
-      // たんまつ の パスコード は こども が しって いる こと も ある ので つかわない
-      await bioPlugin().authenticate({ reason, cancelTitle: "暗証番号を使う", allowDeviceCredential: false });
+      // たんまつ の パスコード は こども が しって いる こと も ある ので つかわない。
+      // iosFallbackTitle を "" に して「パスワードを入力」の ボタン も だささない（だめ なら アプリ の 暗証番号 へ）
+      // ネイティブ の なまえ は internalAuthenticate（authenticate() は JS の ぶひん を いれた とき だけ ある）
+      const p = bioPlugin();
+      const auth = (p.authenticate || p.internalAuthenticate).bind(p);
+      await auth({ reason, cancelTitle: "暗証番号を使う", iosFallbackTitle: "", allowDeviceCredential: false });
       return true;
     } catch (e) { return false; }
   }

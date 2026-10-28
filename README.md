@@ -273,7 +273,8 @@ https://katsu-ya.github.io/math-app/ をホーム画面に追加すると、ア�
 - オンのときに Face ID が通らなかったり「暗証番号を使う」を押したりしたときは、いつもの暗証番号の画面になります。端末のパスコードでは開きません（お子さまが知っていることがあるため）。
 - オン・オフはこの端末だけの設定です（暗証番号と同じ場所に保存し、バックアップには入りません）。
 - Web 版（ブラウザ・ホーム画面に追加）では使えないので、この項目は表示されません。
-- アプリにするときは、部品（プラグイン）`@aparajita/capacitor-biometric-auth` を入れ、iOS の `Info.plist` に `NSFaceIDUsageDescription`（例：「保護者の確認に Face ID を使います」）を書きます。部品は `Capacitor.Plugins.BiometricAuthNative`（または `BiometricAuth`）の `checkBiometry()` と `authenticate()` を使います。別の部品にするときは、`index.html` の `bioPlugin()`・`checkBio()`・`bioAuth()` を直します。
+- Face ID の画面には「Face IDをやり直す」と「暗証番号を使う」だけが出ます。iPhone の「パスワードを入力」（端末のパスコード）のボタンは出しません（`allowDeviceCredential: false` と `iosFallbackTitle: ""`）。Face ID が何度も通らずロックされたときも、端末のパスコードではなく、アプリの暗証番号の画面になります。
+- 部品（プラグイン）は `@aparajita/capacitor-biometric-auth` です。iOS の `Info.plist` に `NSFaceIDUsageDescription` を書いてあります。`index.html` は部品の JavaScript を読みこまず、`Capacitor.Plugins.BiometricAuthNative` の `checkBiometry()` と `internalAuthenticate()`（ネイティブ側の名前）を直接使います。別の部品にするときは、`index.html` の `bioPlugin()`・`checkBio()`・`bioAuth()` を直します。
 
 ## おうちのかたへ（学習レポート）
 
@@ -459,6 +460,24 @@ Android では、Chrome とホーム画面のアプリで記録が共通なの�
 - ファイルを増やしたときは、`sw.js` の `FILES` にも追加してください。
 - `index.html` をパソコンで直接開いたとき（`file://`）は、オフライン機能とアップデートのお知らせは動きません（ほかの機能は使えます）。
 
+## ストア版（iOS アプリ）を作る
+
+Capacitor で iPhone・iPad のアプリにしています（Bundle ID：`jp.katsuya.keisanrenshu`）。Web 版（GitHub Pages）は今までどおり `index.html` だけで動きます。
+
+必要なもの：Node.js、Xcode（iOS シミュレーター）。部品は Swift Package Manager で入るので、CocoaPods はいりません。
+
+```
+npm install       # はじめて の とき だけ
+npm run ios       # www/ を つくり、ios/ に うつして、Xcode を ひらく
+```
+
+- `npm run build` は、`index.html`・`manifest.webmanifest`・`sw.js`・`icons/` を `www/` に写します。アプリが使うファイルを増やしたときは、`package.json` の `build` にも足してください。
+- `index.html` を直したら、もう一度 `npm run ios`（または `npm run build && npx cap sync ios`）をしてから Xcode で実行します。
+- Xcode で、上のデバイスの選択からシミュレーター（例：iPhone 17）を選んで ▶ を押します。
+- シミュレーターで Face ID を試すときは、メニューの「Features → Face ID → Enrolled」をオンにし、Face ID の画面が出たら「Matching Face」（通る）か「Non-matching Face」（通らない）を選びます。
+- 入れている部品：`@aparajita/capacitor-biometric-auth`（Face ID・Touch ID）、`@capacitor/filesystem` と `@capacitor/share`（バックアップの保存）、`@capacitor/app`（Face ID の部品が使う）。
+- `www/` と `node_modules/` は作り直せるので、GitHub には上げません（`.gitignore`）。`ios/` は上げます。
+
 ## ファイル
 
 ```
@@ -470,5 +489,8 @@ icons/icon-192.png      アイコン（Android など）
 icons/icon-512.png      アイコン（大きいサイズ）
 icons/icon-maskable-512.png  アイコン（Android で丸などの形に切りぬかれる用。絵を小さめにしてある）
 icons/apple-touch-icon.png   アイコン（iPhone・iPad 用）
+package.json            ストア版を作るための部品と、npm run build / npm run ios
+capacitor.config.json   ストア版の設定（Bundle ID・アプリの名前・www/）
+ios/                    ストア版の iOS（Xcode）プロジェクト
 README.md               このファイル
 ```

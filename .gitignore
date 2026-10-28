@@ -3,3 +3,7 @@ CLAUDE.local.md
 
 # Mac が つくる ファイル
 .DS_Store
+
+# ストア版（Capacitor）：npm install と npm run build で できる もの
+node_modules/
+www/

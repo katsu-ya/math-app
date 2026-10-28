@@ -1,0 +1,21 @@
+{
+  "name": "keisan-renshu",
+  "private": true,
+  "version": "1.0.0",
+  "description": "けいさん れんしゅう（ストア版は Capacitor）",
+  "scripts": {
+    "build": "rm -rf www && mkdir www && cp -R index.html manifest.webmanifest sw.js icons www/",
+    "ios": "npm run build && npx cap sync ios && npx cap open ios"
+  },
+  "dependencies": {
+    "@aparajita/capacitor-biometric-auth": "^10.0.0",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/filesystem": "^8.1.5",
+    "@capacitor/ios": "^8.5.3",
+    "@capacitor/share": "^8.0.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.3"
+  }
+}
