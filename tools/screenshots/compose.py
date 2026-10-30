@@ -25,7 +25,7 @@ SLIDES = [
     ("10", None, "にがてが わかる<br>学習レポート", "おうちのかた むけ（暗証番号で保護）"),
 ]
 REPORT = {"iphone": "10-report-weak", "ipad": "10-report-weak"}
-SIZE = {"iphone": (1320, 2868), "ipad": (2064, 2752)}
+SIZE = {"iphone": (1206, 2622), "ipad": (2064, 2752)}  # iPhone は App Store Connect の「Dynamic Island 搭載 iPhone（中型）」の おおきさ
 # きりとる はんい（ひだり, うえ, みぎ, した）。iPhone は うえ の とけい の ひょうじ を、
 # iPad は うえ の とけい と した の あき を のぞく（がめん を かえたら ここ も みなおす）
 def crop_box(dev, name, w, h):

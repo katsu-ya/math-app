@@ -3,7 +3,7 @@
 # 1. きょう の ひづけ で みほん の きろく を つくる（なまえ は「ゆう」）
 # 2. さつえい よう の アプリ を つくる（www/ の うつし に だけ capture.js を いれる）
 # 3. iPhone 18 Pro Max と iPad Pro 13-inch (M5) で、9つ の がめん を じどう で だして とる（とけい は 9:41）
-# 4. キャッチコピー いり の がぞう を つくる（iPhone 1320×2868、iPad 2064×2752）
+# 4. キャッチコピー いり の がぞう を つくる（iPhone 1206×2622、iPad 2064×2752）
 # 5. ふつう の アプリ に もどして、シミュレーター に いれなおす
 # つかいかた：tools/screenshots/make-screenshots.sh [でる フォルダ]（ない とき は ~/Desktop/keisan-screenshots）
 # ひつよう な もの：Xcode（シミュレーター）、Node.js、Google Chrome、Python の Pillow

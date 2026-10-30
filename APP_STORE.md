@@ -311,9 +311,10 @@ The app is in Japanese. Text for children is written in hiragana.
 
 | 端末 | 必須か | 撮るシミュレーター | 画像の大きさ（縦向き） |
 |---|---|---|---|
-| iPhone 6.9インチ | **必須** | iPhone 18 Pro Max | 1320×2868 |
+| iPhone（App Store Connect の欄は「Dynamic Island 搭載 iPhone（中型ディスプレイ）」） | **必須** | iPhone 18 Pro Max で撮り、画像は 1206×2622 で作る | 1206×2622（1179×2556 も可） |
 | iPad 13インチ | **必須**（iPad に対応しているため） | iPad Pro 13-inch (M5) | 2064×2752 |
 
+- 2026-10-30：App Store Connect の iPhone の欄は「Dynamic Island 搭載 iPhone（中型ディスプレイ）」だけで、6.9インチ（1320×2868）の欄はなかった。そのため iPhone の画像は 1206×2622 で作る（`compose.py` の `SIZE`）。撮影は今までどおり iPhone 18 Pro Max で、縦横の比はほぼ同じ。
 - どちらもこの Mac のシミュレーターで、上の大きさで撮れることを確かめました。小さい画面用の画像は、App Store がこれを縮めて使うので、撮らなくてかまいません。
 - 1端末につき1〜10枚まで載せられます。おすすめは5〜6枚です。
 - iPad は縦・横どちらで撮ってもかまいません。そろえると見栄えがよくなります。
@@ -451,7 +452,7 @@ The app is in Japanese. Text for children is written in hiragana.
 7. 審査に関する情報：スクリーンショットに `~/Desktop/keisan-iap-review/2-月額（monthly）用.png`、メモは①と同じ
 
 - 2つとも、状態が「提出準備完了」（Ready to Submit）になれば入力は足りています。「メタデータが不足」のときは、足りない項目が表示されます。
-- 審査用のスクリーンショット（iPhone 18 Pro Max・1320×2868）は、Sandbox で試す前でも使えるように、こちらで撮っておきました（`~/Desktop/keisan-iap-review/`。GitHub には上げない）。見本の記録（ゆう）で、保護者画面の「ご利用のプラン」を写したものです。
+- 審査用のスクリーンショット（iPhone 18 Pro Max で撮ったもの・1320×2868）は、Sandbox で試す前でも使えるように、こちらで撮っておきました（`~/Desktop/keisan-iap-review/`。GitHub には上げない）。見本の記録（ゆう）で、保護者画面の「ご利用のプラン」を写したものです。
 
 ### 8-5. Sandbox のテスターを作る ★
 
