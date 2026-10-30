@@ -13,15 +13,16 @@ CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 # （ならぶ じゅん, もと の がめん, タイトル, サブ）。タイトル の <br> で ぎょう を かえる。
 # アプリ に ない きのう は かかない（しんさ で さしもどされる）
 SLIDES = [
-    ("01", "01-start", "こうこく なし・あんしん", "たのしく つづく けいさん れんしゅう"),
+    ("01", "01-start", "30日間 無料で ためせる", "こうこく なし・あんしんの けいさん れんしゅう"),
     ("02", "02-levelup", "キャラクターが そだつ！", "せいかい するたびに けいけんち アップ"),
     ("03", "03-calendar", "はなまる カレンダーで<br>まいにち つづく", "10もんで ○、20もんで はなまる"),
     ("04", "04-story", "文章題も 九九も<br>いろいろ れんしゅう", "たしざん・ひきざん・かけざん・わりざん"),
     ("05", "05-dan", "九九は だんを えらんで", "じゅんばん・ばらばら で れんしゅう"),
-    ("06", "06-quiz", "おおきな ボタンで<br>こたえよう", "1けた〜2けた・4つの むずかしさ"),
-    ("07", "07-correct", "せいかいすると ピンポン！", "なまえを よんで ほめてくれる"),
-    ("08", "08-result", "10もんの ふりかえりで<br>まちがいも わかる", "まちがえた もんだいは こたえを ひょうじ"),
-    ("09", None, "にがてが わかる<br>学習レポート", "おうちのかた むけ（暗証番号で保護）"),
+    ("06", "06-clock", "とけいの よみかたも", "はりを うごかして あわせる もんだいも"),
+    ("07", "11-hissan", "ひっさんも マスで<br>ていねいに", "くりあがり・くりさがりの メモも かける"),
+    ("08", "07-correct", "せいかいすると ピンポン！", "なまえを よんで ほめてくれる"),
+    ("09", "08-result", "10もんの ふりかえりで<br>まちがいも わかる", "まちがえた もんだいは こたえを ひょうじ"),
+    ("10", None, "にがてが わかる<br>学習レポート", "おうちのかた むけ（暗証番号で保護）"),
 ]
 REPORT = {"iphone": "10-report-weak", "ipad": "10-report-weak"}
 SIZE = {"iphone": (1320, 2868), "ipad": (2064, 2752)}
@@ -32,7 +33,8 @@ def crop_box(dev, name, w, h):
         return (0, 170, w, h)
     boxes = {"01-start": (0, 60, w, 1720), "02-levelup": (440, 760, 1624, 1980), "03-calendar": (1100, 380, w, 1640),
              "04-story": (0, 100, w, 1360), "05-dan": (330, 100, 1734, 1600), "06-quiz": (330, 100, 1734, 1800),
-             "07-correct": (330, 100, 1734, 1800), "08-result": (330, 100, 1734, 1720), "10-report-weak": (360, 140, 1704, 1330)}
+             "07-correct": (330, 100, 1734, 1800), "08-result": (330, 100, 1734, 1720), "10-report-weak": (360, 140, 1704, 1330),
+             "06-clock": (0, 100, w, 1460), "11-hissan": (0, 100, w, 1200)}
     return boxes[name]
 
 def render(html, w, h, out):
@@ -48,7 +50,7 @@ def html(dev, title, sub, shot, sw, sh_, first):
     k = W / 1320 if dev == "iphone" else W / 1500  # もじ の おおきさ の きじゅん
     pills = ""
     if first:
-        pills = '<div class="pills"><span>広告なし</span><span>追加の課金なし</span><span>外部リンクなし</span></div>'
+        pills = '<div class="pills"><span>広告なし</span><span>外部リンクなし</span><span>データは端末の中だけ</span></div>'
     icon = f'<img class="icon" src="file://{ICON}">' if first else ""
     return f"""<!doctype html><html><head><meta charset="utf-8"><style>
 html,body{{margin:0;width:{W}px;height:{H}px;overflow:hidden}}

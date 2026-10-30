@@ -42,7 +42,11 @@
         click(sel('#modeChoices [data-mode="calc"]')); await wait(200);
         click(sel('#opChoices [data-op="×"]')); await wait(800);
         click(sel('#danChoices [data-dan="7"]')); await wait(500); await shot("05-dan"); break;
-      case 6: await startCalc("+", "1h"); await type(ans()); await wait(300); await shot("06-quiz"); break;
+      case 6: // とけい（5ふん きざみ・4つ から えらぶ）
+        click(sel('#modeChoices [data-mode="clock"]')); await wait(300);
+        click(sel('#clockKindChoices [data-kind="choose"]')); await wait(200);
+        click(sel('#clockLevelChoices [data-clv="2"]')); await wait(200);
+        click($("startBtn")); await wait(1500); await shot("06-clock"); break;
       case 7: await startCalc("+", "1h"); await answer(true); await wait(500); await shot("07-correct"); break;
       case 8: // ふりかえり（1もん だけ まちがい）
         await startCalc("+", "1h");
@@ -55,6 +59,11 @@
         for (const c of "2580") { click(sel(`#pinPad [data-key="${c}"]`)); await wait(200); }
         await wait(1500); await shot("09-report");
         scrollTo($("rpWeak").closest(".rp-card"), 80); await wait(600); await shot("10-report-weak"); break;
+      case 10: // ひっさん（たしざん・2けた くりあがり あり）
+        click(sel('#modeChoices [data-mode="hissan"]')); await wait(300);
+        click(sel('#hsOpChoices [data-hop="+"]')); await wait(200);
+        click(sel('#hsLevelChoices [data-hlv="2"]')); await wait(200);
+        click($("startBtn")); await wait(1500); await shot("11-hissan"); break;
       default: console.log("SHOT done"); return;
     }
     nextScene();

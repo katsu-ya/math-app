@@ -206,7 +206,8 @@ IN-APP PURCHASES (StoreKit 2 only, all inside the parent area behind the parenta
 - Before the trial starts, one 10-question practice session is available as a taste.
 - If neither the trial nor the subscription is active, practice is locked, but all
   records (character, badges, calendar, reports) can still be viewed and backed up.
-  The child's screen only says "ask your parent" (おうちのかたに きいてね).
+  The child's screen only says "ask your parent" (おうちのかたに きいてね). Tapping it opens
+  the parental gate (the same as "おうちのかたへ"); it never shows prices or purchase buttons.
 - Before purchase, the parent area shows the period, the price, auto-renewal,
   how to cancel, the privacy policy (shown in the app) and the Terms of Use
   (Apple's standard EULA; opened in Safari only after a confirmation dialog).
@@ -338,10 +339,11 @@ The app is in Japanese. Text for children is written in hiragana.
 ! tools/screenshots/make-screenshots.sh
 ```
 
-見本の記録（今日の日付）を作り、iPhone 18 Pro Max と iPad Pro 13-inch (M5) で9つの画面を自動で撮ります。そのあと、キャッチコピー入りの画像を `~/Desktop/keisan-screenshots/iphone/`・`ipad/` に作ります（10分ほど）。
+見本の記録（今日の日付）を作り、iPhone 18 Pro Max と iPad Pro 13-inch (M5) で画面を自動で撮ります。そのあと、キャッチコピー入りの画像10枚を `~/Desktop/keisan-screenshots/iphone/`・`ipad/` に作ります（10分ほど）。
 
-- ファイル名の番号が、App Store Connect に並べる順番です（01 はじめの画面「こうこく なし・あんしん」〜 09 学習レポート）。
-- **ステップ9で撮り直す**：今の 01 の画像には「追加の課金なし」と書いてあり、App 内課金を入れたあとは使えません。1枚目のコピーを「30日間 無料で ためせる」などにし、とけい・ひっさんの画面も足します（撮影の自動操作も、お試し中の状態で撮るように直す）。
+- ファイル名の番号が、App Store Connect に並べる順番です：01 はじめの画面「30日間 無料で ためせる」（広告なし・外部リンクなし・データは端末の中だけ）／02 レベルアップ／03 カレンダー／04 文章題／05 九九の段／06 とけい／07 ひっさん／08 正解／09 ふりかえり／10 学習レポート
+- 撮るときは、開発用の切りかえで「お試し中（残り20日）」にしています（シミュレーターには App Store の購入がないため）。「開発用：…」の表示は写りません。
+- **2026-10-30 に撮り直した（ステップ9）**：「追加の課金なし」をやめ、1枚目を「30日間 無料で ためせる」に。とけい・ひっさんを足し、「おおきな ボタンで こたえよう」は外した（10枚まで）。画像には料金を書いていない（ストアの表示と食いちがわないように）。
 - 終わると、シミュレーターにはふつうのアプリが入り直します。時計の表示（9:41）を戻すときは `xcrun simctl status_bar booted clear`。
 - 画像は GitHub に上げません（出力先はリポジトリの外）。
 - キャッチコピーや順番は `tools/screenshots/compose.py` の `SLIDES`、撮る画面は `tools/screenshots/capture.js` で変えます。アプリにない機能は書かないでください。
@@ -409,8 +411,8 @@ The app is in Japanese. Text for children is written in hiragana.
 | ~~E~~ | ~~Apple Developer Program に登録し、App Store Connect でアプリを作る。署名（Team）を選び、アップロード~~ → **した**（2026-10-30。アップロードは `tools/upload-testflight.sh`。8-7） | 高 |
 | F | Web 版をどうするか → **決めた**（2026-10-28）：App Store 版の公開の日に、Web 版の「おうちのかたへ」に終了の案内を出す（ステップ10）。Android の家庭のため、Google Play 版を出すまでは Web 版を残す | 中 |
 | ~~G~~ | ~~App 内課金を2つ登録する・有料アプリ契約・口座・税・お試し・登録・復元・解約の確認~~ → **した**（2026-10-30。TestFlight の実機で確かめた。8-6） | 高 |
-| H | 新しいプライバシーポリシーとサポートのページ（購入のことを書いたもの）を公開する：`tools/publish-legal.sh`。**ステップ8で、審査に出す前に公開する**（2026-10-28 に決定）。あわせて `main` の `legal/` も同じにする | **高** |
-| I | スクリーンショットを撮り直す（「追加の課金なし」をやめる・とけい・ひっさんを足す。ステップ9） | **高** |
+| ~~H~~ | ~~新しいプライバシーポリシーとサポートのページを公開する~~ → **した**（2026-10-30。`main` には `legal/` がなく、前の URL の案内ページだけなので、合わせる作業はなし） | 高 |
+| ~~I~~ | ~~スクリーンショットを撮り直す~~ → **した**（2026-10-30。4-0） | 高 |
 
 ---
 
@@ -511,7 +513,7 @@ The app is in Japanese. Text for children is written in hiragana.
    - Xcode の「Product → Archive」は使いません。チームに iPhone が登録されていないと、開発用の署名が作れずに「Your team has no devices from which to generate a provisioning profile.」で止まるためです（配布用の署名には iPhone の登録はいりません）。このスクリプトなら iPhone をケーブルでつながなくてよいです
    - 配布用の証明書は、Xcode が自動で作る「Cloud Managed Apple Distribution」です（期限 2027-10-30。期限が来ても、スクリプトを動かせば作り直されます）
    - アーカイブは Release で作るので、`Keisan.storekit` は入りません
-   - 1.0 (1)・(2) は TestFlight で確かめたビルドです。審査には、そのあとアップロードした最新のビルドを選びます
+   - 1.0 (1)・(2) は TestFlight で確かめたビルドです。**審査には 1.0 (3)** を選びます（2026-10-30 にアップロード。入れ直しの案内などが入った最新のもの）
    - 失敗したときは、表示されたメッセージと、`$TMPDIR/keisan-upload-work/` の `archive.txt`・`upload.txt` を見ます。アップロードだけやり直すときは `--no-bump`
 4. バージョン 1.0 のページ ★：スクリーンショット、説明文・キーワード・サポート URL など（1章）、「App 内課金とサブスクリプション」で①②を選ぶ、App Review に関する情報（2章のメモ・連絡先）、App のプライバシー（3-1）、年齢制限（3-2）、キッズカテゴリ（3-3）、著作権
 5. 「審査用に追加」→「審査へ提出」

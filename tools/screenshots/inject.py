@@ -1,5 +1,6 @@
 # さつえい よう に www/index.html を かきかえる（npm run build の あと に つかう。もと の index.html は かえない）
 # ・ひらく たび に みほん の きろく を いれなおす（あんしょうばんごう は 2580）
+# ・おためし ちゅう（のこり 20にち）に する。かいはつ よう の「開発用：…」の ひょうじ は かくす
 # ・シーン 7（せいかい の ひょうじ）の あいだ は つぎ の もんだい に すすまない
 # ・capture.js を いれる
 # つかいかた：python3 tools/screenshots/inject.py みほん.json
@@ -16,6 +17,9 @@ seed = f"""<script>
   const D = {json.dumps(data, ensure_ascii=False)};
   Object.keys(localStorage).filter((k) => k.startsWith("keisan-renshu-")).forEach((k) => localStorage.removeItem(k));
   for (const [k, v] of Object.entries(D)) localStorage.setItem(k, v);
+  // シミュレーター では App Store の こうにゅう が ない ので、かいはつ よう の きりかえ で おためし ちゅう に する
+  sessionStorage.setItem("keisan-dev-access", "trial-20");
+  document.write('<style>#devAccess{{display:none!important}}</style>');
   // シーン 8（ふりかえり）では レベルアップ の おいわい が でない ように けいけんち を へらす
   if (sessionStorage.getItem("scene") === "8") {{ const g = JSON.parse(D["keisan-renshu-growth"]); g.xp = 1500; localStorage.setItem("keisan-renshu-growth", JSON.stringify(g)); }}
 }})();
