@@ -183,7 +183,7 @@ Bundle ID：`jp.katsuya.keisanrenshu`
 
 ## 2. 審査担当へのメモ（App Review に関する情報 → メモ）
 
-審査担当は日本語が読めないことがあるので、**英語で書きます**。下の英文を、そのまま貼れます。
+審査担当は日本語が読めないことがあるので、**英語で書きます**。下の英文を、そのまま貼れます。メモの欄は **4000文字まで** です（下の英文は約3800文字。2026-10-30 に縮めた）。足すときは文字数を確かめてください。
 
 **審査用の暗証番号の伝え方**：このアプリの暗証番号は、端末ごとに最初に開いたときに決めるもので、決まった番号はありません。そのため、「最初に大人向けの確認問題に答え、好きな4けた（例：1234）を決めてください」と伝えます。確認問題は日本語の指示なので、6種類の指示の英訳と答え方の例を書きます。
 
@@ -191,28 +191,21 @@ Bundle ID：`jp.katsuya.keisanrenshu`
 Thank you for reviewing this app.
 
 This is a math practice app for elementary school children (Kids category, ages 6-8).
-- No ads, no third-party analytics or tracking, no third-party SDKs for payments.
-- No sign-in or account is required. No demo account is needed.
-- The app makes no network requests of its own. All data (records, optional child's name,
-  settings) is stored only on the device.
+- No ads, no analytics/tracking, no third-party payment SDKs. No sign-in or demo account needed.
+- No network requests of its own. All data is stored only on the device.
 - Children's screens have no external links and no purchase prompts.
 
 IN-APP PURCHASES (StoreKit 2 only, all inside the parent area behind the parental gate)
-- "30-Day Free Trial" (non-consumable, price 0): a time-limited free trial under
-  Guideline 3.1.1. It starts on the day the parent taps the button and lasts 30 days.
-  It never charges automatically and never converts to a subscription.
-- "Monthly" (auto-renewable subscription, JPY 300/month): unlocks the same features
-  after the trial. There is no feature difference between trial and subscription.
+- "30-Day Free Trial" (non-consumable, price 0): a time-limited free trial (Guideline 3.1.1),
+  30 days from the purchase. It never charges and never converts to a subscription.
+- "Monthly" (auto-renewable, JPY 300/month): the same features after the trial.
 - Before the trial starts, one 10-question practice session is available as a taste.
-- If neither the trial nor the subscription is active, practice is locked, but all
-  records (character, badges, calendar, reports) can still be viewed and backed up.
+- Without trial/subscription, practice is locked, but all records can still be viewed and backed up.
   The child's screen only says "ask your parent" (おうちのかたに きいてね). Tapping it opens
   the parental gate (the same as "おうちのかたへ"); it never shows prices or purchase buttons.
-- Before purchase, the parent area shows the period, the price, auto-renewal,
-  how to cancel, the privacy policy (shown in the app) and the Terms of Use
-  (Apple's standard EULA; opened in Safari only after a confirmation dialog).
-- The parent area also has "Restore Purchases" (購入を復元) and
-  "Manage / Cancel subscription" (登録の確認・解約, opens Apple's manage subscriptions sheet).
+- Before purchase, the parent area shows the period, price, auto-renewal, how to cancel,
+  the privacy policy and the Terms of Use (Apple's standard EULA, after a confirmation).
+- It also has "Restore Purchases" (購入を復元) and "Manage / Cancel" (登録の確認・解約).
 
 HOW TO TEST THE PURCHASES (sandbox)
 1. On first launch, a page for parents explains the app and the pricing.
@@ -226,8 +219,7 @@ HOW TO TEST THE PURCHASES (sandbox)
    purchased right away. (In the last 3 days of the trial and after it ends, this button
    becomes the main button together with a notice.) Subscribing during the trial starts the
    monthly subscription on that day; the remaining trial days are not used.
-   The trial is tied to the Apple ID, so reinstalling does not reset it. To test from the
-   beginning again, clear the purchase history of the sandbox tester.
+   The trial is tied to the Apple ID; to test again, clear the sandbox purchase history.
 
 HOW TO OPEN THE PARENT AREA (parental gate)
 1. On the start screen, scroll to the bottom and tap "おうちのかたへ" (= "For parents").
@@ -249,15 +241,8 @@ HOW TO OPEN THE PARENT AREA (parental gate)
    If you forget it, tap "暗証番号をわすれた" (= "Forgot PIN"), answer the adult check
    question again, and set a new PIN.
 
-The parent area contains: the plan card (trial / subscription / restore / manage),
-learning report, changing the child's name, backup/restore of records
-(iOS share sheet / Files), an option to unlock with Face ID, and the privacy policy
-(shown inside the app, not as an external link).
-
-FACE ID
-Face ID is OFF by default. A parent can turn it on in the parent area ("Face IDを使う").
-It uses biometrics only; the device passcode is intentionally not accepted
-(children may know the device passcode). If Face ID fails, the app's own PIN screen is shown.
+FACE ID is OFF by default (parent can turn it on). The device passcode is not accepted
+(children may know it); if Face ID fails, the app's PIN screen is shown.
 
 The app is in Japanese. Text for children is written in hiragana.
 ```
