@@ -6,7 +6,7 @@ Bundle ID：`jp.katsuya.keisanrenshu`
 
 > App Store Connect の項目名や質問は変わることがあります。入力するときは、画面の説明と最新の「App Review ガイドライン」（1.3 キッズカテゴリ、5.1.4 子ども）を確かめてください。
 > 「★要決定」は、あなたが決める項目です。
-> 料金を書く文章（説明文・プロモーションテキスト・スクリーンショット）は、App Store Connect に登録する価格（月額300円）と食いちがわないようにしてください。価格を変えたら、ここと `index.html` の `PRICE_TEXT`、`legal/support.html` も直します。
+> 料金を書く文章（説明文・プロモーションテキスト・スクリーンショット）は、App Store Connect に登録する価格（月額300円）と食いちがわないようにしてください。価格を変えたら、ここと `index.html` の `PRICE_TEXT`、`legal/support.html`、`legal/tokushoho.html` も直します。
 
 ---
 
@@ -16,6 +16,7 @@ Bundle ID：`jp.katsuya.keisanrenshu`
 |---|---|
 | プライバシーポリシー URL | https://katsu-ya.github.io/keisan-renshu/privacy.html |
 | サポート URL | https://katsu-ya.github.io/keisan-renshu/support.html |
+| 特定商取引法に基づく表記（App Store Connect には入れない。サポートからリンク） | https://katsu-ya.github.io/keisan-renshu/tokushoho.html（2026-10-31 公開） |
 | マーケティング URL（任意） | 空欄でよい |
 
 - 2つのページは、公開用のリポジトリ `katsu-ya/katsu-ya.github.io` の `keisan-renshu/` にあります（2026-10-28 に移した。math-app を非公開にしても見られる）。
@@ -399,6 +400,24 @@ The app is in Japanese. Text for children is written in hiragana.
 | ~~G~~ | ~~App 内課金を2つ登録する・有料アプリ契約・口座・税・お試し・登録・復元・解約の確認~~ → **した**（2026-10-30。TestFlight の実機で確かめた。8-6） | 高 |
 | ~~H~~ | ~~新しいプライバシーポリシーとサポートのページを公開する~~ → **した**（2026-10-30。`main` には `legal/` がなく、前の URL の案内ページだけなので、合わせる作業はなし） | 高 |
 | ~~I~~ | ~~スクリーンショットを撮り直す~~ → **した**（2026-10-30。4-0） | 高 |
+| ~~J~~ | ~~特定商取引法に基づく表記を作って公開する~~ → **した**（2026-10-31。`legal/tokushoho.html`。販売事業者・運営責任者は新城 克哉、所在地・電話番号は請求があれば開示。動作環境の iOS 15.0 はアプリの最低バージョン `IPHONEOS_DEPLOYMENT_TARGET`・部品と同じ。最低バージョンを変えたら表記も直す） | 高 |
+
+### 5-1. 次のアップデート（1.1）の計画：特定商取引法に基づく表記をアプリでも見られるようにする
+
+1.0 では、表記は公開のページ（サポートからリンク）だけに置く。1.1 で、アプリの「おうちのかたへ」からも読めるようにする。
+
+| # | すること | 場所 |
+|---|---|---|
+| 1 | 「おうちのかたへ」の「▶ プライバシーポリシーを読む」の下に「▶ 特定商取引法に基づく表記を読む」を足す。「ご利用のプラン」の「プライバシーポリシー」「利用規約」のボタンの横にも「特定商取引法に基づく表記」を足す（購入の前に見られるように） | `index.html` |
+| 2 | 今のプライバシーポリシーの画面（`privacy`）を使い回す。`renderPrivacy()` を「どの文書を読むか（`privacy`／`tokushoho`）」で切りかえられるようにし、見出しも変える。リンクは今と同じく文字にする（メールアドレス・Apple の返金のページも文字だけ。外部へのリンクを置かない） | `index.html` |
+| 3 | 新しい画面は作らないので `PARENT_SCREENS` はそのまま（`privacy` が入っている）。保護者の確認の先からだけ開ける | `index.html` |
+| 4 | Web 版には購入がないので、Web 版ではボタンを出さない（`isNativeApp` のときだけ） | `index.html` |
+| 5 | オフラインでも読めるように `sw.js` の `FILES` に `./legal/tokushoho.html` を足す（`package.json` の `build` は `legal/` をまるごと写すので、そのままでよい） | `sw.js` |
+| 6 | README・STORE_CHECK（1-7 など）・審査メモ（保護者画面の中身）を直す。パソコンで1画面に収まるか、iPhone・iPad のシミュレーターで見え方を確かめる | |
+| 7 | バージョンを 1.1 にし、`tools/upload-testflight.sh` → TestFlight で確かめる → 審査へ | |
+
+- 表記の本文を直したときは、`legal/tokushoho.html` を直して `tools/publish-legal.sh` で公開する（アプリの中の表記は、次のアップデートで新しくなる）。
+- 価格を変えたときは、ここ（1章）・`index.html` の `PRICE_TEXT`・`legal/support.html` に加えて、`legal/tokushoho.html` も直す。
 
 ---
 

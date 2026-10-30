@@ -1,7 +1,7 @@
 #!/bin/zsh
 # プライバシーポリシー と サポート の ページ を、こうかい よう の リポジトリ（katsu-ya.github.io）に うつして push する。
-# ほんぶん の もと は この リポジトリ の legal/（アプリ の なか でも よむ）。legal/ を なおしたら これ を うごかす。
-# こうかい さき：https://katsu-ya.github.io/keisan-renshu/privacy.html ・ support.html
+# ほんぶん の もと は この リポジトリ の legal/（アプリ の なか でも よむ）。tokushoho.html は とくてい しょうとりひき ほう に もとづく ひょうき。legal/ を なおしたら これ を うごかす。
+# こうかい さき：https://katsu-ya.github.io/keisan-renshu/privacy.html ・ support.html ・ tokushoho.html
 # つかいかた：tools/publish-legal.sh
 set -e
 ROOT=${0:a:h:h}
@@ -11,7 +11,7 @@ WORK=$(mktemp -d)
 
 gh repo clone $REPO $WORK -- -q
 mkdir -p $WORK/$DIR
-cp $ROOT/legal/privacy.html $ROOT/legal/support.html $ROOT/legal/icon-192.png $WORK/$DIR/
+cp $ROOT/legal/privacy.html $ROOT/legal/support.html $ROOT/legal/tokushoho.html $ROOT/legal/icon-192.png $WORK/$DIR/
 # keisan-renshu/ を ひらいた とき は サポート の ページ へ
 cat > $WORK/$DIR/index.html <<'HTML'
 <!DOCTYPE html>
