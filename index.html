@@ -600,6 +600,7 @@
     background: #ffb8d9; color: #6b1238; border-radius: 999px;
     font-size: 19px; font-weight: bold; box-shadow: 0 3px 0 #f28cbc;
   }
+  .rest-ask:active { box-shadow: 0 0 0 #f28cbc; }
   .rest-note { margin: 12px 0 0; font-size: 15px; color: #8a6a2a; }
   .rest-deco { position: absolute; font-size: 22px; opacity: .85; animation: rest-twinkle 2.4s ease-in-out infinite; }
   .rest-deco.d1 { left: 16px; top: 18px; }
@@ -1573,7 +1574,8 @@
       <span class="rest-deco d1">⭐</span><span class="rest-deco d2">💛</span><span class="rest-deco d3">✨</span><span class="rest-deco d4">🌸</span>
       <div class="rest-pic" id="restPic" aria-hidden="true"></div>
       <p class="rest-bubble" id="restText"></p>
-      <p class="rest-ask">🏠 おうちのかたに きいてね</p>
+      <!-- おすと ほごしゃ の かくにん → おうちのかたへ（いちばん うえ が プラン の らん） -->
+      <button class="rest-ask" id="restAsk">🏠 おうちのかたに きいてね</button>
       <p class="rest-note">カレンダー や バッジ は いつでも みられるよ 🌟</p>
     </div>
     <p class="taste-note" id="tasteNote" hidden>🎁 はじめての 1かい、やって みよう！</p>
@@ -4775,6 +4777,8 @@
   $("retryBtn").addEventListener("click", startGame);
   $("homeBtn").addEventListener("click", () => show("start"));
   $("parentBtn").addEventListener("click", () => parentGate(() => show("parent"), "start"));
+  // れんしゅう が できない とき の「おうちのかたに きいてね」も、おなじ ように ひらく
+  $("restAsk").addEventListener("click", () => parentGate(() => show("parent"), "start"));
   $("parentBack").addEventListener("click", () => { if (firstRunPending) continueFirstRun(); else show("start"); });
 
   // ---- プライバシーポリシー ----
