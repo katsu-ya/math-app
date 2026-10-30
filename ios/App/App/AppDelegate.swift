@@ -1,5 +1,6 @@
 import UIKit
 import Capacitor
+import AVFoundation
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -8,7 +9,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        activateAudio()
         return true
+    }
+
+    // こうかおん（Web Audio）が きこえる ように、アプリ の おと の せってい を きめて おく。
+    // ambient：マナーモード の とき は ならさない・ほか の アプリ の おんがく と いっしょ に ならせる（Safari と おなじ）
+    // よみあげ の あと や、ほか の アプリ から もどった とき に とまって いる ことが ある ので、もどる たび に もう いちど
+    func activateAudio() {
+        let session = AVAudioSession.sharedInstance()
+        try? session.setCategory(.ambient, mode: .default, options: [.mixWithOthers])
+        try? session.setActive(true)
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
@@ -27,6 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+        activateAudio()
     }
 
     func applicationWillTerminate(_ application: UIApplication) {

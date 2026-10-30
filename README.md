@@ -608,6 +608,7 @@ npm run ios       # www/ を つくり、ios/ に うつして、Xcode を ひ�
   2. 「お試しの準備をする」→ 保護者の確認（確認問題 → 暗証番号を決める）→「おうちのかたへ」のプランの欄（ここで「30日間 無料で ためす（0円）」）。下のボタンが「つぎへ ▶」になり、押すとはじめてガイドへ進みます。「あとで」なら、すぐにはじめてガイドへ進みます
   3. はじめてガイド → なまえ → はじめの画面（今までどおり）
   - 一度見たら出ません（`keisan-renshu-access` の `welcomed`）。Web 版では出ません。開発用の切りかえ（`?access=before`）のときは、そのタブの間だけ覚えるので、新しいタブで開くともう一度見られます
+- **効果音（アプリ版）**：`AppDelegate.swift` で、アプリの音の設定を `ambient`（マナーモードのときは鳴らさない・ほかのアプリの音楽と一緒に鳴る。Safari と同じ）にして、起動したときとアプリにもどったときに有効にしています。読み上げのあとは効果音が聞こえなくなることがあるので、アプリ版では読み上げのあと、次に画面をさわったときに音の準備（`AudioContext`）を作りなおします。
 - **App Store の購入とのつなぎこみ**：`ios/App/App/KeisanStorePlugin.swift`（自作の小さな部品。StoreKit 2 だけを使い、外部のサーバーは使わない）。`MainViewController` で登録しています（`SceneDelegate.swift`）。
   - 商品：お試し `jp.katsuya.keisanrenshu.trial30`（0円・非消耗型）、月額 `jp.katsuya.keisanrenshu.monthly`（300円・自動更新・グループ「けいさん れんしゅう」）。App Store Connect にも同じ ID で登録します
   - JavaScript からは `Capacitor.Plugins.KeisanStore` の `getStatus()`・`getProducts()`・`purchase({ productId })`・`restore()`・`manage()` を使います。状態が変わると `change` を知らせます

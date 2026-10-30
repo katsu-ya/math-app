@@ -3627,8 +3627,15 @@
   // ---- こうかおん（おんせい ファイル は つかわず ブラウザ で つくる）----
   let audioCtx = null;
   // スマホ は さいしょ に がめん を さわった とき で ないと おと が でない ので、そこで じゅんび する
+  // アプリ版 では、よみあげ（ちがう おと の しくみ）の あと に、こうかおん が きこえなく なる ことが ある。
+  // そのとき は つぎ に さわった とき に つくりなおす
+  let audioStale = false;
   function unlockAudio() {
     try {
+      if (audioCtx && audioStale) { audioCtx.close().catch(() => {}); audioCtx = null; }
+      audioStale = false;
+      // マナーモード の とき は こうかおん を ならさない（Safari の ふつう の うごき と おなじ。よみあげ は べつ）
+      if (navigator.audioSession) navigator.audioSession.type = "ambient";
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if (audioCtx.state !== "running") {
         // iPhone で たしか に おと が でる ように、むおん を いっしゅん ならして から さいかい する
@@ -4336,6 +4343,7 @@
       if (voice) u.voice = voice;
       u.rate = SPEECH_RATE;
       u.pitch = SPEECH_PITCH;
+      u.onstart = () => { if (isNativeApp) audioStale = true; };
       u.onend = () => setTimeout(() => say(i + 1), SENTENCE_PAUSE_MS);
       u.onerror = () => { if (run === speechRun) onDone(); };
       speechSynthesis.speak(u);
