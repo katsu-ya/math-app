@@ -4958,7 +4958,12 @@
   async function renderStorage(persistResult = "") {
     // アプリ では「ほご」と「ホーム画面 に ついか」の あんない は ださず、バックアップ だけ を すすめる
     if (isNativeApp) {
-      $("stStatus").innerHTML = "<p>機種変更のときや念のために、ときどき「💾 きろくを ほぞん」でバックアップしてください。</p>";
+      // アプリ を けすと きろく も きえる。いれなおした とき に ファイル から もどせる こと を つたえる
+      //（まだ なにも といて いない とき は、いれなおした ばかり かも しれない ので めだたせる）
+      const fresh = !loadLog().length && !loadGrowth().xp;
+      const back = "アプリを入れ直したときは、保存しておいたファイルを「📂 きろくを よみこむ」で読みこむと、続きから使えます（ご利用のプランは Apple ID から自動で戻ります）。";
+      $("stStatus").innerHTML = "<p>アプリを削除すると、記録も一緒に消えます。機種変更のときや念のために、ときどき「💾 きろくを ほぞん」でバックアップしてください。</p>" +
+        (fresh ? `<p class="st-last st-due">📂 ${back}</p>` : `<p class="st-note">${back}</p>`);
       $("stInstall").hidden = true;
       return;
     }

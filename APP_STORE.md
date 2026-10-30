@@ -406,9 +406,9 @@ The app is in Japanese. Text for children is written in hiragana.
 | ~~B~~ | ~~問い合わせのメールアドレスを決めて、`legal/privacy.html`・`legal/support.html` に入れる~~ → **した**（katsu.rx.101@gmail.com） | 高 |
 | ~~C~~ | ~~`Info.plist` に `ITSAppUsesNonExemptEncryption = NO` を書く~~ → **した**（2026-10-28。暗証番号のハッシュは暗号化に当たらない） | 中 |
 | D | 実機で確かめる：Face ID・Touch ID、バックアップの保存と読みこみ（STORE_CHECK 3-4）、アップデートしても記録が残るか（2-5） | **高** |
-| E | Apple Developer Program に登録し、App Store Connect でアプリを作る（Bundle ID `jp.katsuya.keisanrenshu`）。Xcode で署名（Team）を選び、Archive → アップロード | **高** |
+| ~~E~~ | ~~Apple Developer Program に登録し、App Store Connect でアプリを作る。署名（Team）を選び、アップロード~~ → **した**（2026-10-30。アップロードは `tools/upload-testflight.sh`。8-7） | 高 |
 | F | Web 版をどうするか → **決めた**（2026-10-28）：App Store 版の公開の日に、Web 版の「おうちのかたへ」に終了の案内を出す（ステップ10）。Android の家庭のため、Google Play 版を出すまでは Web 版を残す | 中 |
-| G | App Store Connect に App 内課金を2つ登録する（1-2）。有料アプリ契約（Paid Applications Agreement）・銀行口座・税の情報を入れる（入れないと App 内課金が動かない）。Sandbox のテスターでお試し・登録・復元・解約を確かめる（ステップ8） | **高** |
+| ~~G~~ | ~~App 内課金を2つ登録する・有料アプリ契約・口座・税・お試し・登録・復元・解約の確認~~ → **した**（2026-10-30。TestFlight の実機で確かめた。8-6） | 高 |
 | H | 新しいプライバシーポリシーとサポートのページ（購入のことを書いたもの）を公開する：`tools/publish-legal.sh`。**ステップ8で、審査に出す前に公開する**（2026-10-28 に決定）。あわせて `main` の `legal/` も同じにする | **高** |
 | I | スクリーンショットを撮り直す（「追加の課金なし」をやめる・とけい・ひっさんを足す。ステップ9） | **高** |
 
@@ -485,8 +485,14 @@ The app is in Japanese. Text for children is written in hiragana.
 | 2 | 小さめの「月額300円（税込）で登録する」 | Apple の確認（300円）→「登録しました」→「登録中」 |
 | 3 | 「登録の確認・解約」 | Apple のサブスクリプションの画面が開く。ここで解約できる |
 | 4 | 5分ほど待つ（Sandbox では1か月が数分で進む） | 解約したなら、登録が終わって「お試し中」に戻る（お試しの30日はまだ残っているため）。解約しないと、自動で更新が続く |
-| 5 | アプリを削除して入れ直す →「おうちのかたへ」 | 最初の説明はとばされ、「お試し中」または「登録中」のまま（Apple ID の購入の記録から戻る）。戻らないときは「購入を復元」で戻る |
+| 5 | アプリを削除して入れ直す →「おうちのかたへ」 | 最初の説明はとばされ、「お試し中」または「登録中」のまま（Apple ID の購入の記録から戻る）。戻らないときは「購入を復元」で戻る。記録は消える（端末の中だけのため）ので、「記録の保存」の欄に「入れ直したときは『きろくを よみこむ』で続きから使える」とオレンジの枠で出る |
 | 6 | 機内モードで開く | 前に受け取った状態のまま使える |
+
+**確かめた結果（2026-10-30・TestFlight のビルド 1.0 (2)・iPhone の実機）**：1〜6 すべて OK。
+- 5：入れ直すと名前の入力から始まり（記録は消える）、「おうちのかたへ」は「登録中」に自動で戻った（「購入を復元」は押さなくてよかった）
+- 6：機内モードでも「登録中」のまま練習できた
+- シミュレーターでは、Sandbox のテスターのサインインのあと購入が進まなかった（シミュレーターではよくある）。実機（TestFlight）で確かめるのが確実
+- TestFlight では、ふだんの Apple ID のままで購入が0円になる（Sandbox のテスターはいらない）
 
 - お試しの30日は、アプリが本当の日にちで数えるので、Sandbox でも早送りできません。「お試しが終わった」状態の見た目は、Web 版の `?access=expired`（README の「開発用」）で確かめてあります。
 - テスターの購入の記録を消すと（App Store Connect のテスターの設定 →「購入履歴を消去」）、もう一度お試しの前から試せます。
@@ -497,10 +503,16 @@ The app is in Japanese. Text for children is written in hiragana.
 1. **プライバシーポリシーとサポートのページを公開する**（2026-10-28 に、ステップ8で公開すると決めた）：
    `! tools/publish-legal.sh` で公開用のリポジトリに写します。`main` の `legal/` も同じ内容にします（こちらでやります。合図をください）。
 2. ステップ9：スクリーンショットを撮り直す（「追加の課金なし」をやめる・とけい・ひっさんを足す）
-3. アーカイブしてアップロードする ★：
-   - Xcode の上のスキームを **「App」**、行き先を「Any iOS Device (arm64)」にして、「Product」→「Archive」（アーカイブは Release で作るので、`Keisan.storekit` は入りません）
-   - 開いた Organizer で「Distribute App」→「App Store Connect」→「Upload」
-   - 2回目からは、ビルド番号（`CURRENT_PROJECT_VERSION`、今は 1）を増やしてからアップロードします
+3. アーカイブしてアップロードする：
+   ```
+   ! tools/upload-testflight.sh
+   ```
+   - ビルド番号（`CURRENT_PROJECT_VERSION`）を1つ上げ、Web のファイルを写し、署名なしでアーカイブ（Release）してから、配布用の署名をしてアップロードします。終わったら、変わった `project.pbxproj` をコミットします
+   - Xcode の「Product → Archive」は使いません。チームに iPhone が登録されていないと、開発用の署名が作れずに「Your team has no devices from which to generate a provisioning profile.」で止まるためです（配布用の署名には iPhone の登録はいりません）。このスクリプトなら iPhone をケーブルでつながなくてよいです
+   - 配布用の証明書は、Xcode が自動で作る「Cloud Managed Apple Distribution」です（期限 2027-10-30。期限が来ても、スクリプトを動かせば作り直されます）
+   - アーカイブは Release で作るので、`Keisan.storekit` は入りません
+   - 1.0 (1)・(2) は TestFlight で確かめたビルドです。審査には、そのあとアップロードした最新のビルドを選びます
+   - 失敗したときは、表示されたメッセージと、`$TMPDIR/keisan-upload-work/` の `archive.txt`・`upload.txt` を見ます。アップロードだけやり直すときは `--no-bump`
 4. バージョン 1.0 のページ ★：スクリーンショット、説明文・キーワード・サポート URL など（1章）、「App 内課金とサブスクリプション」で①②を選ぶ、App Review に関する情報（2章のメモ・連絡先）、App のプライバシー（3-1）、年齢制限（3-2）、キッズカテゴリ（3-3）、著作権
 5. 「審査用に追加」→「審査へ提出」
 6. ステップ10：公開の日に、Web 版に終了の案内を出す
