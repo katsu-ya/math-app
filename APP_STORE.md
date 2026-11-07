@@ -16,7 +16,7 @@ Bundle ID：`jp.katsuya.keisanrenshu`
 |---|---|
 | プライバシーポリシー URL | https://katsu-ya.github.io/keisan-renshu/privacy.html |
 | サポート URL | https://katsu-ya.github.io/keisan-renshu/support.html |
-| 特定商取引法に基づく表記（App Store Connect には入れない。サポートからリンク） | https://katsu-ya.github.io/keisan-renshu/tokushoho.html（2026-10-31 公開） |
+| 特定商取引法に基づく表記（App Store Connect には入れない。サポートからリンク。1.1 からはアプリの中でも読める） | https://katsu-ya.github.io/keisan-renshu/tokushoho.html（2026-10-31 公開） |
 | マーケティング URL（任意） | 空欄でよい |
 
 - 2つのページは、公開用のリポジトリ `katsu-ya/katsu-ya.github.io` の `keisan-renshu/` にあります（2026-10-28 に移した。math-app を非公開にしても見られる）。
@@ -70,6 +70,7 @@ Bundle ID：`jp.katsuya.keisanrenshu`
 ・お試しは0円です。お試しが終わっても、自動で課金されることはありません
 ・続けて使うときは、月額300円（税込）の登録で、すべての機能を使えます（無料版・有料版の区別はありません）
 ・お試しの前でも、最初の1回（10問）は練習を体験できます
+・お試しをしないで、すぐに登録することもできます（お試しは、はじめての方のみご利用いただけます）
 ・お試しや登録をしないときも、記録（キャラクター・バッジ・カレンダー・学習レポート）はなくならず、見ることとバックアップはいつでもできます
 
 ■ 保護者の方へ：安心して使っていただくために
@@ -111,6 +112,7 @@ Bundle ID：`jp.katsuya.keisanrenshu`
 ・お試しの終わりが近づくと「この30日間のふりかえり」（解いた問題の数、正答率の伸び、苦手の改善など）
 ・記録のバックアップ（機種変更のときに引き継げます）
 ・お子さまの名前とよびかたの設定
+・プライバシーポリシーと特定商取引法に基づく表記も、アプリの中で読めます
 ・保護者向けの画面は、保護者用の暗証番号で守られています。Face ID・Touch ID でも開けます（最初はオフ）
 
 ■ お子さまに
@@ -118,7 +120,7 @@ Bundle ID：`jp.katsuya.keisanrenshu`
 ・文字を大きくする設定もあります
 
 ■ 料金と自動更新について
-・30日間 無料お試し：0円（1回だけ。お試しが終わっても自動で課金されません）
+・30日間 無料お試し：0円（はじめての方のみ・1回だけ。お試しが終わっても自動で課金されません）
 ・けいさん れんしゅう 月額：月額300円（税込）。1か月ごとに自動で更新されます
 ・お支払いは、購入の確認のときに Apple ID に請求されます
 ・更新日の24時間前までに解約しないと、自動で更新されます。更新の料金は、更新日の24時間前から請求されます
@@ -135,12 +137,30 @@ Bundle ID：`jp.katsuya.keisanrenshu`
 
 ### キーワード（100文字まで、カンマ区切り・スペースなし）
 
+**1.1 から（2026-11-08 に決めた）**：アプリ名・サブタイトルと重なる言葉（計算・九九・筆算・時計・けいさん）を外し、ひらがな・学年・目的の言葉に入れかえた。
+
 ```
-算数,計算,九九,足し算,引き算,掛け算,割り算,文章題,筆算,時計,ドリル,小学生,知育
+算数,さんすう,足し算,引き算,掛け算,割り算,たし算,ひき算,文章題,とけい,時刻,くく,ひっさん,小学生,小1,小2,小3,1年生,2年生,3年生,宿題,家庭学習,ドリル,暗算,くりあがり,知育
 ```
 
-- 45文字（UTF-8 で 111 バイト）です。入力欄が「バイト」で数えるときは100をこえるので、「知育」「ドリル」から外してください（サブタイトルにある「九九・筆算・時計」は、キーワードから外しても検索の対象になります）。余っていれば `1年生,2年生,3年生,勉強,宿題,暗算` などを足します。
+- 99文字です（1.0 の45文字・111バイトのキーワードがそのまま入ったので、入力欄は文字数で数えていると考えています）。
+- **入力欄が「100をこえている」と出たとき**は、次の短い案にします（48文字・112バイト。これでもバイトで数えて入らないときは、うしろから外します）：
+  ```
+  算数,足し算,引き算,掛け算,割り算,文章題,小1,小2,小3,宿題
+  ```
 - アプリ名・サブタイトルにある言葉は、キーワードに入れなくても検索の対象になります。
+- 「無料」「人気」など中身と関係ない言葉や、ほかのアプリの名前は入れません。
+- 1.0 で使ったキーワード：`算数,計算,九九,足し算,引き算,掛け算,割り算,文章題,筆算,時計,ドリル,小学生,知育`
+
+### このバージョンの新機能（1.1・4000文字まで）
+
+```
+・「おうちのかたへ」から、特定商取引法に基づく表記を読めるようにしました（「ご利用のプラン」からも読めます）
+・お試しをしないで、すぐに月額の登録をすることもできるようにしました。30日間の無料お試しは、はじめての方のみご利用いただけます
+・そのほか、細かな改善をしました
+```
+
+- 評価のお願い（保護者画面の中だけ）とプライバシーマニフェストは、見た目の機能ではないので書いていません。
 
 ### そのほかの項目
 
@@ -149,11 +169,11 @@ Bundle ID：`jp.katsuya.keisanrenshu`
 | プライマリカテゴリ | 教育 |
 | キッズカテゴリ | キッズ・**6〜8歳**（理由は 3-2） |
 | 価格 | 無料（App 内課金あり。下の 1-2） |
-| 配信する国 | **日本だけ**（2026-10-28 に決定。「価格および配信状況」で日本だけを選ぶ） |
+| 配信する国 | アプリは**日本だけ**（2026-10-28 に決定。「価格および配信状況」で日本だけを選ぶ）。**App 内課金は2つとも、すべての国と地域**（2026-11-05 に変えた。審査は日本以外の Sandbox で行われることがあり、日本だけだと商品が読みこめないため。アプリが日本だけなので、ほかの国の人は買えない） |
 | App 内課金 | 30日間 無料お試し（0円・非消耗型）、月額300円（自動更新サブスクリプション） |
 | 著作権 | © 2026 katsu-ya |
 | コンテンツ配信権 | 第三者のコンテンツは使っていない（絵・音・キャラクターはすべて自作。STORE_CHECK 5章） |
-| バージョン | 1.0 |
+| バージョン | 1.0（2026-11 に公開）→ 1.1（5-2） |
 | サインインが必要か | 不要（アカウントなし） |
 
 ### 1-2. App 内課金の登録内容（ステップ8で App Store Connect に入れる）
@@ -167,7 +187,8 @@ Bundle ID：`jp.katsuya.keisanrenshu`
 | 参照名（ストアには出ない） | Trial 30 days | Monthly |
 | サブスクリプション グループ | — | けいさん れんしゅう（参照名 `Keisan`） |
 | 期間 | — | 1か月 |
-| 価格 | 0円（無料） | 300円（日本） |
+| 価格 | 0円（無料） | 300円（日本。ほかの国は自動で換算。アメリカは $1.99） |
+| 配信状況 | すべての国と地域 | すべての国と地域 |
 | 表示名（日本語） | 30日間 無料お試し | けいさん れんしゅう 月額 |
 | 説明（日本語・45文字まで） | 30日間すべての機能を0円で。自動で課金されません | すべての機能を使えます（1か月ごとに自動更新） |
 | ファミリー共有 | オン | オン |
@@ -184,7 +205,7 @@ Bundle ID：`jp.katsuya.keisanrenshu`
 
 ## 2. 審査担当へのメモ（App Review に関する情報 → メモ）
 
-審査担当は日本語が読めないことがあるので、**英語で書きます**。下の英文を、そのまま貼れます。メモの欄は **4000文字まで** です（下の英文は約3800文字。2026-10-30 に縮めた）。足すときは文字数を確かめてください。
+審査担当は日本語が読めないことがあるので、**英語で書きます**。下の英文を、そのまま貼れます。メモの欄は **4000文字まで** です（下の英文は 1.1 の内容で約3400文字。2026-11-08 に書きかえた）。足すときは文字数を確かめてください。
 
 **審査用の暗証番号の伝え方**：このアプリの暗証番号は、端末ごとに最初に開いたときに決めるもので、決まった番号はありません。そのため、「最初に大人向けの確認問題に答え、好きな4けた（例：1234）を決めてください」と伝えます。確認問題は日本語の指示なので、6種類の指示の英訳と答え方の例を書きます。
 
@@ -199,48 +220,42 @@ This is a math practice app for elementary school children (Kids category, ages 
 IN-APP PURCHASES (StoreKit 2 only, all inside the parent area behind the parental gate)
 - "30-Day Free Trial" (non-consumable, price 0): a time-limited free trial (Guideline 3.1.1),
   30 days from the purchase. It never charges and never converts to a subscription.
-- "Monthly" (auto-renewable, JPY 300/month): the same features after the trial.
+  First-time users only: it is hidden for an Apple ID that has subscribed before.
+- "Monthly" (auto-renewable, JPY 300/month, e.g. $1.99 in the US): all features.
+- Both products are available in all storefronts.
 - Before the trial starts, one 10-question practice session is available as a taste.
 - Without trial/subscription, practice is locked, but all records can still be viewed and backed up.
   The child's screen only says "ask your parent" (おうちのかたに きいてね). Tapping it opens
-  the parental gate (the same as "おうちのかたへ"); it never shows prices or purchase buttons.
-- Before purchase, the parent area shows the period, price, auto-renewal, how to cancel,
-  the privacy policy and the Terms of Use (Apple's standard EULA, after a confirmation).
+  the parental gate; it never shows prices or purchase buttons.
+- The plan card shows the period, price, auto-renewal and how to cancel, with links to the
+  privacy policy, the Terms of Use (Apple's standard EULA, after a confirmation) and the
+  Japanese commercial disclosure (特定商取引法に基づく表記, shown inside the app).
 - It also has "Restore Purchases" (購入を復元) and "Manage / Cancel" (登録の確認・解約).
+- In the parent area only, the app may call Apple's rating prompt (requestReview) once per
+  version, e.g. on the next visit after subscribing. It is never shown to children.
 
-HOW TO TEST THE PURCHASES (sandbox)
-1. On first launch, a page for parents explains the app and the pricing.
-   Tap "お試しの準備をする" (= "Prepare the trial"), or tap "あとで" (= "Later")
-   and open the parent area later from "おうちのかたへ" at the bottom of the start screen.
-2. Pass the parental gate (see below), then the plan card at the top of the parent area
-   shows "30日間 無料で ためす（0円）" (= "Try free for 30 days (JPY 0)"). Tap it and
-   confirm the JPY 0 purchase. The card then shows "お試し中：あと30日" (= "Trial: 30 days left").
-3. During the trial, the same card always shows a smaller button
-   "月額300円（税込）で登録する" (= "Subscribe for JPY 300/month"), so the subscription can be
-   purchased right away. (In the last 3 days of the trial and after it ends, this button
-   becomes the main button together with a notice.) Subscribing during the trial starts the
-   monthly subscription on that day; the remaining trial days are not used.
+HOW TO FIND AND TEST THE PURCHASES (sandbox)
+1. On first launch, tap "お試しの準備をする" (Prepare the trial) on the page for parents.
+   Otherwise, scroll to the bottom of the start screen and tap "おうちのかたへ" (For parents).
+2. Pass the parental gate (below). The first card, "ご利用のプラン" (Your plan), has:
+   - "30日間 無料で ためす（0円）" (Try free for 30 days, price 0): after confirming, the card
+     shows "お試し中：あと30日" (Trial: 30 days left).
+   - "月額300円（税込）で登録する" (Subscribe for JPY 300/month): a smaller button next to it,
+     shown before and during the trial. Subscribing starts the subscription that day.
    The trial is tied to the Apple ID; to test again, clear the sandbox purchase history.
 
-HOW TO OPEN THE PARENT AREA (parental gate)
-1. On the start screen, scroll to the bottom and tap "おうちのかたへ" (= "For parents").
-2. The first time, an adult check question appears (this prevents children from setting the PIN).
-   Five digits are shown, with an instruction in Japanese (kanji). Enter the answer with the keypad.
-   The instruction is one of these six:
-     上の数字を降順に並べ替えて入力   = Enter the digits in descending order
-     上の数字を昇順に並べ替えて入力   = Enter the digits in ascending order
-     上の数字を逆順に入力             = Enter the digits in reverse order
-     奇数番目の数字だけを入力         = Enter only the 1st, 3rd and 5th digits
-     末尾の三桁を逆順に入力           = Enter the last three digits in reverse order
-     各桁に一を加えて入力             = Add 1 to each digit and enter them
-   Example: if the digits are "3 7 1 5 2", the answers are
-     descending 75321 / ascending 12357 / reverse 25173 /
-     1st-3rd-5th 312 / last three reversed 251 / add one 48263
-   If an answer is wrong, a new question is shown.
-3. Then choose any 4-digit PIN (for example 1234) and enter it twice.
-   From then on, the parent area opens with this PIN.
-   If you forget it, tap "暗証番号をわすれた" (= "Forgot PIN"), answer the adult check
-   question again, and set a new PIN.
+PARENTAL GATE
+The first time, five digits are shown with a Japanese instruction ending in "してください"
+(please). Enter the answer with the keypad. Find the instruction by its key character:
+  上の数字を「降」順に… (降) = digits in descending order   e.g. 3 7 1 5 2 -> 75321
+  上の数字を「昇」順に… (昇) = digits in ascending order    e.g. -> 12357
+  上の数字を「逆」順に… (逆) = digits in reverse order      e.g. -> 25173
+  奇数番目の数字だけ…  (starts with 奇) = 1st, 3rd, 5th digits   e.g. -> 312
+  末尾の三桁を逆順に…  (starts with 末) = last three, reversed    e.g. -> 251
+  各桁に一を加えて…    (starts with 各) = add 1 to each digit     e.g. -> 48263
+A wrong answer shows a new question. Then choose any 4-digit PIN (e.g. 1234) and enter it
+twice; from then on the parent area opens with this PIN. If you forget it, tap
+"暗証番号をわすれた" (Forgot PIN) and answer a new question.
 
 FACE ID is OFF by default (parent can turn it on). The device passcode is not accepted
 (children may know it); if Face ID fails, the app's PIN screen is shown.
@@ -250,6 +265,8 @@ The app is in Japanese. Text for children is written in hiragana.
 
 日本語の控え（貼らなくてよい）：
 - 購入（0円のお試し・月額300円）は、保護者画面の「ご利用のプラン」だけにある。お試しの前は1回（10問）だけ体験できる。審査の人も、最初の説明の画面 →「お試しの準備をする」→ 確認問題 → 暗証番号 →「30日間 無料で ためす（0円）」の順に試せる。
+- 1.1 から：お試しの前でも、となりの小さめの「月額300円（税込）で登録する」で、すぐに月額を試せる。お試しは、前に登録したことがある Apple ID には出ない。特商法の表記もアプリの中で読める。評価のお願いは保護者画面の中だけ。
+- 確認問題の指示は、見分けるための漢字1文字（降・昇・逆・奇・末・各）を書きそえた（1.0 の審査で「月額が見つからない」と言われたときの返信と同じ）。
 - 保護者画面は、はじめの画面のいちばん下の「おうちのかたへ」から開く。
 - 最初は大人向けの確認問題に答えてから、好きな4けたの暗証番号を2回入れて決める。
 - Face ID は最初はオフ。端末のパスコードは使わない。
@@ -402,7 +419,20 @@ The app is in Japanese. Text for children is written in hiragana.
 | ~~I~~ | ~~スクリーンショットを撮り直す~~ → **した**（2026-10-30。4-0） | 高 |
 | ~~J~~ | ~~特定商取引法に基づく表記を作って公開する~~ → **した**（2026-10-31。`legal/tokushoho.html`。販売事業者・運営責任者は Shinjo Katsuya（2026-11-07 に漢字からローマ字に変えた。App Store の販売者名と同じ並び）、所在地・電話番号は請求があれば開示。動作環境の iOS 15.0 はアプリの最低バージョン `IPHONEOS_DEPLOYMENT_TARGET`・部品と同じ。最低バージョンを変えたら表記も直す） | 高 |
 
-### 5-1. 次のアップデート（1.1）の計画：特定商取引法に基づく表記をアプリでも見られるようにする
+### 5-2. 1.1 でやること（2026-11-08 に決めた。ステップごとに確かめて進める）
+
+| # | すること | 状態 |
+|---|---|---|
+| 0 | 公開した 1.0 (3) に `v1.0` のタグ（コミット `57b3432`） | した |
+| 1 | プライバシーマニフェスト `ios/App/App/PrivacyInfo.xcprivacy`（データの収集なし・トラッキングなし・UserDefaults は CA92.1・ファイルの日付は C617.1） | した（`41d6c80`） |
+| 2 | 特商法の表記をアプリの中（おうちのかたへ・ご利用のプラン）で読めるようにする（下の 5-1） | した（`53f56c7`） |
+| 3 | お試しの前にも小さく「月額300円（税込）で登録する」。登録したことがある Apple ID には、お試しを出さず「お試しは、はじめての方のみご利用いただけます」 | した（`1ffda96`） |
+| 4 | 保護者画面の中で App Store の評価をお願いする（登録してから次に開いたとき・ふりかえりに伸びがあるとき） | した（`8462620`） |
+| 5 | 文章：キーワード・このバージョンの新機能・説明文・審査メモ・課金の配信地域・README・STORE_CHECK | した |
+| 6 | 確かめる：パソコンの1画面（高さ600〜900px）、iPhone・iPad のシミュレーター、StoreKit の設定で「お試しをせずに登録 → 終わる → お試しが出ない」、評価の画面が出るか。前の記録とバックアップ。バージョン 1.1 にして `tools/upload-testflight.sh` → TestFlight の実機で確かめる | |
+| 7 | ★ App Store Connect：バージョン 1.1 を作る、キーワード・新機能・説明文・審査メモを入れる、ビルドを選んで審査へ。**公開された日に**、`legal/support.html`・`legal/tokushoho.html` の表示日を直して `tools/publish-legal.sh` で公開する（「お試しは、はじめての方のみ」を書いたので、1.1 が出るまで公開しない） | |
+
+### 5-1. 1.1 の計画：特定商取引法に基づく表記をアプリでも見られるようにする（2026-11-08 にした）
 
 1.0 では、表記は公開のページ（サポートからリンク）だけに置く。1.1 で、アプリの「おうちのかたへ」からも読めるようにする。
 
@@ -448,7 +478,7 @@ The app is in Japanese. Text for children is written in hiragana.
 ### 8-3. 価格および配信状況 ★
 
 - 価格：**無料**（アプリ本体は0円。料金は App 内課金で）
-- 配信する国：**日本だけ**を選ぶ（2026-10-28 に決定）
+- 配信する国：**日本だけ**を選ぶ（2026-10-28 に決定。アプリ本体の話。App 内課金はすべての国と地域にする。下の 8-4）
 
 ### 8-4. App 内課金を2つ作る ★
 
@@ -456,7 +486,7 @@ The app is in Japanese. Text for children is written in hiragana.
 
 **① 30日間 無料お試し**（「App 内課金」→「＋」→ 非消耗型）
 1. 参照名 `Trial 30 days`、製品 ID `jp.katsuya.keisanrenshu.trial30`
-2. 価格：0円（「無料」）。配信する国は日本
+2. 価格：0円（「無料」）。配信状況は**すべての国と地域**（2026-11-05 に変えた。日本だけだと、日本以外の Sandbox で審査されたときに商品が読みこめない）
 3. ファミリー共有：オン
 4. ローカリゼーション（日本語）：表示名「30日間 無料お試し」、説明「30日間すべての機能を0円で。自動で課金されません」
 5. 審査に関する情報：スクリーンショットに `~/Desktop/keisan-iap-review/1-お試し（trial30）用.png`、メモは 2. の英文の「IN-APP PURCHASES」の部分
@@ -464,7 +494,7 @@ The app is in Japanese. Text for children is written in hiragana.
 **② 月額**（「サブスクリプション」→ サブスクリプション グループを作る → その中にサブスクリプションを作る）
 1. グループの参照名 `Keisan`。グループのローカリゼーション（日本語）：表示名「けいさん れんしゅう」
 2. 参照名 `Monthly`、製品 ID `jp.katsuya.keisanrenshu.monthly`、期間「1か月」
-3. 価格：日本 300円。配信する国は日本
+3. 価格：日本 300円。配信状況は**すべての国と地域**（同じ理由）
 4. ファミリー共有：オン
 5. ローカリゼーション（日本語）：表示名「けいさん れんしゅう 月額」、説明「すべての機能を使えます（1か月ごとに自動更新）」
 6. 導入オファー（無料トライアル）は**作らない**
