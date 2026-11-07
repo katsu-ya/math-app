@@ -35,15 +35,24 @@ public class KeisanStorePlugin: CAPPlugin, CAPBridgedPlugin {
 
     deinit { updates?.cancel() }
 
-    // いま つかえる もの：おためし を はじめた とき（ミリびょう）と、つきがく に とうろく ちゅう か
+    // いま つかえる もの：おためし を はじめた とき（ミリびょう）と、つきがく に とうろく ちゅう か。
+    // everSubscribed：まえ に つきがく に とうろく した こと が ある か（おわった もの も。あれば おためし は ださない）
     private func currentStatus() async -> [String: Any] {
-        var status: [String: Any] = ["subscribed": false]
+        var status: [String: Any] = ["subscribed": false, "everSubscribed": false]
+        // こうにゅう の りれき は たんまつ にも ある ので、オフライン でも わかる
+        for await result in Transaction.all {
+            if case .verified(let transaction) = result, transaction.productID == Self.monthlyID {
+                status["everSubscribed"] = true
+                break
+            }
+        }
         for await result in Transaction.currentEntitlements {
             guard case .verified(let transaction) = result, transaction.revocationDate == nil else { continue }
             switch transaction.productID {
             case Self.trialID:
                 status["trialStart"] = transaction.originalPurchaseDate.timeIntervalSince1970 * 1000
             case Self.monthlyID:
+                status["everSubscribed"] = true
                 if let expires = transaction.expirationDate {
                     if expires < Date() { continue }
                     status["expires"] = expires.timeIntervalSince1970 * 1000
