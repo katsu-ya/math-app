@@ -15,7 +15,8 @@ public class KeisanStorePlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "getProducts", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "purchase", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "restore", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "manage", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "manage", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "requestReview", returnType: CAPPluginReturnPromise)
     ]
 
     static let trialID = "jp.katsuya.keisanrenshu.trial30"
@@ -146,6 +147,24 @@ public class KeisanStorePlugin: CAPPlugin, CAPBridgedPlugin {
             } catch {
                 call.reject(error.localizedDescription, "failed")
             }
+        }
+    }
+}
+
+extension KeisanStorePlugin {
+    // App Store の ひょうか の おねがい。だす か どうか は iOS が きめる（でない こと も ある ので、けっか は かえさない）
+    @objc func requestReview(_ call: CAPPluginCall) {
+        Task { @MainActor in
+            guard let scene = self.bridge?.viewController?.view.window?.windowScene else {
+                call.resolve()
+                return
+            }
+            if #available(iOS 16.0, *) {
+                AppStore.requestReview(in: scene)
+            } else {
+                SKStoreReviewController.requestReview(in: scene)
+            }
+            call.resolve()
         }
     }
 }

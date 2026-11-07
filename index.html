@@ -3617,7 +3617,8 @@
     document.body.classList.toggle("on-dan", id === "finish" && !!dans);
     document.body.classList.toggle("on-quiz", id === "quiz");
     // おうちのかた の がめん から でたら、また かぎ を かける
-    if (!PARENT_SCREENS.includes(id)) parentUnlocked = false;
+    if (!PARENT_SCREENS.includes(id)) { parentUnlocked = false; parentSince = 0; }
+    if (id === "parent" && !parentSince) onParentOpen();
     if (id !== "pin") clearInterval(pinTimer);
     if (id === "start") { resetCalendar(); renderGrowth(); renderAccessGate(); $("parentBtn").classList.toggle("due", parentDue()); }
     if (id === "finish" || id === "dan") renderAccessGate();
@@ -5225,6 +5226,7 @@
   function renderReview() {
     const a = accessState();
     const card = $("reviewCard");
+    reviewGood = false;
     if (a.state === "trial") trialSnapshot(a);
     card.hidden = !((a.state === "trial" && a.notice) || (a.state === "expired" && a.start));
     if (card.hidden) return;
@@ -5285,6 +5287,7 @@
         const r1 = Math.round((1 - g.miss / g.n) * 100), r2 = Math.round((1 - g2.miss / g2.n) * 100);
         return r2 > r1 ? `<div class="review-row"><span>${esc(g.label)}</span><b>${r1}% → ${r2}% <span class="review-up">▲${r2 - r1}</span></b></div>` : null;
       }).filter(Boolean).slice(0, 3);
+      reviewGood = rows.includes("review-up") || better.length > 0;
       html += "<h4>苦手の改善</h4>" + (better.length ? better.join("")
         : weak.length ? `<p class="st-note">「${esc(weak[0][1].label)}」は、これからも少しずつ練習していくとよさそうです。</p>`
         : '<p class="st-note">大きなつまずきはありませんでした。</p>');
@@ -5318,6 +5321,7 @@
   function setEntitlement(r) {
     entitlement = { trialStart: typeof r.trialStart === "number" ? r.trialStart : null, subscribed: !!r.subscribed, everSubscribed: !!r.everSubscribed };
     saveAccess({ ...loadAccess(), ent: entitlement });
+    if (entitlement.subscribed) noteSubscribed();
     onAccessChange();
   }
   async function refreshEntitlement() {
@@ -5370,6 +5374,45 @@
       await fail(e);
     }
   }
+  // ---- App Store の ひょうか の おねがい（ほごしゃ の がめん の なか だけ）----
+  // だす か どうか は iOS が きめる（1ねん に 3かい まで・でない こと も ある）。まえ や あと に「レビュー を かいてね」とは ださない。
+  // きいた こと は たんまつ だけ に おぼえる（keisan-renshu-access の rate。バックアップ には いれない）
+  const RATE_MIN_DAYS = 7;  // れんしゅう した ひ が この ひかず いじょう
+  const RATE_GAP_DAYS = 60; // まえ に きいて から この ひかず は きかない
+  const RATE_WAIT_MS = 1500; // おうちのかたへ を ひらいて から すこし まつ
+  let reviewGood = false;   // この 30にちかん の ふりかえり に のび が でて いる（renderReview が きめる）
+  let parentSince = 0;      // いま の おうちのかたへ を ひらいた とき（そと に でたら 0）
+  let appVersion = "";
+  if (isNativeApp && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+    window.Capacitor.Plugins.App.getInfo().then((i) => { appVersion = i.version || ""; }).catch(() => {});
+  }
+  // とうろく した こと を おぼえる（つぎ に おうちのかたへ を ひらいた とき に きく）
+  function noteSubscribed() {
+    const acc = loadAccess();
+    if (acc.rate && acc.rate.sub) return;
+    saveAccess({ ...acc, rate: { ...(acc.rate || {}), sub: Date.now() } });
+  }
+  function onParentOpen() {
+    const since = parentSince = Date.now();
+    setTimeout(() => { if (parentSince === since && $("parent").classList.contains("active")) maybeAskRating(); }, RATE_WAIT_MS);
+  }
+  function maybeAskRating() {
+    const st = storePlugin();
+    const a = accessState();
+    if (!st || a.dev || !appVersion || (a.state !== "trial" && a.state !== "subscribed")) return;
+    if (!$("dialog").hidden) return; // こうにゅう や エラー の しらせ を だして いる あいだ は きかない
+    const rate = loadAccess().rate || {};
+    if (rate.v === appVersion) return; // この バージョン では もう きいた
+    if (rate.at && Date.now() - rate.at < RATE_GAP_DAYS * DAY_MS) return;
+    records = loadRecords();
+    if (Object.values(records).filter((n) => Number(n) > 0).length < RATE_MIN_DAYS) return;
+    // とうろく して から、つぎ に ひらいた とき か、ふりかえり に のび が でて いる とき
+    const afterSub = a.state === "subscribed" && rate.sub && rate.sub < parentSince;
+    if (!afterSub && !reviewGood) return;
+    saveAccess({ ...loadAccess(), rate: { ...rate, v: appVersion, at: Date.now() } });
+    st.requestReview().catch(() => { /* でなくても よい */ });
+  }
+
   if (storePlugin()) {
     storePlugin().addListener("change", refreshEntitlement);
     // アプリ に もどって きた とき（App Store で かいやく した あと など）にも たしかめる
