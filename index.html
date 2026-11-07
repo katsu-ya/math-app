@@ -413,6 +413,11 @@
   .pv-card.point ul { font-weight: bold; }
   .pv-card .note, .pv-date { font-size: 14px; color: #666; }
   .pv-date { text-align: center; margin: 14px 0 0; }
+  #pvTitle .nb { display: inline-block; }
+  .pv-card dl { margin: 6px 0; }
+  .pv-card dt { font-weight: bold; margin-top: 10px; }
+  .pv-card dt:first-child { margin-top: 0; }
+  .pv-card dd { margin: 2px 0 0; }
   .rp-card {
     background: var(--card);
     border-radius: 24px;
@@ -1909,13 +1914,20 @@
       <button id="privacyOpen">▶ プライバシーポリシーを読む</button>
     </div>
 
+    <!-- とくてい しょうとりひき ほう に もとづく ひょうき（アプリ だけ。Web ばん には かいもの が ない ので ださない） -->
+    <div class="rp-card st-card" id="tokushohoCard" hidden>
+      <h3>特定商取引法に基づく表記</h3>
+      <p>販売事業者・価格・お支払い・解約・返金などについての表示です。</p>
+      <button id="tokushohoOpen">▶ 特定商取引法に基づく表記を読む</button>
+    </div>
+
     <p class="rp-foot" id="rpFoot"></p>
     <button class="big-btn home-btn" id="parentBack">もどる</button>
   </section>
 
-  <!-- プライバシーポリシー（legal/privacy.html の ほんぶん を アプリ の なか で よむ。リンク には しない） -->
+  <!-- プライバシーポリシー と とくてい しょうとりひき ほう に もとづく ひょうき（legal/ の ほんぶん を アプリ の なか で よむ。リンク には しない） -->
   <section id="privacy" class="screen">
-    <h1>プライバシーポリシー<small>おうちのかたへ</small></h1>
+    <h1><span id="pvTitle">プライバシーポリシー</span><small>おうちのかたへ</small></h1>
     <div id="pvBody"><div class="rp-card"><p>読みこんでいます…</p></div></div>
     <button class="big-btn home-btn" id="privacyBack">もどる</button>
   </section>
@@ -4792,12 +4804,27 @@
   // ---- プライバシーポリシー ----
   // ほんぶん は legal/privacy.html だけ に かく（tools/publish-legal.sh で こうかい する もの と おなじ）。
   // そと へ でる ところ を つくらない ため、リンク は もじ だけ に する
-  let privacyLoaded = false;
+  // よむ ぶんしょ：privacy（プライバシーポリシー）か tokushoho（とくてい しょうとりひき ほう に もとづく ひょうき）
+  const LEGAL_DOCS = {
+    privacy: { title: "プライバシーポリシー", file: "privacy.html" },
+    tokushoho: { title: "特定商取引法に基づく表記", head: '<span class="nb">特定商取引法に</span><span class="nb">基づく表記</span>', file: "tokushoho.html" },
+  };
+  let legalDoc = "privacy";
+  let legalLoaded = "";
+  function openLegal(name) {
+    legalDoc = name;
+    show("privacy");
+  }
   async function renderPrivacy() {
-    if (privacyLoaded) return;
+    const d = LEGAL_DOCS[legalDoc];
+    $("pvTitle").innerHTML = d.head || d.title; // せまい がめん で おりかえす とき は「〜に／基づく表記」で
+    if (legalLoaded === legalDoc) return;
     const box = $("pvBody");
+    box.innerHTML = '<div class="rp-card"><p>読みこんでいます…</p></div>';
+    legalLoaded = "";
+    const name = legalDoc;
     try {
-      const res = await fetch("legal/privacy.html");
+      const res = await fetch("legal/" + d.file);
       if (!res.ok) throw new Error(res.status);
       const doc = new DOMParser().parseFromString(await res.text(), "text/html");
       doc.querySelectorAll("a").forEach((a) => a.replaceWith(a.textContent));
@@ -4808,16 +4835,21 @@
         return `<div class="rp-card pv-card ${sec.classList.contains("point") ? "point" : ""}"><h3>${esc(title)}</h3>${sec.innerHTML}</div>`;
       });
       if (!cards.length) throw new Error("empty");
-      const foot = doc.querySelector("footer");
+      // ひづけ だけ（あと の ほか の ページ へ の リンク は いれない）
+      const foot = doc.querySelector("footer p");
+      if (name !== legalDoc) return; // よみこむ あいだ に ほか の ぶんしょ を ひらいた
       box.innerHTML = cards.join("") + (foot ? `<p class="pv-date">${esc(foot.textContent.trim())}</p>` : "");
-      privacyLoaded = true;
+      legalLoaded = name;
     } catch (e) {
+      if (name !== legalDoc) return;
       // パソコン で index.html を ちょくせつ ひらいた とき など
-      box.innerHTML = '<div class="rp-card"><p>プライバシーポリシーを読みこめませんでした。</p>' +
-        '<p>同じ内容は katsu-ya.github.io/keisan-renshu/privacy.html にあります。</p></div>';
+      box.innerHTML = `<div class="rp-card"><p>${d.title}を読みこめませんでした。</p>` +
+        `<p>同じ内容は katsu-ya.github.io/keisan-renshu/${d.file} にあります。</p></div>`;
     }
   }
-  $("privacyOpen").addEventListener("click", () => show("privacy"));
+  $("privacyOpen").addEventListener("click", () => openLegal("privacy"));
+  $("tokushohoCard").hidden = !isNativeApp;
+  $("tokushohoOpen").addEventListener("click", () => openLegal("tokushoho"));
   $("privacyBack").addEventListener("click", () => show("parent"));
   $("settingsBtn").addEventListener("click", () => show("settings"));
   $("settingsBack").addEventListener("click", () => { stopSpeech(); show("start"); });
@@ -5115,7 +5147,7 @@
       '<div class="plan-terms">' +
       `<p>登録すると${PRICE_TEXT}で、1か月ごとに自動で更新されます。更新日の24時間前までに解約しないと、次の月も更新されます。お支払いは Apple ID で行われます。</p>` +
       "<p>解約・登録の確認は、iPhone・iPad の「設定」→ 自分の名前 →「サブスクリプション」から、またはこの画面の「登録の確認・解約」からできます。</p>" +
-      '<p><button data-act="privacy">プライバシーポリシー</button><button data-act="terms">利用規約</button></p></div>';
+      '<p><button data-act="privacy">プライバシーポリシー</button><button data-act="terms">利用規約</button><button data-act="tokushoho">特定商取引法に基づく表記</button></p></div>';
     const restore = '<button data-act="restore">購入を復元</button>';
     let html = '<h3>ご利用のプラン</h3>';
     if (a.state === "before") {
@@ -5330,7 +5362,7 @@
     const btn = e.target.closest("button[data-act]");
     if (!btn) return;
     const act = btn.dataset.act;
-    if (act === "privacy") { show("privacy"); return; }
+    if (act === "privacy" || act === "tokushoho") { openLegal(act); return; }
     if (act === "terms") {
       // そと の ページ に でる まえ に たしかめる
       if (await askDialog("利用規約を開きます", { sub: "Apple の標準の利用規約（外部のページ）を Safari で開きます。", ok: "開く", cancel: "やめる" })) {

@@ -8,6 +8,7 @@ const FILES = [
   "./index.html",
   "./manifest.webmanifest",
   "./legal/privacy.html",     // おうちのかたへ の なか で よむ
+  "./legal/tokushoho.html",   // おうちのかたへ の なか で よむ（アプリ だけ）
   "./icons/icon.svg",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
